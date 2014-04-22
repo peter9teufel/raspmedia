@@ -1,0 +1,327 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"config",
+				"configtool"
+			],
+			[
+				"is",
+				"is_number"
+			],
+			[
+				"vi",
+				"video_playlist"
+			],
+			[
+				"of",
+				"of"
+			],
+			[
+				"print",
+				"print_r"
+			],
+			[
+				"check",
+				"checkPhone"
+			],
+			[
+				"get",
+				"getElementById"
+			],
+			[
+				"_defini",
+				"_definitions"
+			],
+			[
+				"protocl",
+				"protocol-conform"
+			],
+			[
+				"desc",
+				"description"
+			],
+			[
+				"protocol",
+				"protocol-conform"
+			],
+			[
+				"HTTP-requ",
+				"HTTP-requests"
+			],
+			[
+				"Syn",
+				"Sync-Request"
+			],
+			[
+				"imte",
+				"itemize"
+			],
+			[
+				"item",
+				"itemize"
+			],
+			[
+				"e",
+				"em"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 127.0,
+		"selected_items":
+		[
+			[
+				"latextools",
+				"LaTeXTools: Reconfigure and migrate settings"
+			],
+			[
+				"update",
+				"Package Control: Upgrade/Overwrite All Packages"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"latex",
+				"LaTeXTools: Reconfigure and migrate settings"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"toggle_focus",
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/test/temp.py",
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/test/medialooper.py",
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/test/omxplay.sh",
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/test/config/main.conf",
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/test/configtool.py",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/tcr-ios-repo/readme.txt",
+		"/Volumes/Macintosh HD/Users/9teufel/Downloads/trainingsplan-halbmarathon-unter-2-00-stunden.csv",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/Personal/9teufel/P9T_PD/finanzonline.doc",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/04_implementation.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Downloads/nakasig-kot49h/flash-all.sh",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/main.m",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/Total Control Remote-Prefix.pch",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/Total Control Remote-Info.plist",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Localizable.strings",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/Personal/TC05_2013/TotalControl/Projects/Demoprojekt Lokal2.prj",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_user_form.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_page_6.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_page_3.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_page_4.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_page_5.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_page_2.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_page_0.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/TCDemoFiles/custom_page_1.demo",
+		"/Volumes/Macintosh HD/Users/9teufel/Downloads/flyspray-0.9.9.7/includes/external/swift-mailer/preferences.php",
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/tcr.html",
+		"/Volumes/Macintosh HD/Users/9teufel/Downloads/vouchers.js",
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/voucherMail.php",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/Total Control Remote/Classes/ViewController/TCRConnectViewController.m",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/libs/ColorPickerView/ColorPickerView/Test.m",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/libs/ColorPickerView/ColorPickerView/Test.h",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/libs/Color-Picker-for-iOS-master/Sample/Hayashi311ColorPickerSample/SampleTopViewController.m",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/TotalControlRemote/iOS/libs/Color-Picker-for-iOS-master/Sample/Hayashi311ColorPickerSample/SampleTopViewController.h",
+		"/Volumes/Macintosh HD/Users/9teufel/Downloads/CocoaAsyncSocket-master/README.markdown",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/06_Conclusio.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/05_outlook.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/BA1_Neunteufel.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/02_state_of_the_art.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/03_value_based_rule_systems.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/01_introduction.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Desktop/UseCaseTemplate.tex",
+		"/Applications/XAMPP/xamppfiles/htdocs/weatherstation/rule_server_access.php",
+		"/Volumes/Macintosh HD/Users/9teufel/Library/Application Support/Sublime Text 3/Packages/LaTeXTools/LaTeXTools Preferences.sublime-settings",
+		"/Volumes/Macintosh HD/Users/9teufel/Library/Application Support/Sublime Text 3/Packages/User/Default (OSX).sublime-keymap",
+		"/Volumes/Macintosh HD/Users/9teufel/Library/Application Support/Sublime Text 3/Packages/User/LaTeXTools Preferences.sublime-settings",
+		"/Volumes/Macintosh HD/Users/9teufel/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Volumes/Macintosh HD/Users/9teufel/Library/Application Support/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/Volumes/Macintosh HD/Users/9teufel/Library/Application Support/Sublime Text 3/Packages/LaTeXTools/Default (OSX).sublime-keymap",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/00_preface.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/00_expose.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/chapters/00_abstract.tex",
+		"/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/LatexDocuments/BA1/BA1_Neunteufel_Latex/BA1_Neunteufel.sublime-project"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"itemize",
+			"table",
+			" \n",
+			"_",
+			"time precision",
+			"figure",
+			"\\"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"\\_"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"project": "raspberry-mediaplayer.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"06",
+				"chapters/06_Conclusio.tex"
+			],
+			[
+				"05",
+				"chapters/05_outlook.tex"
+			],
+			[
+				"02",
+				"chapters/02_state_of_the_art.tex"
+			],
+			[
+				"03",
+				"chapters/03_value_based_rule_systems.tex"
+			],
+			[
+				"01",
+				"chapters/01_introduction.tex"
+			],
+			[
+				"imple",
+				"chapters/04_implementation.tex"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 212.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

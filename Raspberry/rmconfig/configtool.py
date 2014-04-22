@@ -1,13 +1,9 @@
 #! /usr/bin/env python
 
-import os
-import re
-import subprocess
-import time
+import os, re, subprocess, time
 
 cwd = os.getcwd();
-configPath = cwd + '/config/';
-configFile = configPath + 'main.conf';
+configFile = cwd + '/main.conf';
 
 def is_number(s):
     try:
@@ -53,6 +49,7 @@ def readConfig(config):
 	return config;
 
 def configFileAvailable():
+	print "Checking config file path: " + configFile;
 	if os.path.isfile(configFile):
 		return True;
 	else:

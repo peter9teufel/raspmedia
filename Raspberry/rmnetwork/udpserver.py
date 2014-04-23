@@ -1,4 +1,6 @@
 import threading
+import socket
+import time
 import SocketServer
 import interpreter
 import constants
@@ -10,7 +12,7 @@ server_thread = None
 class MyUDPHandler(SocketServer.BaseRequestHandler):
     """
     This class works similar to the TCP handler class, except that
-    self.request consists of a pair of data and client socket, and since
+    self.request consists of a pair of data and client socket (cSocket), and since
     there is no connection the client address must be given explicitly
     when sending data back via sendto().
     """
@@ -18,23 +20,34 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         data = self.request[0].strip()
         inData = self.request[0].strip()
-        socket = self.request[1]
+        cSocket = self.request[1]
         curThread = threading.current_thread()
         result = interpreter.interpret(data)
 
         if result == constants.INTERPRET_SUCCESS_SERVER_REQUEST:
+            print "{} on {} wrote:".format(self.client_address[0], curThread.name)
             print "\nServer request received - sending response...\n"
             responseData = messages.getMessage(constants.SERVER_REQUEST)
-            socket.sendto(responseData, self.client_address)
+            addr = (self.client_address[0], constants.UDP_PORT)
+            #print "Response delay..."
+            #time.sleep(1)
+            print "Sending response to:"
+            print (self.client_address[0], 60007)
+            if cSocket.sendto(responseData + "\n", (self.client_address[0], 60007)):
+                print "Response sent!"
+            else:
+                print "Sending response failed!"
+            
         # DEBUG CODE to echo the received message
         # print "{} on {} wrote:".format(self.client_address[0], curThread.name)
         # print data
-        # socket.sendto(data.upper(), self.client_address)
+        # cSocket.sendto(data.upper(), self.client_address)
 
 def start():
     global server, server_thread
     if not server:
         server = SocketServer.UDPServer((constants.UDP_HOST, constants.UDP_PORT), MyUDPHandler)
+        
     
     print "Starting server..."
     # Start a thread with the server -- that thread will then start one

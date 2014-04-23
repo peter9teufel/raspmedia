@@ -3,7 +3,7 @@ from rmconfig import configtool
 
 def interpret(msg_data):
 
-	print "Interpreting incoming data: ", msg_data
+	print "Interpreting incoming data..."
 	
 	# initialize with error state
 	result = constants.INTERPRET_ERROR

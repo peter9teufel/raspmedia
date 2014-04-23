@@ -18,7 +18,7 @@ def reloadConfig():
 
 def startMediaPlayer():
 	# set config and path for player and start it
-	rmmedia.mediaplayer.init(mediaPath)
+	rmmedia.mediaplayer.config(mediaPath, config)
 	media_thread = threading.Thread(target=rmmedia.mediaplayer.play)
 	media_thread.daemon = True
 	media_thread.start()

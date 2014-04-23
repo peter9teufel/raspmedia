@@ -1,0 +1,15 @@
+# UDP config
+UDP_HOST = ""
+UDP_PORT = 60005
+UDP_BROADCAST_HOST = '<broadcast>'
+
+# predefined message flags
+CONFIG_UPDATE = 0x00
+PLAYER_START = 0x01
+PLAYER_STOP = 0x02
+SERVER_REQUEST = 0x03
+
+# msg interpreter result
+INTERPRET_SUCCESS = 0xf00
+INTERPRET_SUCCESS_SERVER_REQUEST = 0xf01
+INTERPRET_ERROR = 0xf02

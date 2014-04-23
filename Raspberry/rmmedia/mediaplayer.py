@@ -8,9 +8,10 @@ cwd = os.getcwd()
 mediaPath = ''
 config = configtool.config
 
-def init(curMediaPath):
-    global mediaPath
+def config(curMediaPath, curConfig):
+    global mediaPath, config
     mediaPath = curMediaPath
+    config = curConfig
 
 def isImage(filename):
     supportedExtensions = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')

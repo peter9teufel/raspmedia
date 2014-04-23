@@ -1,9 +1,9 @@
 import threading
 import SocketServer
 import interpreter
+import constants
+import messages
 
-UDP_HOST = ""
-UDP_PORT = 60005
 server = None
 server_thread = None
 
@@ -17,9 +17,15 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         data = self.request[0].strip()
+        inData = self.request[0].strip()
         socket = self.request[1]
         curThread = threading.current_thread()
-        interpreter.interpret(data)
+        result = interpreter.interpret(data)
+
+        if result == constants.INTERPRET_SUCCESS_SERVER_REQUEST:
+            print "\nServer request received - sending response...\n"
+            responseData = messages.getMessage(constants.SERVER_REQUEST)
+            socket.sendto(responseData, self.client_address)
         # DEBUG CODE to echo the received message
         # print "{} on {} wrote:".format(self.client_address[0], curThread.name)
         # print data
@@ -28,7 +34,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
 def start():
     global server, server_thread
     if not server:
-        server = SocketServer.UDPServer((UDP_HOST, UDP_PORT), MyUDPHandler)
+        server = SocketServer.UDPServer((constants.UDP_HOST, constants.UDP_PORT), MyUDPHandler)
     
     print "Starting server..."
     # Start a thread with the server -- that thread will then start one

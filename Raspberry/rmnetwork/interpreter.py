@@ -1,33 +1,47 @@
-import struct
+import constants
 from rmconfig import configtool
 
-# predefined message flags
-CONFIG_UPDATE = 0x00
-PLAYER_START = 0x01
-PLAYER_STOP = 0x02
-
 def interpret(msg_data):
+
 	print "Interpreting incoming data: ", msg_data
+	
+	# initialize with error state
+	result = constants.INTERPRET_ERROR
+
 	data = bytearray(msg_data)
 	size, data = readInt(data)
 	print "Size: " + str(size)
 	
 	flag, data = readShort(data)
 	print "Flag: " + str(flag)
-	if flag == CONFIG_UPDATE:
-		readConfigUpdate(data)
+	if flag == constants.CONFIG_UPDATE:
+		data = readConfigUpdate(data)
+		result = constants.INTERPRET_SUCCESS
+	elif flag == constants.SERVER_REQUEST:
+		result = constants.INTERPRET_SUCCESS_SERVER_REQUEST
 
 	print "Remaining data: " + data.decode("utf-8")
-	#print "Interpreting incoming data: ", struct.unpack("I", msg_data)[0]
-	#print "Byte data: "
-	#print struct.unpack("4b", msg_data)
+
+	return result
 
 def readConfigUpdate(data):
 	print "Current config: ", configtool.config
 	print "Processing config update message..."
 	key, data = readString(data)
-	value, data = readString(data)
-	print "New Key/Value Pair: " + key + " - " + value
+	value, data = readConfigValue(data, key)
+	print "New Key/Value Pair:"
+	print "KEY: ", key
+	print "VALUE: ", value
+	return data
+
+def readConfigValue(data, key):
+	if key == 'image_interval' or key == 'image_enabled' or key == 'video_enabled' or key == 'shuffle' or key == 'repeat':
+		# integer config value
+		value, data = readInt(data)
+	else:
+		# string config value
+		value, data = readString(data)
+	return value, data
 
 def readInt(data):
 	intBytes = data[:4]

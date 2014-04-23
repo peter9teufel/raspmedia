@@ -3,8 +3,9 @@ import socket
 import time
 import SocketServer
 import interpreter
-import constants
 import messages
+
+from constants import *
 
 server = None
 server_thread = None
@@ -24,11 +25,11 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         curThread = threading.current_thread()
         result = interpreter.interpret(data)
 
-        if result == constants.INTERPRET_SUCCESS_SERVER_REQUEST:
+        if result == INTERPRETER_SERVER_REQUEST:
             print "{} on {} wrote:".format(self.client_address[0], curThread.name)
             print "\nServer request received - sending response...\n"
-            responseData = messages.getMessage(constants.SERVER_REQUEST)
-            addr = (self.client_address[0], constants.UDP_PORT)
+            responseData = messages.getMessage(SERVER_REQUEST)
+            addr = (self.client_address[0], UDP_PORT)
             #print "Response delay..."
             #time.sleep(1)
             print "Sending response to:"
@@ -37,6 +38,17 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                 print "Response sent!"
             else:
                 print "Sending response failed!"
+        elif result == INTERPRETER_FILELIST_REQUEST:
+            from rmmedia import mediaplayer
+            files = mediaplayer.getMediaFileList()
+            print files
+            args = ['-i', '4']
+            for file in files:
+                args.append('-s')
+                args.append(file)
+            responseData = messages.getMessage(FILELIST_RESPONSE,args)
+            if cSocket.sendto(responseData, (self.client_address[0], 60007)):
+                print "Filelist sent!"
             
         # DEBUG CODE to echo the received message
         # print "{} on {} wrote:".format(self.client_address[0], curThread.name)
@@ -46,9 +58,8 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
 def start():
     global server, server_thread
     if not server:
-        server = SocketServer.UDPServer((constants.UDP_HOST, constants.UDP_PORT), MyUDPHandler)
+        server = SocketServer.UDPServer((UDP_HOST, UDP_PORT), MyUDPHandler)
         
-    
     print "Starting server..."
     # Start a thread with the server -- that thread will then start one
     # more thread for each request

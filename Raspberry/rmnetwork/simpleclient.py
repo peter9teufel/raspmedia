@@ -44,8 +44,16 @@ def main():
 		sock.close()
 
 	#udpbroadcastlistener.startListening()
-	while True:
-	 	flag = 0
+	time.sleep(5)
+	cleanExit()
+
+def cleanExit():
+	if sock:
+		print "Closing socket before quitting..."
+		if sock:
+			sock.close()
+	udpbroadcastlistener.stopListening()
+	print "Done! Bye bye..."
 
 
 if __name__ == '__main__':
@@ -53,9 +61,4 @@ if __name__ == '__main__':
 		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		main()
 	except KeyboardInterrupt:
-		if sock:
-			print "Closing socket before quitting..."
-			if sock:
-				sock.close()
-			udpbroadcastlistener.stopListening()
-			print "Done! Bye bye..."
+		cleanExit()

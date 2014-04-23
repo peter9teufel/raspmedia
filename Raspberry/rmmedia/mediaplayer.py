@@ -8,6 +8,13 @@ cwd = os.getcwd()
 mediaPath = ''
 config = configtool.config
 
+def getMediaFileList():
+    files = []
+    for file in os.listdir(mediaPath):
+        if isImage(file) or isVideo(file):
+            files.append(file)
+    return files
+
 def config(curMediaPath, curConfig):
     global mediaPath, config
     mediaPath = curMediaPath

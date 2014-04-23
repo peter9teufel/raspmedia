@@ -1,4 +1,4 @@
-import constants
+from constants import *
 from rmconfig import configtool
 
 def interpret(msg_data):
@@ -6,7 +6,7 @@ def interpret(msg_data):
 	print "Interpreting incoming data..."
 	
 	# initialize with error state
-	result = constants.INTERPRET_ERROR
+	result = INTERPRETER_ERROR
 
 	data = bytearray(msg_data)
 	size, data = readInt(data)
@@ -14,15 +14,30 @@ def interpret(msg_data):
 	
 	flag, data = readShort(data)
 	print "Flag: " + str(flag)
-	if flag == constants.CONFIG_UPDATE:
+	if flag == CONFIG_UPDATE:
 		data = readConfigUpdate(data)
-		result = constants.INTERPRET_SUCCESS
-	elif flag == constants.SERVER_REQUEST:
-		result = constants.INTERPRET_SUCCESS_SERVER_REQUEST
+		result = INTERPRETER_SUCCESS
+	elif flag == SERVER_REQUEST:
+		data = None
+		result = INTERPRETER_SERVER_REQUEST
+	elif flag == FILELIST_REQUEST:
+		result = INTERPRETER_FILELIST_REQUEST
+	elif flag == FILELIST_RESPONSE:
+		readFileList(data)
+		result = INTERPRETER_FILELIST_REQUEST
 
 	print "Remaining data: " + data.decode("utf-8")
 
 	return result
+
+def readFileList(data):
+	numFiles, data = readInt(data)
+	files = []
+	for i in range(numFiles):
+		file, data = readString(data)
+		if file:
+			files.append(file)
+	print "FILE LIST READ: ", files
 
 def readConfigUpdate(data):
 	print "Current config: ", configtool.config

@@ -38,7 +38,8 @@ def getMessage(flag, args=None):
 	# append all arguments given as cmd args to usgData
 	usgData = bytearray()
 	if args:
-		for i in range(1,len(args)):
+		print args
+		for i in range(0,len(args)):
 			arg = args[i]
 			print "Current arg: ", arg
 			if arg.startswith('-'):

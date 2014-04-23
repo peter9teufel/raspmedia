@@ -1,5 +1,7 @@
 import socket, select
-import interpreter, constants
+import interpreter
+
+from constants import *
 
 def stopListening():
 	print "Stopping UDP Broadcast Listening routine..."
@@ -19,19 +21,18 @@ def startListening():
 		
 	wait = True
 
-	while wait:
-		print "INSIDE BROADCASTLISTENER:"
-		print "Waiting for incoming data..."
-		
+	print "INSIDE BROADCASTLISTENER:"
+	print "Waiting for incoming data..."
+	while wait:	
 		#result = select.select([sock],[],[])
 		#print "Result from select - processing..."
 		#rec, address = result[0][0].recvfrom(1024)
-		
 		rec, address = sock.recvfrom(1024)
-		if interpreter.interpret(rec) == constants.INTERPRET_SUCCESS_SERVER_REQUEST:
+		if interpreter.interpret(rec) == INTERPRETER_SERVER_REQUEST:
 			print "Server request response - length: ", len(rec)
 			print "Server address: ", str(address)
-
-
+			print ""
+		elif interpreter.interpret(rec) == INTERPRETER_FILELIST_REQUEST:
+			print "File list received!"
 sock = None
 wait = True

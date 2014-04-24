@@ -3,6 +3,9 @@
 # libraries
 import os, sys, subprocess, time, threading
 
+# hide console text of local tty0 on hdmi
+os.system('sudo setterm -foreground black -clear >/dev/tty1')
+
 # own modules and packages
 from packages import rmconfig, rmmedia, rmutil, rmnetwork
 from packages.rmnetwork import udpserver
@@ -63,6 +66,9 @@ while running:
     else:
     	print "Unknown command: ", cmd
 
+# bring back console text on tty0 on hdmi
+os.system('sudo setterm -foreground white -clear >/dev/tty1')
 udpserver.stop()
+rmutil.processtool.killProcesses('fbi')
 # startup image
 # subprocess.call(["sudo","fbi","--once","-a","-noverbose","-T","2", "./raspmedia.jpg"])

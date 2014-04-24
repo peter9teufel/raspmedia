@@ -21,10 +21,12 @@ def interpret(msg_data):
 		result = INTERPRETER_SUCCESS
 	elif flag == PLAYER_START:
 		print 'UDP COMMAND Mediaplayer start...'
+		mediaplayer.playerState = PLAYER_STARTED
 		mediaplayer.play()
 		result = INTERPRETER_SUCCESS
 	elif flag == PLAYER_STOP:
 		print 'UDP COMMAND Mediaplayer stop...'
+		mediaplayer.playerState = PLAYER_STOPPED
 		mediaplayer.stop()
 		result = INTERPRETER_SUCCESS
 	elif flag == SERVER_REQUEST:

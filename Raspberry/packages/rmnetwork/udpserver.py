@@ -1,9 +1,6 @@
-import threading
-import socket
-import time
+import threading, time
 import SocketServer
-import interpreter
-import messages
+import interpreter, messages
 
 from constants import *
 

@@ -1,7 +1,6 @@
 import sys, threading, time
 import socket, select
-import messages
-import udpbroadcastlistener
+import messages, udpbroadcastlistener
 
 def main():
 	global sock
@@ -44,7 +43,7 @@ def main():
 		sock.close()
 
 	#udpbroadcastlistener.startListening()
-	time.sleep(5)
+	time.sleep(2)
 	cleanExit()
 
 def cleanExit():

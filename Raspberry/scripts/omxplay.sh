@@ -1,8 +1,9 @@
 #!/bin/sh
+# clean up command input
+sudo rm /tmp/cmd
+# create new command input file
+sudo touch /tmp/cmd
 
-###play the requested file taking commands from /tmp/omxcmd
-### remove >/dev/null to see stdout from omxplayer
-# echo $CC $SS $FF
-sudo omxplayer -o hdmi -r $1
+sudo omxplayer -o hdmi -r $1 < /tmp/cmd
 # echo child terminated
 exit

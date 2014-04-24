@@ -4,8 +4,8 @@
 import os, sys, subprocess, time, threading
 
 # own modules and packages
-import rmconfig, rmmedia, rmutil, rmnetwork
-from rmnetwork import udpserver
+from packages import rmconfig, rmmedia, rmutil, rmnetwork
+from packages.rmnetwork import udpserver
 
 def shellquote(s):
     return "'" +  s.replace("'", "'\\''") + "'"
@@ -18,11 +18,8 @@ def reloadConfig():
 
 def startMediaPlayer():
 	# set config and path for player and start it
-	rmmedia.mediaplayer.config(mediaPath, config)
-	media_thread = threading.Thread(target=rmmedia.mediaplayer.play)
-	media_thread.daemon = True
-	media_thread.start()
-	print "Mediaplayer running in thread: ", media_thread.name
+	rmmedia.mediaplayer.setMediaPath(mediaPath)
+	rmmedia.mediaplayer.play()
 
 def startUdpServer():
 	udpserver.start()

@@ -20,6 +20,8 @@ def initConfig():
 	config["image_interval"] = 4
 	config["video_enabled"] = 1
 	config["image_enabled"] = 1
+	config["autoplay"] = 1
+	config["group_filetypes"] = 1
 	config["shuffle"] = 0
 	config["repeat"] = 1
 	config["userPlaylist"] = ""
@@ -46,7 +48,7 @@ def readConfig():
 				if len(params) == 2:
 					key = params[0]
 					value = params[1]
-					print "KEY: " + key + " - VALUE: " + value
+					# print "KEY: " + key + " - VALUE: " + value
 					setConfigValue(key, value)
 	else:
 		print "No config file found!"

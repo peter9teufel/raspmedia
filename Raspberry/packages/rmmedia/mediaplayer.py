@@ -11,18 +11,25 @@ cwd = os.getcwd()
 class MediaPlayer(threading.Thread):
     def __init__(self):
         global playerState
-        self._stopevent = threading.Event()
+        self.runevent = threading.Event()
         playerState = PLAYER_STOPPED
-        print "INIT PLAYER STATE SET DONE!"
         threading.Thread.__init__(self, name="MediaPlayer_Thread")
 
     def run(self):
         global playerState
         print ":::::MEDIAPLAYER THREAD RUN METHOD STARTED:::::"
+        self.reloadConfig()
+        
+        # show player startup image for 3 seconds (+ loading time)
+        self.showRaspMediaImage()
+        time.sleep(5)
+
+        # enter media player thread loop
         while True:
             # wait until the player flag is set to STARTED
-            while playerState == PLAYER_STOPPED:
-                time.sleep(0.5)
+            #while playerState == PLAYER_STOPPED:
+            #    time.sleep(0.5)
+            self.runevent.wait()
             # remove raspmedia image process
             processtool.killProcesses('fbi')
 
@@ -43,7 +50,9 @@ class MediaPlayer(threading.Thread):
 
     def processImagesOnce(self):
         global playerState
-        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-t", str(self.config['image_interval']), "-blend", "400", "-T","2"]
+        imgInterval = str(self.config['image_interval'])
+        blendInterval = str(self.config['image_blend_interval'])
+        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-t", imgInterval, "-blend", blendInterval, "-T","2"]
         numImg = 0
         files = os.listdir(self.mediaPath)
         files.sort()
@@ -58,14 +67,22 @@ class MediaPlayer(threading.Thread):
         subprocess.call(imgCmdList)
 
         i = 0
-        while i < numImg and  playerState == PLAYER_STARTED:
-            duration = (self.config['image_interval'] + 2)
-            time.sleep(duration)
+        wakes = 0
+        duration = numImg * (self.config['image_interval'] + 2)
+        while i < duration and  playerState == PLAYER_STARTED:
+            time.sleep(1)
             i += 1
+            wakes += 1
+            if wakes > 10:
+                # check config every 10 seconds
+                self.reloadConfig()
+                wakes = 0
 
     def fbiImageLoop(self):
         global playerState
-        imgCmdList = ["sudo","fbi","-noverbose", "-t", str(self.config['image_interval']), "-blend", "400", "-T","2"]
+        imgInterval = str(self.config['image_interval'])
+        blendInterval = str(self.config['image_blend_interval'])
+        imgCmdList = ["sudo","fbi","-noverbose", "-t", imgInterval, "-blend", blendInterval, "-T","2"]
         numImg = 0
         for file in os.listdir(self.mediaPath):
             # check file extension
@@ -76,13 +93,15 @@ class MediaPlayer(threading.Thread):
         print "Image command to call:"
         print imgCmdList
         subprocess.call(imgCmdList)
+        wakes = 0
         # wait in loop as fbi command does not block and check for config changes
         while self.config['repeat'] and playerState == PLAYER_STARTED:
-            # estimate duration of one loop of all images
-            duration = numImg * (self.config['image_interval'] + 2) + 1
-            time.sleep(duration)
-            # check for config changes after approximately each loop
-            self.reloadConfig()
+            time.sleep(1)
+            wakes += 1
+            if wakes > 10:
+                # check for config changes every 10 seconds
+                self.reloadConfig()
+                wakes = 0
 
 
     def processImagesOnly(self):
@@ -199,13 +218,16 @@ def isVideo(filename):
 def play():
     global playerState
     playerState = PLAYER_STARTED
+    global mp_thread
+    mp_thread.runevent.set()
     #global mp_thread
     #mp_thread.playerState = PLAYER_STARTED
     print "Mediaplayer running in thread: ", mp_thread.name
 
 
 def stop():
-    global mp_thread, lock
+    global mp_thread
+    mp_thread.runevent.clear()
     # check for fbi and omxplayer processes and terminate them
     processtool.killProcesses('fbi')
     # stop omx player instance if running

@@ -31,7 +31,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             #time.sleep(1)
             print "Sending response to:"
             print (self.client_address[0], 60007)
-            if cSocket.sendto(responseData + "\n", (self.client_address[0], 60007)):
+            if cSocket.sendto(responseData, (self.client_address[0], 60007)):
                 print "Response sent!"
             else:
                 print "Sending response failed!"

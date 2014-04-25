@@ -1,10 +1,9 @@
 import threading
 from constants import *
 from packages.rmconfig import configtool
-from packages.rmmedia import mediaplayer
+
 
 def interpret(msg_data):
-
 	print "Interpreting incoming data..."
 	
 	# initialize with error state
@@ -20,11 +19,13 @@ def interpret(msg_data):
 		data = readConfigUpdate(data)
 		result = INTERPRETER_SUCCESS
 	elif flag == PLAYER_START:
+		from packages.rmmedia import mediaplayer
 		print 'UDP COMMAND Mediaplayer start...'
 		mediaplayer.playerState = PLAYER_STARTED
 		mediaplayer.play()
 		result = INTERPRETER_SUCCESS
 	elif flag == PLAYER_STOP:
+		from packages.rmmedia import mediaplayer
 		print 'UDP COMMAND Mediaplayer stop...'
 		mediaplayer.playerState = PLAYER_STOPPED
 		mediaplayer.stop()

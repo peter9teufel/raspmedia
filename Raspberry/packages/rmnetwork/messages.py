@@ -36,7 +36,7 @@ def appendArg(data, type, arg):
 
 def getMessage(flag, args=None):
 	# append all arguments given as cmd args to usgData
-	usgData = bytearray()
+	usgData = None
 	if args:
 		print args
 		for i in range(0,len(args)):
@@ -48,12 +48,15 @@ def getMessage(flag, args=None):
 
 	# combine msg size and usgData in final message to send in data
 	data = bytearray()
-	size = len(usgData) + 6
-	print "Message size: ", size
+	size = 6
+	if usgData:
+		size += len(usgData)
 	appendInt(data, size)
 	appendShort(data, flag)
-	appendBytes(data, usgData)
+	if usgData:
+		appendBytes(data, usgData)
 
+	print "Message size: ", size
 	return data
 
 

@@ -18,6 +18,7 @@ def initConfig():
 	config = {}
 	config["userMediaPath"] = ""
 	config["image_interval"] = 4
+	config["image_blend_interval"] = 300
 	config["video_enabled"] = 1
 	config["image_enabled"] = 1
 	config["autoplay"] = 1

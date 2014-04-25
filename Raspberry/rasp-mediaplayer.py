@@ -22,7 +22,8 @@ def reloadConfig():
 def startMediaPlayer():
 	# set config and path for player and start it
 	rmmedia.mediaplayer.setMediaPath(mediaPath)
-	rmmedia.mediaplayer.play()
+	if config['autoplay']:
+		rmmedia.mediaplayer.play()
 
 def startUdpServer():
 	udpserver.start()

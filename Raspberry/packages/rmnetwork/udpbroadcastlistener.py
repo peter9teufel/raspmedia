@@ -30,6 +30,7 @@ def startListening():
 		rec, address = sock.recvfrom(1024)
 		if interpreter.interpret(rec) == INTERPRETER_SERVER_REQUEST:
 			print "Server request response - length: ", len(rec)
+			print ":".join("{:02x}".format(ord(c)) for c in rec)
 			print "Server address: ", str(address)
 			print ""
 		elif interpreter.interpret(rec) == INTERPRETER_FILELIST_REQUEST:

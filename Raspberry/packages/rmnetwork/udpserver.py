@@ -39,7 +39,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             from packages.rmmedia import mediaplayer
             files = mediaplayer.getMediaFileList()
             print files
-            args = ['-i', '4']
+            args = ['-i', str(len(files))]
             for file in files:
                 args.append('-s')
                 args.append(file)

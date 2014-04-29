@@ -7,6 +7,7 @@ from constants import *
 
 playerState = PLAYER_STOPPED
 cwd = os.getcwd()
+mediaPath = cwd + '/media'
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
@@ -43,7 +44,7 @@ class MediaPlayer(threading.Thread):
 
     def showRaspMediaImage(self):
         global cwd
-        cmdList = ['sudo','fbi','-noverbose','-T','2', cwd + '/raspmedia.jpg']
+        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspmedia.jpg']
         subprocess.call(cmdList)
 
     def setMediaPath(self, mediaPath):
@@ -53,7 +54,7 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'])
-        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-t", imgInterval, "-blend", blendInterval, "-T","2"]
+        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         numImg = 0
         files = os.listdir(self.mediaPath)
         files.sort()
@@ -83,7 +84,7 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'])
-        imgCmdList = ["sudo","fbi","-noverbose", "-t", imgInterval, "-blend", blendInterval, "-T","2"]
+        imgCmdList = ["sudo","fbi","-noverbose", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         numImg = 0
         for file in os.listdir(self.mediaPath):
             # check file extension

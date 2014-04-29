@@ -11,6 +11,7 @@ cwd = os.getcwd()
 class MediaPlayer(threading.Thread):
     def __init__(self):
         global playerState
+        self.mediaPath = os.getcwd() + '/media'
         self.runevent = threading.Event()
         playerState = PLAYER_STOPPED
         threading.Thread.__init__(self, name="MediaPlayer_Thread")
@@ -244,4 +245,4 @@ def main():
     # media file processing in separate thread --> started here and controlled via flag
     mp_thread.start()
 
-main()
+#main()

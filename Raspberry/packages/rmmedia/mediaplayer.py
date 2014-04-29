@@ -248,7 +248,7 @@ def stop():
 def main():
     global cwd, mp_thread
     print "PLAYER CWD: " + cwd
-    if not mp_thread_
+    if not mp_thread:
         mp_thread = MediaPlayer()
         mp_thread.daemon = True
 

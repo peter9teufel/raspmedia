@@ -7,13 +7,13 @@ from constants import *
 
 playerState = PLAYER_STOPPED
 cwd = os.getcwd()
-mediaPath = cwd + '/media'
+mediaPath = cwd + '/media/'
 mp_thread = None
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
         global playerState
-        self.mediaPath = os.getcwd() + '/media'
+        self.mediaPath = os.getcwd() + '/media/'
         self.runevent = threading.Event()
         playerState = PLAYER_STOPPED
         threading.Thread.__init__(self, name="MediaPlayer_Thread")
@@ -236,6 +236,8 @@ def play():
 
 def stop():
     global mp_thread
+    global playerState
+    playerState = PLAYER_STOPPED
     mp_thread.runevent.clear()
     # check for fbi and omxplayer processes and terminate them
     processtool.killProcesses('fbi')

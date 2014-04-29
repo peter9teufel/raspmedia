@@ -60,6 +60,7 @@ def readConfigUpdate(data):
 	print "New Key/Value Pair:"
 	print "KEY: ", key
 	print "VALUE: ", value
+	configtool.setConfigValue(key, value)
 	return data
 
 def readConfigValue(data, key):

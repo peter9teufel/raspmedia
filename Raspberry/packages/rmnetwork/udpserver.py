@@ -36,7 +36,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             else:
                 print "Sending response failed!"
         elif result == INTERPRETER_FILELIST_REQUEST:
-            from rmmedia import mediaplayer
+            from packages.rmmedia import mediaplayer
             files = mediaplayer.getMediaFileList()
             print files
             args = ['-i', '4']

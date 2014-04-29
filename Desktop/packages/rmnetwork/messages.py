@@ -36,7 +36,7 @@ def appendArg(data, type, arg):
 
 def getMessage(flag, args=None):
 	# append all arguments given as cmd args to usgData
-	usgData = bytearray()
+	usgData = None
 	if args:
 		print args
 		for i in range(0,len(args)):

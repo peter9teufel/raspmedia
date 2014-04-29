@@ -197,6 +197,7 @@ class MediaPlayer(threading.Thread):
 
 
 def getMediaFileList():
+    global mediaPath
     files = []
     for file in os.listdir(mediaPath):
         if isImage(file) or isVideo(file):
@@ -204,7 +205,8 @@ def getMediaFileList():
     return files
 
 def setMediaPath(curMediaPath):
-    global mp_thread
+    global mp_thread, mediaPath
+    mediaPath = curMediaPath
     mp_thread.mediaPath = curMediaPath
 
 def isImage(filename):

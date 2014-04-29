@@ -223,6 +223,10 @@ def play():
     global playerState
     playerState = PLAYER_STARTED
     global mp_thread
+    
+    # media file processing in separate thread
+    if not mp_thread.isAlive():
+        mp_thread.start()
     mp_thread.runevent.set()
     #global mp_thread
     #mp_thread.playerState = PLAYER_STARTED
@@ -243,7 +247,5 @@ def main():
     print "PLAYER CWD: " + cwd
     mp_thread = MediaPlayer()
     mp_thread.daemon = True
-    # media file processing in separate thread --> started here and controlled via flag
-    mp_thread.start()
 
-#main()
+main()

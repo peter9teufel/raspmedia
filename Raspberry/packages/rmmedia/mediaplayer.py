@@ -8,6 +8,7 @@ from constants import *
 playerState = PLAYER_STOPPED
 cwd = os.getcwd()
 mediaPath = cwd + '/media'
+mp_thread = None
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
@@ -245,7 +246,8 @@ def stop():
 def main():
     global cwd, mp_thread
     print "PLAYER CWD: " + cwd
-    mp_thread = MediaPlayer()
-    mp_thread.daemon = True
+    if not mp_thread_
+        mp_thread = MediaPlayer()
+        mp_thread.daemon = True
 
 main()

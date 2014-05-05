@@ -4,6 +4,6 @@ sudo rm /tmp/cmd
 # create new command input file
 sudo touch /tmp/cmd
 
-sudo mplayer -fs -zoom $1 < /tmp/cmd
+sudo mplayer -fs -zoom "$@" < /tmp/cmd
 # echo child terminated
 exit

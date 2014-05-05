@@ -136,10 +136,14 @@ class MediaPlayer(threading.Thread):
         # process video file -> omxplay will block until its done
         print "Status PLAYER_STARTED: ", playerState == PLAYER_STARTED
         if playerState == PLAYER_STARTED:
+            # file = re.escape(file)
             print "Starting video file " + file
             # check if raspberry pi or ubuntu testing machine
+            fullPath = self.mediaPath + file
+            print "Full Path:"
+            print fullPath
             if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
-                subprocess.call([cwd + '/scripts/mplayerstart.sh', self.mediaPath + file])
+                subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
             else:
                 subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
 

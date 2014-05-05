@@ -241,10 +241,13 @@ class RaspMediaCtrlFrame(wx.Frame):
 		msg = "Delete the file '" + fileName + "' from the player (will stop and restart player)? This can not be undone!"
 		dlg = wx.MessageDialog(self, msg, "Delete file from player?", wx.YES_NO | wx.ICON_EXCLAMATION)
 		if dlg.ShowModal() == wx.ID_YES:
-			print "SENDING DELETE COMMAND!"
+			dlgStyle =  wx.PD_AUTO_HIDE
+			self.prgDialog = wx.ProgressDialog("Deleting file...", "Deleting file from player...", maximum = 1, parent = self, style = dlgStyle)
+			self.prgDialog.Pulse()
 			msgData = network.messages.getMessage(DELETE_FILE, ["-s", str(fileName)])
 			network.udpconnector.sendMessage(msgData, self.host)
-			time.sleep(0.5)
+			time.sleep(3)
+			self.prgDialog.Update(1, "Done!")
 			self.LoadRemoteFileList(None)
 		dlg.Destroy()
 

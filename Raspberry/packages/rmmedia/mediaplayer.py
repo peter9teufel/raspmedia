@@ -218,12 +218,23 @@ def setMediaPath(curMediaPath):
 
 def deleteFile(fileName):
     global mediaPath
+    global playerState
+    restart = False
+    if playerState == PLAYER_STARTED:
+        stop()
+        restart = True
+        time.sleep(1)
+
     path = mediaPath
     if not path.endswith('/'):
         path += "/"
     fullPath = path + fileName
     if os.path.isfile(fullPath):
         os.remove(fullPath)
+
+    if restart:
+        play()
+        time.sleep(1)
 
 def isImage(filename):
     supportedExtensions = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')

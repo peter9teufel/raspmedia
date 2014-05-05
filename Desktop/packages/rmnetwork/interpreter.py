@@ -23,10 +23,18 @@ def interpret(msg_data):
 	elif flag == FILELIST_RESPONSE:
 		returnData = readFileList(data)
 		result = INTERPRETER_FILELIST_REQUEST
+	elif flag == CONFIG_REQUEST:
+		result = CONFIG_REQUEST
+		returnData = readConfigData(data)
 
 	#print "Remaining data: " + data.decode("utf-8")
 
 	return result, returnData
+
+def readConfigData(data):
+	size, data = readInt(data)
+	config, data = readString(data)
+	return config
 
 def readFileList(data):
 	numFiles, data = readInt(data)

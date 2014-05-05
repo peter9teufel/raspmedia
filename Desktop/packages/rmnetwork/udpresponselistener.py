@@ -49,6 +49,9 @@ def startListening():
 			for observer in observers:
 				if observer[0] == OBS_FILE_LIST:
 					observer[1](address, response)
+		elif result == CONFIG_REQUEST:
+			print "Config data received:"
+			print response
 
 def registerObserver(observer):
 	global observers

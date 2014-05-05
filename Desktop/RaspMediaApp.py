@@ -39,6 +39,7 @@ class ConnectFrame(wx.Frame):
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.HostListDoubleClicked, self.hostList)
 
 		self.SetSizerAndFit(self.mainSizer)
+		self.Center()
 		self.Show(True)
 
 	def HostFound(self, host):
@@ -50,6 +51,8 @@ class ConnectFrame(wx.Frame):
 		self.hostList.SetStringItem(idx, 1, port)
 
 	def searchHosts(self):
+		# clear host list
+		self.hostList.DeleteAllItems()
 		network.udpresponselistener.registerObserver([OBS_HOST_SEARCH, self.HostFound])
 		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
 		msgData = network.messages.getMessage(SERVER_REQUEST)
@@ -68,12 +71,16 @@ class ConnectFrame(wx.Frame):
 		self.mediaCtrlFrame = RaspMediaCtrlFrame(self.parent,-1,'RaspMedia Control')
 		self.mediaCtrlFrame.setHost(event.GetText())
 		self.mediaCtrlFrame.Bind(wx.EVT_CLOSE, self.ChildFrameClosed)
+		self.mediaCtrlFrame.Center()
 		self.mediaCtrlFrame.Show(True)
+		self.mediaCtrlFrame.LoadRemoteConfig(None)
 		self.mediaCtrlFrame.LoadRemoteFileList(None)
 
 	def ChildFrameClosed(self, event):
 		self.mediaCtrlFrame.Destroy()
+		self.Center()
 		self.Show(True)
+		self.searchHosts()
 		pass
 
 
@@ -87,7 +94,14 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.playerSizer = wx.GridBagSizer()
 		self.filesSizer = wx.GridBagSizer()
 		self.prgDialog = None
+		self.initConfigIDs()
 		self.initialize()
+
+	def initConfigIDs(self):
+		self.imgChkID = wx.NewId()
+		self.vidChkID = wx.NewId()
+		self.autoplayID = wx.NewId()
+		self.repeatID = wx.NewId()
 
 	def setHost(self, hostAddress):
 		self.host = hostAddress
@@ -110,7 +124,8 @@ class RaspMediaCtrlFrame(wx.Frame):
 		#sizer.Add(self.label,(1,0),(1,2),wx.EXPAND)
 		
 		self.mainSizer.Add(self.playerSizer,(0,0))
-		self.mainSizer.Add(self.filesSizer, (2,0))
+		self.mainSizer.Add(self.configSizer, (0,1), flag=wx.ALIGN_CENTER)
+		self.mainSizer.Add(self.filesSizer, (2,0), span=(1,2))
 
 		self.SetSizerAndFit(self.mainSizer)
 		# self.SetSizeHints(self.GetSize().x,self.GetSize().y,-1,self.GetSize().y)
@@ -131,6 +146,20 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.stopClicked, button)
 
 	def SetupConfigSection(self):
+		self.cbImgEnabled = wx.CheckBox(self, self.imgChkID, "Enable Images")
+		self.cbVidEnabled = wx.CheckBox(self, self.vidChkID, "Enable Videos")
+		self.cbAutoplay = wx.CheckBox(self, self.autoplayID, "Autoplay")
+		self.cbRepeat = wx.CheckBox(self, self.repeatID, "Repeat")
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbImgEnabled)
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbVidEnabled)
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbAutoplay)
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbRepeat)
+
+		self.configSizer.Add(wx.StaticText(self,-1,label="Configuration:"),(0,0))
+		self.configSizer.Add(self.cbImgEnabled, (1,0))
+		self.configSizer.Add(self.cbVidEnabled, (2,0))
+		self.configSizer.Add(self.cbAutoplay, (1,1))
+		self.configSizer.Add(self.cbRepeat, (2,1))
 		pass
 
 	def SetupFileLists(self):
@@ -188,6 +217,13 @@ class RaspMediaCtrlFrame(wx.Frame):
 
 		self.SetMenuBar(menuBar)
 
+	def UpdateConfigUI(self, config):
+		print "Update CONFIG METHOD"
+		pass
+
+	def CheckboxToggled(self, event):
+		pass
+
 	def ChangeDir(self, event):
 		dlg = wx.DirDialog(self, message="Select a directory that contains images or videos you would like to browse and upload to your media player.", defaultPath=self.path, style=wx.DD_CHANGE_DIR)
 
@@ -207,6 +243,15 @@ class RaspMediaCtrlFrame(wx.Frame):
 		msgData = network.messages.getMessage(FILELIST_REQUEST)
 		dlgStyle =  wx.PD_AUTO_HIDE
 		self.prgDialog = wx.ProgressDialog("Loading...", "Loading filelist from player...", maximum = 1, parent = self, style = dlgStyle)
+		self.prgDialog.Pulse()
+		network.udpconnector.sendMessage(msgData, self.host)
+
+	def LoadRemoteConfig(self, event):
+		network.udpresponselistener.registerObserver([OBS_CONFIG, self.UpdateConfigUI])
+		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+		msgData = network.messages.getMessage(CONFIG_REQUEST)
+		dlgStyle =  wx.PD_AUTO_HIDE
+		self.prgDialog = wx.ProgressDialog("Loading...", "Loading configuration from player...", maximum = 1, parent = self, style = dlgStyle)
 		self.prgDialog.Pulse()
 		network.udpconnector.sendMessage(msgData, self.host)
 

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os, threading, time, subprocess, re
+import os, platform, threading, time, subprocess, re
 from packages.rmutil import processtool
 from packages.rmconfig import configtool
 from constants import *
@@ -137,7 +137,11 @@ class MediaPlayer(threading.Thread):
         print "Status PLAYER_STARTED: ", playerState == PLAYER_STARTED
         if playerState == PLAYER_STARTED:
             print "Starting video file " + file
-            subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
+            # check if raspberry pi or ubuntu testing machine
+            if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
+                subprocess.call([cwd + '/scripts/mplaystart.sh', self.mediaPath + file])
+            else:
+                subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
 
 
     def processAllFilesOnce(self):

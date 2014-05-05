@@ -32,7 +32,7 @@ def sendMessage(data,host='<broadcast>'):
 		rcv_thread = threading.Thread(target=udpresponselistener.startListening)
 		rcv_thread.daemon = True
 		rcv_thread.start()
-		time.sleep(UDP_RESPONSE_TIMEOUT)
+		#time.sleep(UDP_RESPONSE_TIMEOUT)
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 		#ip = [(s.connect(('8.8.8.8', 80)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
 		#print "Local IP: ", ip
@@ -48,7 +48,7 @@ def sendMessage(data,host='<broadcast>'):
 		sock.close()
 
 	# wait a given timeout for a network response
-	time.sleep(1)
+	time.sleep(UDP_RESPONSE_TIMEOUT)
 	cleanExit()
 
 def cleanExit():

@@ -38,6 +38,8 @@ def interpret(msg_data):
 	elif flag == FILELIST_RESPONSE:
 		readFileList(data)
 		result = INTERPRETER_FILELIST_REQUEST
+	elif flag == CONFIG_REQUEST:
+		result = CONFIG_REQUEST
 
 	#print "Remaining data: " + data.decode("utf-8")
 

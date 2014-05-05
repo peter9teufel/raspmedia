@@ -46,6 +46,10 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             responseData = messages.getMessage(FILELIST_RESPONSE,args)
             if cSocket.sendto(responseData, (self.client_address[0], 60007)):
                 print "Filelist sent!"
+        elif result == CONFIG_REQUEST:
+            responseData = messages.getConfigMessage()
+            if cSocket.sendto(responseData, (self.client_address[0], 60007)):
+                print "Config sent!"
             
         # DEBUG CODE to echo the received message
         # print "{} on {} wrote:".format(self.client_address[0], curThread.name)

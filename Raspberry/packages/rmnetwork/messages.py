@@ -1,4 +1,5 @@
 import sys
+from packages.rmconfig import configtool
 
 def appendBytes(data, append):
 	for b in append:
@@ -33,6 +34,20 @@ def appendArg(data, type, arg):
 	elif type == '-i':
 		print "Appending INT"
 		appendInt(data, int(arg))
+
+def getConfigMessage():
+	config = configtool.readConfig()
+	confBytes = bytearray(str(config))
+	
+	data = bytearray()
+	size = 6 + len(confBytes)
+	appendInt(data, size)
+	appendShort(data, CONFIG_REQUEST)
+	appendBytes(data, confBytes)
+
+	print "Message size: ", size
+	return data
+
 
 def getMessage(flag, args=None):
 	# append all arguments given as cmd args to usgData

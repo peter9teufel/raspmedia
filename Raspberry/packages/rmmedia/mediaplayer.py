@@ -216,6 +216,15 @@ def setMediaPath(curMediaPath):
     mediaPath = curMediaPath
     mp_thread.mediaPath = curMediaPath
 
+def deleteFile(fileName):
+    global mediaPath
+    path = mediaPath
+    if not path.endswith('/'):
+        path += "/"
+    fullPath = path + fileName
+    if os.path.isfile(fullPath):
+        os.remove(fullPath)
+
 def isImage(filename):
     supportedExtensions = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
     return filename.endswith((supportedExtensions))

@@ -60,6 +60,7 @@ def getMessage(flag, args=None):
 	# append all arguments given as cmd args to usgData
 	usgData = None
 	if args:
+		usgData = bytearray()
 		print args
 		for i in range(0,len(args)):
 			arg = args[i]

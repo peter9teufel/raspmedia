@@ -1,5 +1,6 @@
 import threading
 from constants import *
+from packages.rmmedia import mediaplayer
 from packages.rmconfig import configtool
 
 
@@ -14,18 +15,17 @@ def interpret(msg_data):
 	print "Size: " + str(size)
 	
 	flag, data = readShort(data)
+	msg = None
 	print "Flag: " + str(flag)
 	if flag == CONFIG_UPDATE:
 		data = readConfigUpdate(data)
 		result = INTERPRETER_SUCCESS
 	elif flag == PLAYER_START:
-		from packages.rmmedia import mediaplayer
 		print 'UDP COMMAND Mediaplayer start...'
 		mediaplayer.playerState = PLAYER_STARTED
 		mediaplayer.play()
 		result = INTERPRETER_SUCCESS
 	elif flag == PLAYER_STOP:
-		from packages.rmmedia import mediaplayer
 		print 'UDP COMMAND Mediaplayer stop...'
 		mediaplayer.playerState = PLAYER_STOPPED
 		mediaplayer.stop()
@@ -40,10 +40,13 @@ def interpret(msg_data):
 		result = INTERPRETER_FILELIST_REQUEST
 	elif flag == CONFIG_REQUEST:
 		result = CONFIG_REQUEST
+	elif flag == DELETE_FILE:
+		result = DELETE FILE
+		msg, data = readString(data)
 
 	#print "Remaining data: " + data.decode("utf-8")
 
-	return result
+	return result, msg
 
 def readFileList(data):
 	numFiles, data = readInt(data)

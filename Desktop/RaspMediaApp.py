@@ -188,7 +188,8 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.remoteList=wx.ListCtrl(self,id,size=(300,400),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
 		self.remoteList.Show(True)
 		self.remoteList.InsertColumn(0,"Remote Files: ", width = 298)	
-		self.filesSizer.Add(self.remoteList, (0,1))	
+		self.filesSizer.Add(self.remoteList, (0,1))
+		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.RemoteFileDoubleClicked, self.remoteList)
 
 	def UpdateLocalFiles(self):
 		self.localList.DeleteAllItems()
@@ -229,8 +230,23 @@ class RaspMediaCtrlFrame(wx.Frame):
 	def LocalFileDoubleClicked(self, event):
 		filePath = self.path + '/' +  event.GetText()
 		print "File: ", filePath
-		network.tcpfileclient.sendFile(filePath, self.host)
+		network.tcpfileclient.registerObserver(self.LoadRemoteFileList)
+		network.tcpfileclient.sendFile(filePath, self.host, self)
 		#self.LoadRemoteFileList(None)
+
+	def RemoteFileDoubleClicked(self, event):
+		fileName = event.GetText()
+		filePath = self.path + '/' +  fileName
+		# dialog to verify deleting file on player
+		msg = "Delete the file '" + fileName + "' from the player (will stop and restart player)? This can not be undone!"
+		dlg = wx.MessageDialog(self, msg, "Delete file from player?", wx.YES_NO | wx.ICON_EXCLAMATION)
+		if dlg.ShowModal() == wx.ID_YES:
+			print "SENDING DELETE COMMAND!"
+			msgData = network.messages.getMessage(DELETE_FILE, ["-s", str(fileName)])
+			network.udpconnector.sendMessage(msgData, self.host)
+			time.sleep(0.5)
+			self.LoadRemoteFileList(None)
+		dlg.Destroy()
 
 	def CheckboxToggled(self, event):
 		checkbox = event.GetEventObject()

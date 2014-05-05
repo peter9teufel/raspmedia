@@ -41,7 +41,7 @@ def interpret(msg_data):
 	elif flag == CONFIG_REQUEST:
 		result = CONFIG_REQUEST
 	elif flag == DELETE_FILE:
-		result = DELETE FILE
+		result = DELETE_FILE
 		msg, data = readString(data)
 
 	#print "Remaining data: " + data.decode("utf-8")

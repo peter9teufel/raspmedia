@@ -66,7 +66,7 @@ def readConfigUpdate(data):
 	return data
 
 def readConfigValue(data, key):
-	if key == 'image_interval' or key == 'image_enabled' or key == 'video_enabled' or key == 'shuffle' or key == 'repeat':
+	if key == 'image_interval' or key == 'image_enabled' or key == 'video_enabled' or key == 'shuffle' or key == 'repeat' or key == 'autoplay':
 		# integer config value
 		value, data = readInt(data)
 	else:

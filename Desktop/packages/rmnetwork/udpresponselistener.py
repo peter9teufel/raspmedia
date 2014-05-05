@@ -51,6 +51,9 @@ def startListening():
 					observer[1](address, response)
 		elif result == CONFIG_REQUEST:
 			print "Config data received:"
+			for observer in observers:
+				if observer[0] == OBS_CONFIG:
+					observer[1](response)
 			print response
 
 def registerObserver(observer):

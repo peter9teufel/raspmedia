@@ -1,4 +1,5 @@
 import sys
+from constants import *
 
 def appendBytes(data, append):
 	for b in append:
@@ -33,6 +34,27 @@ def appendArg(data, type, arg):
 	elif type == '-i':
 		print "Appending INT"
 		appendInt(data, int(arg))
+
+def getConfigUpdateMessage(key, value):
+	data = bytearray()
+	usgData = bytearray()
+
+	appendString(usgData, str(key))
+	print "KEY APPENDED!"
+	if isinstance(value, (int)):
+		print "New config value is appended as INT!"
+		appendInt(usgData, value)
+	else:
+		appendString(usgData, value)
+
+	size = 6 + len(usgData)
+
+	appendInt(data, size)
+	appendShort(data, CONFIG_UPDATE)
+	appendBytes(data, usgData)
+
+	print "Message size: ", size
+	return data
 
 def getMessage(flag, args=None):
 	# append all arguments given as cmd args to usgData

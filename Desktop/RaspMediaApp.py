@@ -1,6 +1,6 @@
 import packages.rmnetwork as network
 from packages.rmnetwork.constants import *
-import os, sys
+import os, sys, ast
 try:
 	import wx
 except ImportError:
@@ -94,14 +94,7 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.playerSizer = wx.GridBagSizer()
 		self.filesSizer = wx.GridBagSizer()
 		self.prgDialog = None
-		self.initConfigIDs()
 		self.initialize()
-
-	def initConfigIDs(self):
-		self.imgChkID = wx.NewId()
-		self.vidChkID = wx.NewId()
-		self.autoplayID = wx.NewId()
-		self.repeatID = wx.NewId()
 
 	def setHost(self, hostAddress):
 		self.host = hostAddress
@@ -146,10 +139,17 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.stopClicked, button)
 
 	def SetupConfigSection(self):
-		self.cbImgEnabled = wx.CheckBox(self, self.imgChkID, "Enable Images")
-		self.cbVidEnabled = wx.CheckBox(self, self.vidChkID, "Enable Videos")
-		self.cbAutoplay = wx.CheckBox(self, self.autoplayID, "Autoplay")
-		self.cbRepeat = wx.CheckBox(self, self.repeatID, "Repeat")
+		self.cbImgEnabled = wx.CheckBox(self, -1, "Enable Images")
+		self.cbVidEnabled = wx.CheckBox(self, -1, "Enable Videos")
+		self.cbAutoplay = wx.CheckBox(self, -1, "Autoplay")
+		self.cbRepeat = wx.CheckBox(self, -1, "Repeat")
+
+		# set names for further identifying
+		self.cbImgEnabled.SetName('image_enabled')
+		self.cbVidEnabled.SetName('video_enabled')
+		self.cbAutoplay.SetName('autoplay')
+		self.cbRepeat.SetName('repeat')
+
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbImgEnabled)
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbVidEnabled)
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbAutoplay)
@@ -219,9 +219,20 @@ class RaspMediaCtrlFrame(wx.Frame):
 
 	def UpdateConfigUI(self, config):
 		print "Update CONFIG METHOD"
+		configDict = ast.literal_eval(config)
+		print configDict
+		self.cbImgEnabled.SetValue(configDict['image_enabled'])
+		self.cbVidEnabled.SetValue(configDict['video_enabled'])
+		self.cbRepeat.SetValue(configDict['repeat'])
+		self.cbAutoplay.SetValue(configDict['autoplay'])
 		pass
 
 	def CheckboxToggled(self, event):
+		checkbox = event.GetEventObject()
+		print checkbox.GetName()
+		msgData = network.messages.getConfigUpdateMessage(checkbox.GetName(), checkbox.IsChecked())
+		network.udpconnector.sendMessage(msgData, self.host)
+		#print "Checkbox toggled: ", event.GetEventObject().GedId()
 		pass
 
 	def ChangeDir(self, event):

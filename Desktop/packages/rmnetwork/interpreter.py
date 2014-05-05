@@ -32,7 +32,6 @@ def interpret(msg_data):
 	return result, returnData
 
 def readConfigData(data):
-	size, data = readInt(data)
 	config, data = readString(data)
 	return config
 

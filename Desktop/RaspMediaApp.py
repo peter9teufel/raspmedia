@@ -1,6 +1,6 @@
 import packages.rmnetwork as network
 from packages.rmnetwork.constants import *
-import os, sys, ast
+import os, sys, ast, time
 try:
 	import wx
 except ImportError:
@@ -66,7 +66,6 @@ class ConnectFrame(wx.Frame):
 			self.prgDialog.Update(1)
 
 	def HostListDoubleClicked(self, event):
-		print "You double clicked ", event.GetText()
 		self.Hide()
 		self.mediaCtrlFrame = RaspMediaCtrlFrame(self.parent,-1,'RaspMedia Control')
 		self.mediaCtrlFrame.setHost(event.GetText())
@@ -181,6 +180,7 @@ class RaspMediaCtrlFrame(wx.Frame):
 
 		self.localList.InsertColumn(0,"Local Files: " + self.path, width = 298)
 		self.filesSizer.Add(self.localList, (0,0))
+		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.LocalFileDoubleClicked, self.localList)
 		self.UpdateLocalFiles()
 
 	def AddRemoteList(self):
@@ -225,7 +225,12 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.cbVidEnabled.SetValue(configDict['video_enabled'])
 		self.cbRepeat.SetValue(configDict['repeat'])
 		self.cbAutoplay.SetValue(configDict['autoplay'])
-		pass
+
+	def LocalFileDoubleClicked(self, event):
+		filePath = self.path + '/' +  event.GetText()
+		print "File: ", filePath
+		network.tcpfileclient.sendFile(filePath, self.host)
+		#self.LoadRemoteFileList(None)
 
 	def CheckboxToggled(self, event):
 		checkbox = event.GetEventObject()

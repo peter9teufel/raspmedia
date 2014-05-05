@@ -8,7 +8,7 @@ os.system('sudo setterm -foreground black -clear >/dev/tty1')
 
 # own modules and packages
 from packages import rmconfig, rmmedia, rmutil, rmnetwork
-from packages.rmnetwork import udpserver
+from packages.rmnetwork import udpserver, tcpfilesocket
 
 def shellquote(s):
     return "'" +  s.replace("'", "'\\''") + "'"
@@ -29,6 +29,9 @@ def startMediaPlayer():
 def startUdpServer():
 	udpserver.start()
 
+def openFileSocket():
+    tcpfilesocket.openFileSocket()
+
 # startup image
 # subprocess.call(["sudo","fbi","-a", "--once","-noverbose","-T","2", "./raspmedia.jpg"])
 
@@ -41,6 +44,7 @@ print "Media Path: " + mediaPath
 
 startMediaPlayer()
 startUdpServer()
+openFileSocket()
 
 
 # simple CLI to modify and quit program when debugging

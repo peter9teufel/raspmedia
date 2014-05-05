@@ -1,5 +1,6 @@
 import sys
 from packages.rmconfig import configtool
+from constants import *
 
 def appendBytes(data, append):
 	for b in append:
@@ -37,12 +38,16 @@ def appendArg(data, type, arg):
 
 def getConfigMessage():
 	config = configtool.readConfig()
-	confBytes = bytearray(str(config))
+	configStr = str(config)
+	print "Building message for CONFIG:"
+	print configStr
+	confBytes = bytearray(configStr)
 	
 	data = bytearray()
-	size = 6 + len(confBytes)
+	size = 10 + len(confBytes)
 	appendInt(data, size)
 	appendShort(data, CONFIG_REQUEST)
+	appendInt(data, len(confBytes))
 	appendBytes(data, confBytes)
 
 	print "Message size: ", size

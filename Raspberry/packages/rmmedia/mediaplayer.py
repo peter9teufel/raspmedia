@@ -139,7 +139,7 @@ class MediaPlayer(threading.Thread):
             print "Starting video file " + file
             # check if raspberry pi or ubuntu testing machine
             if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
-                subprocess.call([cwd + '/scripts/mplaystart.sh', self.mediaPath + file])
+                subprocess.call([cwd + '/scripts/mplayerstart.sh', self.mediaPath + file])
             else:
                 subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
 

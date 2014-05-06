@@ -9,17 +9,20 @@ playerState = PLAYER_STOPPED
 cwd = os.getcwd()
 mediaPath = cwd + '/media/'
 mp_thread = None
+identifyFlag = False
+previousState = None
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
         global playerState
         self.mediaPath = os.getcwd() + '/media/'
         self.runevent = threading.Event()
+        self.identify_event = threading.Event()
         playerState = PLAYER_STOPPED
         threading.Thread.__init__(self, name="MediaPlayer_Thread")
 
     def run(self):
-        global playerState
+        global playerState, identifyFlag
         print ":::::MEDIAPLAYER THREAD RUN METHOD STARTED:::::"
         self.reloadConfig()
         
@@ -36,16 +39,27 @@ class MediaPlayer(threading.Thread):
             # remove raspmedia image process
             processtool.killProcesses('fbi')
 
-            #reload config and process media files
-            self.reloadConfig()
-            playerState = PLAYER_STARTED
-            self.processMediaFiles()
-            time.sleep(1)
-            self.showRaspMediaImage()
+            if identifyFlag:
+                self.showIdentifyImage()
+                self.identify_event.wait()
+                if playerState == PLAYER_STOPPED:
+                    self.showRaspMediaImage()
+            else:
+                #reload config and process media files
+                self.reloadConfig()
+                playerState = PLAYER_STARTED
+                self.processMediaFiles()
+                time.sleep(0.5)
+                self.showRaspMediaImage()
 
     def showRaspMediaImage(self):
         global cwd
         cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspmedia.jpg']
+        subprocess.call(cmdList)
+
+    def showIdentifyImage(self):
+        global cwd
+        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspidentify.jpg']
         subprocess.call(cmdList)
 
     def setMediaPath(self, mediaPath):
@@ -54,7 +68,7 @@ class MediaPlayer(threading.Thread):
     def processImagesOnce(self):
         global playerState
         imgInterval = str(self.config['image_interval'])
-        blendInterval = str(self.config['image_blend_interval'])
+        blendInterval = str(self.config['image_blend_interval'] - 1)
         imgCmdList = ["sudo","fbi","-noverbose", "--once", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         numImg = 0
         files = os.listdir(self.mediaPath)
@@ -71,15 +85,19 @@ class MediaPlayer(threading.Thread):
 
         i = 0
         wakes = 0
-        duration = numImg * (self.config['image_interval'] + 2)
+        duration = numImg * (self.config['image_interval'] + 1)
         while i < duration and  playerState == PLAYER_STARTED:
             time.sleep(1)
             i += 1
             wakes += 1
             if wakes > 10:
+                print "Waking up and checking config...."
+                # print "Seconds running: ",i
+                # print "Calculated duration: ",duration
                 # check config every 10 seconds
                 self.reloadConfig()
                 wakes = 0
+        stop()
 
     def fbiImageLoop(self):
         global playerState
@@ -121,6 +139,7 @@ class MediaPlayer(threading.Thread):
             if playerState == PLAYER_STARTED:
                 if isVideo(file):
                     self.playVideo(file)
+        stop()
 
     def processVideosOnly(self):
         global playerState
@@ -245,8 +264,25 @@ def isImage(filename):
     return filename.endswith((supportedExtensions))
 
 def isVideo(filename):
-    supportedExtensions = ('.mp4', '.m4v', '.mpeg', '.mpeg1', '.mpeg4')
+    supportedExtensions = ('.mp4', '.m4v', '.mpeg', '.mpg', '.mpeg1', '.mpeg4')
     return filename.endswith((supportedExtensions))
+
+def identifySelf():
+    global identifyFlag, mp_thread, playerState, previousState
+    previousState = playerState
+    if playerState == PLAYER_STARTED:
+        stop()
+        time.sleep(0.5)
+    identifyFlag = True
+    mp_thread.identify_event.clear()
+    play()
+
+def identifyDone():
+    global identifyFlag, mp_thread, previousState
+    if previousState == PLAYER_STOPPED:
+        stop()
+    identifyFlag = False
+    mp_thread.identify_event.set()
 
 def play():
     global playerState
@@ -274,10 +310,12 @@ def stop():
     processtool.killProcesses('omxplayer')
 
 def main():
-    global cwd, mp_thread
+    global cwd, mp_thread, playerState
     print "PLAYER CWD: " + cwd
     if not mp_thread:
         mp_thread = MediaPlayer()
         mp_thread.daemon = True
+    playerState = PLAYER_STOPPED
+    mp_thread.start()
 
 main()

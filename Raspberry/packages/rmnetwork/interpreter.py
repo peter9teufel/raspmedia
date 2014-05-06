@@ -32,17 +32,25 @@ def interpret(msg_data):
 		result = INTERPRETER_SUCCESS
 	elif flag == SERVER_REQUEST:
 		data = None
-		result = INTERPRETER_SERVER_REQUEST
+		result = SERVER_REQUEST
 	elif flag == FILELIST_REQUEST:
-		result = INTERPRETER_FILELIST_REQUEST
+		result = FILELIST_REQUEST
 	elif flag == FILELIST_RESPONSE:
 		readFileList(data)
-		result = INTERPRETER_FILELIST_REQUEST
+		result = FILELIST_REQUEST
 	elif flag == CONFIG_REQUEST:
 		result = CONFIG_REQUEST
 	elif flag == DELETE_FILE:
-		result = DELETE_FILE
 		msg, data = readString(data)
+		if msg:
+			# filename received --> initiate delete
+			mediaplayer.deleteFile(msg)
+	elif flag == PLAYER_IDENTIFY:
+		print 'Showing identify image...'
+		mediaplayer.identifySelf()
+	elif flag == PLAYER_IDENTIFY_DONE:
+		print 'Identifying done...'
+		mediaplayer.identifyDone()
 
 	#print "Remaining data: " + data.decode("utf-8")
 

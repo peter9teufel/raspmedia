@@ -116,7 +116,7 @@ class RaspMediaCtrlFrame(wx.Frame):
 		#sizer.Add(self.label,(1,0),(1,2),wx.EXPAND)
 		
 		self.mainSizer.Add(self.playerSizer,(0,0))
-		self.mainSizer.Add(self.configSizer, (0,1), flag=wx.ALIGN_CENTER)
+		self.mainSizer.Add(self.configSizer, (0,1), flag=wx.ALIGN_CENTER_HORIZONTAL)
 		self.mainSizer.Add(self.filesSizer, (2,0), span=(1,2))
 
 		self.SetSizerAndFit(self.mainSizer)
@@ -136,6 +136,11 @@ class RaspMediaCtrlFrame(wx.Frame):
 		button = wx.Button(self,-1,label="Stop")
 		self.playerSizer.Add(button,(2,0))
 		self.Bind(wx.EVT_BUTTON, self.stopClicked, button)
+
+		button = wx.Button(self,-1,label="Identify")
+		button.SetName("btn_identify")
+		self.playerSizer.Add(button,(4,0))
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
 
 	def SetupConfigSection(self):
 		self.cbImgEnabled = wx.CheckBox(self, -1, "Enable Images")
@@ -293,6 +298,19 @@ class RaspMediaCtrlFrame(wx.Frame):
 	def UdpListenerStopped(self):
 		if self.prgDialog:
 			self.prgDialog.Update(1)
+
+	def ButtonClicked(self, event):
+		button = event.GetEventObject()
+		if button.GetName() == 'btn_identify':
+			msgData = network.messages.getMessage(PLAYER_IDENTIFY)
+			network.udpconnector.sendMessage(msgData, self.host)
+			msg = "The current player will show a test image. Close this dialog to exit identifier mode."
+			dlg = wx.MessageDialog(self, msg, "Identifying player", wx.OK | wx.ICON_EXCLAMATION)
+			if dlg.ShowModal() == wx.ID_OK:
+				msgData2 = network.messages.getMessage(PLAYER_IDENTIFY_DONE)
+				network.udpconnector.sendMessage(msgData2, self.host)
+			dlg.Destroy()
+
 
 	def playClicked(self, event):
 		msgData = network.messages.getMessage(PLAYER_START)

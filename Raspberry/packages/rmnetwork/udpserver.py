@@ -23,7 +23,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         curThread = threading.current_thread()
         result, msg = interpreter.interpret(data)
 
-        if result == INTERPRETER_SERVER_REQUEST:
+        if result == SERVER_REQUEST:
             print "{} on {} wrote:".format(self.client_address[0], curThread.name)
             print "\nServer request received - sending response...\n"
             responseData = messages.getMessage(SERVER_REQUEST)
@@ -36,7 +36,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                 print "Response sent!"
             else:
                 print "Sending response failed!"
-        elif result == INTERPRETER_FILELIST_REQUEST:
+        elif result == FILELIST_REQUEST:
             files = mediaplayer.getMediaFileList()
             print files
             args = ['-i', str(len(files))]
@@ -50,10 +50,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             responseData = messages.getConfigMessage()
             if cSocket.sendto(responseData, (self.client_address[0], 60007)):
                 print "Config sent!"
-        elif result == DELETE_FILE:
-            if msg:
-                # filename received --> initiate delete
-                mediaplayer.deleteFile(msg)
+            
             
         # DEBUG CODE to echo the received message
         # print "{} on {} wrote:".format(self.client_address[0], curThread.name)

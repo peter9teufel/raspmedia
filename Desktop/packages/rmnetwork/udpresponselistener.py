@@ -42,7 +42,7 @@ def startListening():
 			print ""
 			for observer in observers:
 				if observer[0] == OBS_HOST_SEARCH:
-					observer[1](address)
+					observer[1](address, response)
 		elif result == INTERPRETER_FILELIST_REQUEST:
 			print "File list received!"
 			print response

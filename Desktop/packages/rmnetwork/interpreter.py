@@ -16,8 +16,8 @@ def interpret(msg_data):
 	returnData = None
 	print "Flag: " + str(flag)
 	if flag == SERVER_REQUEST:
-		data = None
 		result = INTERPRETER_SERVER_REQUEST
+		returnData, data = readString(data)
 	elif flag == FILELIST_REQUEST:
 		result = INTERPRETER_FILELIST_REQUEST
 	elif flag == FILELIST_RESPONSE:

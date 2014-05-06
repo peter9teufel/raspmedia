@@ -33,8 +33,8 @@ class ConnectFrame(wx.Frame):
 		self.hostList=wx.ListCtrl(self,id,size=(300,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
 		self.hostList.Show(True)
 
-		self.hostList.InsertColumn(0,"Host Address", width = 200)
-		self.hostList.InsertColumn(1,"Port", width = 100)
+		self.hostList.InsertColumn(0,"Player Name", width = 150)
+		self.hostList.InsertColumn(1,"Host Address", width = 150)
 		self.mainSizer.Add(self.hostList, (2,0))
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.HostListDoubleClicked, self.hostList)
 
@@ -42,13 +42,13 @@ class ConnectFrame(wx.Frame):
 		self.Center()
 		self.Show(True)
 
-	def HostFound(self, host):
+	def HostFound(self, host, playerName):
 		# self.hosts.Add(host)
-		idx = self.hostList.InsertStringItem(0, host[0])
+		idx = self.hostList.InsertStringItem(0, playerName)
 
 		port = str(host[1])
 		print "Host insert in row " + str(idx) + ": " + host[0] + " - " + port
-		self.hostList.SetStringItem(idx, 1, port)
+		self.hostList.SetStringItem(idx, 1, host[0])
 
 	def searchHosts(self):
 		# clear host list
@@ -66,9 +66,10 @@ class ConnectFrame(wx.Frame):
 			self.prgDialog.Update(1)
 
 	def HostListDoubleClicked(self, event):
+		host = event.GetEventObject().GetItem(0,1).GetText()
 		self.Hide()
 		self.mediaCtrlFrame = RaspMediaCtrlFrame(self.parent,-1,'RaspMedia Control')
-		self.mediaCtrlFrame.setHost(event.GetText())
+		self.mediaCtrlFrame.setHost(host)
 		self.mediaCtrlFrame.Bind(wx.EVT_CLOSE, self.ChildFrameClosed)
 		self.mediaCtrlFrame.Center()
 		self.mediaCtrlFrame.Show(True)
@@ -143,27 +144,52 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
 
 	def SetupConfigSection(self):
+		# checkboxes
 		self.cbImgEnabled = wx.CheckBox(self, -1, "Enable Images")
 		self.cbVidEnabled = wx.CheckBox(self, -1, "Enable Videos")
 		self.cbAutoplay = wx.CheckBox(self, -1, "Autoplay")
 		self.cbRepeat = wx.CheckBox(self, -1, "Repeat")
 
-		# set names for further identifying
+		# interval and player name
+		intervalLabel = wx.StaticText(self,-1,label="Image interval:")
+		self.imgIntervalLabel = wx.StaticText(self,-1,label="")
+		nameLabel = wx.StaticText(self,-1,label="Player name:")
+		self.playerNameLabel = wx.StaticText(self,-1,label="")
+
+		imageFile = "img/ic_edit.png"
+		editIcon = wx.Image(imageFile, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+		#self.editInterval = wx.BitmapButton(self, id=-1, bitmap=editIcon, size = (editIcon.GetWidth()+10, editIcon.GetHeight()+10))
+		#self.editName = wx.BitmapButton(self, id=-1, bitmap=editIcon, size = (editIcon.GetWidth()+10, editIcon.GetHeight()+10))
+		self.editInterval = wx.Button(self,-1,label="...",size=(27,25))
+		self.editName = wx.Button(self,-1,label="...",size=(27,25))
+
+        # set names for further identifying
 		self.cbImgEnabled.SetName('image_enabled')
 		self.cbVidEnabled.SetName('video_enabled')
 		self.cbAutoplay.SetName('autoplay')
 		self.cbRepeat.SetName('repeat')
+		self.editInterval.SetName('btn_image_interval')
+		self.editName.SetName('btn_player_name')
 
+		# bind UI element events
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbImgEnabled)
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbVidEnabled)
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbAutoplay)
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbRepeat)
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editInterval)
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editName)
 
 		self.configSizer.Add(wx.StaticText(self,-1,label="Configuration:"),(0,0))
 		self.configSizer.Add(self.cbImgEnabled, (1,0))
 		self.configSizer.Add(self.cbVidEnabled, (2,0))
 		self.configSizer.Add(self.cbAutoplay, (1,1))
 		self.configSizer.Add(self.cbRepeat, (2,1))
+		self.configSizer.Add(intervalLabel, (4,0), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.configSizer.Add(self.imgIntervalLabel, (4,1), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.configSizer.Add(self.editInterval, (4,3))
+		self.configSizer.Add(nameLabel, (5,0), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.configSizer.Add(self.playerNameLabel, (5,1), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.configSizer.Add(self.editName, (5,3))
 		pass
 
 	def SetupFileLists(self):
@@ -231,6 +257,8 @@ class RaspMediaCtrlFrame(wx.Frame):
 		self.cbVidEnabled.SetValue(configDict['video_enabled'])
 		self.cbRepeat.SetValue(configDict['repeat'])
 		self.cbAutoplay.SetValue(configDict['autoplay'])
+		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
+		self.playerNameLabel.SetLabel(str(configDict['player_name']))
 
 	def LocalFileDoubleClicked(self, event):
 		filePath = self.path + '/' +  event.GetText()
@@ -309,6 +337,26 @@ class RaspMediaCtrlFrame(wx.Frame):
 			if dlg.ShowModal() == wx.ID_OK:
 				msgData2 = network.messages.getMessage(PLAYER_IDENTIFY_DONE)
 				network.udpconnector.sendMessage(msgData2, self.host)
+			dlg.Destroy()
+		elif button.GetName() == 'btn_image_interval':
+			dlg = wx.TextEntryDialog(self, "New Interval:", "Image Interval", self.imgIntervalLabel.GetLabel())
+			if dlg.ShowModal() == wx.ID_OK:
+				newInterval = int(dlg.GetValue())
+				self.imgIntervalLabel.SetLabel(str(newInterval))
+				msgData = network.messages.getConfigUpdateMessage("image_interval", newInterval)
+				network.udpconnector.sendMessage(msgData, self.host)
+				#except Exception, e:
+				#	error = wx.MessageDialog(self, "Please enter a valid number!", "Invalid interval", wx.OK | wx.ICON_EXCLAMATION)
+				#	error.ShowModal()
+					
+			dlg.Destroy()
+		elif button.GetName() == 'btn_player_name':
+			dlg = wx.TextEntryDialog(self, "New name:", "Player Name", self.playerNameLabel.GetLabel())
+			if dlg.ShowModal() == wx.ID_OK:
+				newName = dlg.GetValue()
+				self.playerNameLabel.SetLabel(newName)
+				msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
+				network.udpconnector.sendMessage(msgData, self.host)
 			dlg.Destroy()
 
 

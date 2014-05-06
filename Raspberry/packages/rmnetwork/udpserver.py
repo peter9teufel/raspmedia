@@ -4,6 +4,7 @@ import interpreter, messages
 
 from packages.rmmedia import mediaplayer
 from constants import *
+from packages.rmconfig import configtool
 
 server = None
 server_thread = None
@@ -26,7 +27,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         if result == SERVER_REQUEST:
             print "{} on {} wrote:".format(self.client_address[0], curThread.name)
             print "\nServer request received - sending response...\n"
-            responseData = messages.getMessage(SERVER_REQUEST)
+            responseData = messages.getMessage(SERVER_REQUEST, ["-s", str(configtool.readConfig()['player_name'])])
             addr = (self.client_address[0], UDP_PORT)
             #print "Response delay..."
             #time.sleep(1)

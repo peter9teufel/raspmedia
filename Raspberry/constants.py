@@ -26,3 +26,7 @@ INTERPRETER_FILELIST_RESPONSE = 0xf04
 PLAYER_STARTED = 0x80
 PLAYER_STOPPED = 0x81
 PLAYER_STATE_UNDEFINED = 0x82
+
+# filetypes
+SUPPORTED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
+SUPPORTED_VIDEO_EXTENSIONS = ('.mp4', '.m4v', '.mpeg', '.mpg', '.mpeg1', '.mpeg4')

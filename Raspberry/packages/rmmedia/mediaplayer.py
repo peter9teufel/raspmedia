@@ -260,12 +260,10 @@ def deleteFile(fileName):
         time.sleep(1)
 
 def isImage(filename):
-    supportedExtensions = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
-    return filename.endswith((supportedExtensions))
+    return filename.endswith((SUPPORTED_IMAGE_EXTENSIONS))
 
 def isVideo(filename):
-    supportedExtensions = ('.mp4', '.m4v', '.mpeg', '.mpg', '.mpeg1', '.mpeg4')
-    return filename.endswith((supportedExtensions))
+    return filename.endswith((SUPPORTED_VIDEO_EXTENSIONS))
 
 def identifySelf():
     global identifyFlag, mp_thread, playerState, previousState

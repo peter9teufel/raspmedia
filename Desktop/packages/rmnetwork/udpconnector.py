@@ -23,7 +23,6 @@ def sendMessage(data,host='<broadcast>'):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	port = 60005
 
-
 	# if valid message data present --> send it
 	if data:
 		print "Creating socket..."

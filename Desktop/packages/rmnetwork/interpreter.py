@@ -4,14 +4,14 @@ from constants import *
 
 def interpret(msg_data):
 	print "Interpreting incoming data..."
-	
+
 	# initialize with error state
 	result = INTERPRETER_ERROR
 
 	data = bytearray(msg_data)
 	size, data = readInt(data)
 	print "Size: " + str(size)
-	
+
 	flag, data = readShort(data)
 	returnData = None
 	print "Flag: " + str(flag)
@@ -41,7 +41,7 @@ def readFileList(data):
 	for i in range(numFiles):
 		file, data = readString(data)
 		if file:
-			files.append(file)
+			files.append(file.decode('utf-8'))
 	return files
 
 def readInt(data):

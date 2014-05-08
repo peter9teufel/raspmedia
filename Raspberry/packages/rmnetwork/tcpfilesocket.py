@@ -1,6 +1,8 @@
 import socket
 import os, sys
 import threading
+import Image
+from constants import *
 
 
 def readInt(data):
@@ -25,19 +27,41 @@ def _openSocket():
         nameSize, remaining = readInt(bytearray(nameSizeBytes))
         name = sc.recv(nameSize)
         print "RECEIVING FILE: ", name
-        f = open(os.getcwd() + '/media/' + name, 'w+') #open in binary
-        
-         
-        l = sc.recv(1024)
-        total = 1024;
-        while (l):
-                f.write(l)
-                l = sc.recv(1024)
-                total += 1024
-        print 'Bytes written to file: ', total
-        f.close()
-        print "File saved!"
-        sc.close()
+        name = name.decode('utf-8')
+        openPath = os.getcwd() + '/media/' + name
+        if not os.path.isdir(openPath):
+            f = open(openPath, 'w+') #open in binary
+
+
+            l = sc.recv(1024)
+            total = 1024;
+            while (l):
+                    f.write(l)
+                    l = sc.recv(1024)
+                    total += 1024
+            print 'Bytes written to file: ', total
+            f.close()
+            print "File saved!"
+            sc.close()
+            _optimize(os.getcwd() + '/media/' + name)
+
+def _optimize(filePath):
+    if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+        img = Image.open(filePath)
+        maxW = 1920
+        maxH = 1080
+        w,h = img.size
+        if w/h > 1.770:
+            width = maxW
+            height = maxW * h / w
+        else:
+            height = maxH
+            width = maxH * w / h
+        img.thumbnail((width, height))
+        print "Saving optimized image..."
+        print "W: ", width
+        print "H: ", height
+        img.save(filePath)
 
 def openFileSocket():
     global server_thread
@@ -52,7 +76,7 @@ def openFileSocket():
 def closeFileSocket():
     global s
     s.close()
-    
+
 
 server_thread = None
 s = None

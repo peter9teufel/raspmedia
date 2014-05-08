@@ -4,6 +4,7 @@ import os, platform, threading, time, subprocess, re
 from packages.rmutil import processtool
 from packages.rmconfig import configtool
 from constants import *
+from pyomxplayer import OMXPlayer
 
 playerState = PLAYER_STOPPED
 cwd = os.getcwd()
@@ -25,7 +26,7 @@ class MediaPlayer(threading.Thread):
         global playerState, identifyFlag
         print ":::::MEDIAPLAYER THREAD RUN METHOD STARTED:::::"
         self.reloadConfig()
-        
+
         # show player startup image for 3 seconds (+ loading time)
         self.showRaspMediaImage()
         time.sleep(5)
@@ -139,16 +140,78 @@ class MediaPlayer(threading.Thread):
             if playerState == PLAYER_STARTED:
                 if isVideo(file):
                     self.playVideo(file)
-        stop()
+
+    def singleVideoLoop(self, filename):
+        duration = self.getVideoDurationSeconds(filename)
+        fullPath = self.mediaPath + filename
+        print "VIDEO PATH: ", fullPath
+        looper1 = OMXPlayer(fullPath, start_playback=True)
+        looper2 = OMXPlayer(fullPath, start_playback=True)
+        looper2.toggle_pause()
+        looper1Active = True
+        pos = 0
+        while self.config['repeat'] and playerState == PLAYER_STARTED:
+            if looper1Active:
+                pos = looper1.position
+            else:
+                pos = looper2.position
+            # print "Position: ", pos
+            if pos > duration -2:
+                print "TOGGLING LOOPERS..."
+                # start other looper, wait 3 seconds and reload current looper for next round
+                if looper1Active:
+                    looper2.toggle_pause()
+                    looper1.stop()
+                    time.sleep(1)
+                    looper1 = OMXPlayer(fullPath, start_playback=True)
+                    looper1.toggle_pause()
+                else:
+                    looper1.toggle_pause()
+                    looper2.stop()
+                    time.sleep(1)
+                    looper2 = OMXPlayer(fullPath, start_playback=True)
+                    looper2.toggle_pause()
+                looper1Active = not looper1Active
+            time.sleep(0.1)
+        if looper1:
+            looper1.stop()
+        if looper2:
+            looper2.stop()
+
+    def getVideoDurationSeconds(self, filename):
+        proc = subprocess.Popen(['mplayer', '-vo', 'null', '-ao', 'null', '-frames', '0', '-identify', self.mediaPath + filename], stdout=subprocess.PIPE)
+        output = proc.stdout.read()
+        # print "Process Output: ", output
+        ind = output.index('ID_LENGTH')
+        start = ind + 10
+        end = output.index('.',start)
+        durStr = output[start:end]
+        duration = int(durStr)
+        print "VIDEO DURATION: ",duration
+        return duration
+
+    def videoLoop(self):
+        videos = []
+        for file in os.listdir(self.mediaPath):
+            if file.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
+                videos.append(file)
+        if len(videos) == 1:
+            self.singleVideoLoop(videos[0])
+        else:
+            while self.config['repeat'] and playerState == PLAYER_STARTED:
+                # check for config changes
+                self.reloadConfig()
+                self.processVideosOnce()
 
     def processVideosOnly(self):
         global playerState
         print "Processing only videos."
-        self.processVideosOnce()
-        while self.config['repeat'] and playerState == PLAYER_STARTED:
-            # check for config changes
-            self.reloadConfig()
+        if self.config['repeat']:
+            self.videoLoop()
+        else:
             self.processVideosOnce()
+        stop()
+
 
     def playVideo(self,file):
         global playerState
@@ -205,7 +268,7 @@ class MediaPlayer(threading.Thread):
                 # check config for changes
                 self.reloadConfig()
                 self.processAllFilesOnce()
-        
+
 
     def processMediaFiles(self):
         global playerState
@@ -231,7 +294,8 @@ def getMediaFileList():
     files = []
     for file in os.listdir(mediaPath):
         if isImage(file) or isVideo(file):
-            files.append(file)
+            fileEnc = file.encode('utf-8')
+            files.append(fileEnc)
     return files
 
 def setMediaPath(curMediaPath):
@@ -286,7 +350,7 @@ def play():
     global playerState
     playerState = PLAYER_STARTED
     global mp_thread
-    
+
     # media file processing in separate thread
     if not mp_thread.isAlive():
         mp_thread.start()

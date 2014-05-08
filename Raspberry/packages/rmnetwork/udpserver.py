@@ -51,8 +51,8 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             responseData = messages.getConfigMessage()
             if cSocket.sendto(responseData, (self.client_address[0], 60007)):
                 print "Config sent!"
-            
-            
+
+
         # DEBUG CODE to echo the received message
         # print "{} on {} wrote:".format(self.client_address[0], curThread.name)
         # print data
@@ -62,7 +62,7 @@ def start():
     global server, server_thread
     if not server:
         server = SocketServer.UDPServer((UDP_HOST, UDP_PORT), MyUDPHandler)
-        
+
     print "Starting server..."
     # Start a thread with the server -- that thread will then start one
     # more thread for each request
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     print "-- \"start\" to start UDP server"
     print "-- \"stop\" to stop close UDP server"
     print "-- \"quit\" exit program:"
-    
+
     running = True
     while running:
         cmd = raw_input("")

@@ -8,10 +8,11 @@ def sendFile(filePath, host, parent):
 	s = socket.socket()
 	s.connect((host,60020))
 
-	f=open (filePath, "rb")
+	f=open (unicode(filePath), "rb")
 	filename = os.path.basename(f.name)
-	
-	fnSize = len(filename)
+	filenameEnc = filename.encode('utf-8')
+	print "Filename encoded: ", filenameEnc
+	fnSize = len(filenameEnc)
 
 	sizeBytes = [int(fnSize >> i & 0xff) for i in (24,16,8,0)]
 	data = bytearray()
@@ -24,9 +25,8 @@ def sendFile(filePath, host, parent):
 	dlgStyle =  wx.PD_AUTO_HIDE
 	prgDialog = wx.ProgressDialog("Sending...", "Sending file to player: " + filename, maximum = filesize, parent = parent, style = dlgStyle)
 
-
 	s.send(data)
-	s.send(filename)
+	s.send(filenameEnc)
 
 	bytesSent = 0;
 	l = f.read(_BLOCK_SIZE)

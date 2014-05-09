@@ -2,11 +2,16 @@ import sys
 from constants import *
 
 def appendBytes(data, append):
+	print "APPENDING BYTES: ", append
 	for b in append:
-		data.append(int(b))
+		b = str(b)
+		val = int(b)
+		print "VAL: ",val
+		data.append(val)
 	return data
 
 def appendInt(data, num):
+	sizeBytes = [hex(num >> i & 0xff) for i in (24,16,8,0)]
 	sizeBytes = [int(num >> i & 0xff) for i in (24,16,8,0)]
 	return appendBytes(data, sizeBytes)
 
@@ -81,5 +86,3 @@ def getMessage(flag, args=None):
 
 	print "Message size: ", size
 	return data
-
-

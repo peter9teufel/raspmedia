@@ -11,7 +11,7 @@ except ImportError:
 ################################################################################
 class AppFrame(wx.Frame):
 	def __init__(self,parent,id,title):
-		wx.Frame.__init__(self,parent,id,title)
+		wx.Frame.__init__(self,parent,id,title,size=(600,600))
 		self.parent = parent
 		self.Bind(wx.EVT_CLOSE, self.Close)
 		self.notebook = RemoteNotebook(self,-1,None)

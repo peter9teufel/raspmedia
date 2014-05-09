@@ -5,6 +5,7 @@ from packages.rmutil import processtool
 from packages.rmconfig import configtool
 from constants import *
 from pyomxplayer import OMXPlayer
+import ImageIdentifier
 
 playerState = PLAYER_STOPPED
 cwd = os.getcwd()
@@ -60,7 +61,12 @@ class MediaPlayer(threading.Thread):
 
     def showIdentifyImage(self):
         global cwd
-        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspidentify.jpg']
+        path = cwd
+        if os.path.isfile(cwd + '/raspidentified.jpg'):
+            path += '/raspidentified.jpg'
+        else:
+            path += '/raspidentify.jpg'
+        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', path]
         subprocess.call(cmdList)
 
     def setMediaPath(self, mediaPath):
@@ -70,9 +76,9 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'] - 1)
-        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
+        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         numImg = 0
-        files = os.listdir(self.mediaPath)
+        files = self.allImages()
         files.sort()
         for file in files:
             # check file extension
@@ -104,9 +110,11 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'])
-        imgCmdList = ["sudo","fbi","-noverbose", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
+        imgCmdList = ["sudo","fbi","-noverbose", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         numImg = 0
-        for file in os.listdir(self.mediaPath):
+        files = self.allImages()
+        files.sort()
+        for file in files:
             # check file extension
             if isImage(file):
                 # process image file
@@ -136,7 +144,9 @@ class MediaPlayer(threading.Thread):
 
     def processVideosOnce(self):
         global playerState
-        for file in os.listdir(self.mediaPath):
+        files = self.allVideos()
+        files.sort()
+        for file in files:
             if playerState == PLAYER_STARTED:
                 if isVideo(file):
                     self.playVideo(file)
@@ -191,10 +201,7 @@ class MediaPlayer(threading.Thread):
         return duration
 
     def videoLoop(self):
-        videos = []
-        for file in os.listdir(self.mediaPath):
-            if file.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
-                videos.append(file)
+        videos = self.allVideos()
         if len(videos) == 1:
             self.singleVideoLoop(videos[0])
         else:
@@ -232,9 +239,8 @@ class MediaPlayer(threading.Thread):
 
     def processAllFilesOnce(self):
         global playerState
-        vidCommand = 'sudo omxplayer'
-        imgCmdList = ["sudo","fbi","--once","-noverbose","-T","2"]
-        files = os.listdir(self.mediaPath)
+        imgCmdList = ["sudo","fbi","--once","-noverbose","-readahead","-T","2"]
+        files = self.allMediaFiles()
         files.sort()
         for file in files:
             # check file extension
@@ -245,7 +251,7 @@ class MediaPlayer(threading.Thread):
                 subProc = subprocess.Popen(curImgCmd)
                 # sleep while image is shown, append a second for loading time
                 print "Showing image " + file + " for " + str(self.config['image_interval']) + " seconds"
-                time.sleep(self.config['image_interval'] + 2)
+                time.sleep(self.config['image_interval'] + 2    )
                 subProc.kill()
                 subProc.wait()
             elif isVideo(file):
@@ -269,17 +275,40 @@ class MediaPlayer(threading.Thread):
                 self.reloadConfig()
                 self.processAllFilesOnce()
 
+    def allImages(self):
+        images = []
+        for file in os.listdir(self.mediaPath):
+            if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                images.append(file)
+        return images
+
+    def allVideos(self):
+        videos = []
+        for file in os.listdir(self.mediaPath):
+            if file.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
+                videos.append(file)
+        return videos
+
+    def allMediaFiles(self):
+        files = []
+        for file in os.listdir(self.mediaPath):
+            if file.endswith((SUSUPPORTED_VIDEO_EXTENSIONS)) or file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                files.append(file)
+        return files
 
     def processMediaFiles(self):
         global playerState
         print "Checking config on files to process:"
         print self.config
         if self.config['image_enabled'] and self.config['video_enabled']:
-            self.processAllFiles()
+            if len(self.allMediaFiles()) > 0:
+                self.processAllFiles()
         elif self.config['image_enabled']:
-            self.processImagesOnly()
+            if len(self.allImages()) > 0:
+                self.processImagesOnly()
         elif self.config['video_enabled']:
-            self.processVideosOnly()
+            if len(self.allVideos()) > 0:
+                self.processVideosOnly()
 
         # set player state to stopped as processing is done at this point
         playerState = PLAYER_STOPPED
@@ -336,6 +365,9 @@ def identifySelf():
         stop()
         time.sleep(0.5)
     identifyFlag = True
+    config = configtool.readConfig()
+    ImageIdentifier.IdentifyImage(config['player_name'])
+    print "Image prepared..."
     mp_thread.identify_event.clear()
     play()
 

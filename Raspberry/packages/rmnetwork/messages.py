@@ -42,7 +42,7 @@ def getConfigMessage():
 	print "Building message for CONFIG:"
 	print configStr
 	confBytes = bytearray(configStr)
-	
+
 	data = bytearray()
 	size = 10 + len(confBytes)
 	appendInt(data, size)
@@ -78,5 +78,3 @@ def getMessage(flag, args=None):
 
 	print "Message size: ", size
 	return data
-
-

@@ -6,14 +6,14 @@ from packages.rmconfig import configtool
 
 def interpret(msg_data):
 	print "Interpreting incoming data..."
-	
+
 	# initialize with error state
 	result = INTERPRETER_ERROR
 
 	data = bytearray(msg_data)
 	size, data = readInt(data)
 	print "Size: " + str(size)
-	
+
 	flag, data = readShort(data)
 	msg = None
 	print "Flag: " + str(flag)

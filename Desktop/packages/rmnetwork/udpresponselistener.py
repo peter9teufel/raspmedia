@@ -24,12 +24,12 @@ def startListening():
 	if not sock:
 		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		sock.bind(('', 60007))
-		
+
 	wait = True
 
 	print "INSIDE BROADCASTLISTENER:"
 	print "Waiting for incoming data..."
-	while wait:	
+	while wait:
 		#result = select.select([sock],[],[])
 		#print "Result from select - processing..."
 		#rec, address = result[0][0].recvfrom(1024)

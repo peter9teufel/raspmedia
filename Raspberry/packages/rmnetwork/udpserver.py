@@ -18,7 +18,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
     """
 
     def handle(self):
-        data = self.request[0].strip()
+        data = self.request[0]
         inData = self.request[0].strip()
         cSocket = self.request[1]
         curThread = threading.current_thread()

@@ -2,11 +2,11 @@ import sys
 from constants import *
 
 def appendBytes(data, append):
-	print "APPENDING BYTES: ", append
+	# print "APPENDING BYTES: ", append
 	for b in append:
 		b = str(b)
 		val = int(b)
-		print "VAL: ",val
+		# print "VAL: ",val
 		data.append(val)
 	return data
 
@@ -58,7 +58,7 @@ def getConfigUpdateMessage(key, value):
 	appendShort(data, CONFIG_UPDATE)
 	appendBytes(data, usgData)
 
-	print "Message size: ", size
+	print "Config message size: ", size
 	return data
 
 def getMessage(flag, args=None):

@@ -32,6 +32,9 @@ def sendMessage(data,host='<broadcast>'):
 	else:
 		_sendMessage(data,host)
 
+	# ensure a clean exit when data is sent and response processed
+	cleanExit()
+
 def _sendMessage(data,host,local_bind=None):
 	global sock
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -56,11 +59,11 @@ def _sendMessage(data,host,local_bind=None):
 		sock.close()
 
 	# wait a given timeout for a network response
-	if host == '<broadcast>':
+	if host == '<broadcast>' or local_bind:
+		print "Using longer Broadcast Timeout..."
 		time.sleep(UDP_BROADCAST_RESPONSE_TIMEOUT)
 	else:
 		time.sleep(UDP_RESPONSE_TIMEOUT)
-	cleanExit()
 
 def cleanExit():
 	if sock:

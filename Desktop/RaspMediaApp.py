@@ -73,7 +73,8 @@ class RemoteNotebook(wx.Notebook):
 							)
 		self.parent = parent
 		self.log = log
-		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
+		self.pages = []
+		#self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanging)
 
 	def Close(self):
@@ -86,6 +87,7 @@ class RemoteNotebook(wx.Notebook):
 		# add page for found Player
 		page = RaspMediaCtrlPanel(self,-1,playerName)
 		page.SetHost(host[0])
+		self.pages.append(page)
 		#page.LoadRemoteConfig()
 		#page.LoadRemoteFileList()
 		#page.Fit()
@@ -118,30 +120,15 @@ class RemoteNotebook(wx.Notebook):
 		#self.GetPage(pageNumber).LoadRemoteFileList()
 
 	def UdpListenerStopped(self):
-		#if self.prgDialog:
-			#self.prgDialog.Update(1)
-			#self.prgDialog.Destroy()
-			#self.prgDialog = None
 		network.udpresponselistener.removeObserver([OBS_HOST_SEARCH, self.HostFound])
 		network.udpresponselistener.removeObserver([OBS_STOP, self.UdpListenerStopped])
 		print "Number of observers: ", len(network.udpresponselistener.observers)
 		self.Update()
 
-	def OnPageChanged(self, event):
-		old = event.GetOldSelection()
-		new = event.GetSelection()
-		sel = self.GetSelection()
-		self.LoadPageData(sel)
-		#self.log.write('OnPageChanged,  old:%d, new:%d, sel:%d\n' % (old, new, sel))
-		event.Skip()
-
 	def OnPageChanging(self, event):
-		old = event.GetOldSelection()
-		new = event.GetSelection()
-		sel = self.GetSelection()
-		#self.LoadPageData(sel)
-		#self.log.write('OnPageChanging, old:%d, new:%d, sel:%d\n' % (old, new, sel))
-		event.Skip()
+		# pass event to all pages, appropriate one will load data
+		for page in self.pages:
+			page.PageChanged(event)
 
 
 ################################################################################
@@ -178,6 +165,20 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 	def SetHost(self, hostAddress):
 		self.host = hostAddress
+
+	def PageChanged(self, event):
+		old = event.GetOldSelection()
+		new = event.GetSelection()
+		sel = self.parent.GetSelection()
+		print "OnPageChanged, old:%d, new:%d, sel:%d" % (old, new, sel)
+		newPage = self.parent.GetPage(new)
+		if self == newPage:
+			self.pageDataLoading = True
+			dlg = wx.ProgressDialog("Loading...", "Loading Player Data...")
+			dlg.Pulse()
+			self.LoadRemoteConfig()
+			time.sleep(0.5)
+			dlg.Destroy()
 
 	def Initialize(self):
 		self.SetupFileLists()
@@ -382,8 +383,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbAutoplay.SetValue(configDict['autoplay'])
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
-		self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
-		self.parent.parent.Refresh()
+		#self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+		#self.parent.parent.Refresh()
 
 	def LocalFileSelected(self, event):
 		filePath = self.path + '/' +  event.GetText()
@@ -555,11 +556,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.udpconnector.sendMessage(msgData, self.host)
 
 	def UdpListenerStopped(self):
-		if self.parent.prgDialog:
-			if self.remoteListLoading:
+		if self.remoteListLoading:
+			if self.parent.prgDialog:
 				self.parent.prgDialog.Destroy()
-			else:
-				self.LoadRemoteFileList()
+		else:
+			self.LoadRemoteFileList()
 		if self.prgDialog:
 			self.prgDialog.Destroy()
 			self.prgDialog = None

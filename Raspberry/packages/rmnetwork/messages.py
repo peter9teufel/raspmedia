@@ -2,18 +2,22 @@ import sys
 from packages.rmconfig import configtool
 from constants import *
 
-def appendBytes(data, append):
-	for b in append:
-		data.append(int(b))
+def appendBytes(data, append, LE=False):
+	if LE:
+		for b in reversed(append):
+			data.append(int(b))
+	else:
+		for b in append:
+			data.append(int(b))
 	return data
 
 def appendInt(data, num):
 	sizeBytes = [int(num >> i & 0xff) for i in (24,16,8,0)]
-	return appendBytes(data, sizeBytes)
+	return appendBytes(data, sizeBytes, True)
 
 def appendShort(data, num):
 	sizeBytes = [int(num >> i & 0xff) for i in (8,0)]
-	return appendBytes(data, sizeBytes)
+	return appendBytes(data, sizeBytes, True)
 
 def appendString(data, str):
 	strBytes = bytearray(str)
@@ -34,7 +38,7 @@ def appendArg(data, type, arg):
 		appendString(data, arg)
 	elif type == '-i':
 		print "Appending INT"
-		appendInt(data, int(arg))
+		appendInt(data, int(arg,0))
 
 def getConfigMessage():
 	config = configtool.readConfig()

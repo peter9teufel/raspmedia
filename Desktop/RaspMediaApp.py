@@ -224,6 +224,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.playerSizer.Add(button,(4,0))
 		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
 
+		button = wx.Button(self,-1,label="Reboot")
+		button.SetName("btn_reboot")
+		self.playerSizer.Add(button,(5,0), flag=wx.TOP, border=5)
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
+
 	def SetupConfigSection(self):
 		# checkboxes
 		self.cbImgEnabled = wx.CheckBox(self, -1, "Enable Images")
@@ -595,6 +600,19 @@ class RaspMediaCtrlPanel(wx.Panel):
 				self.playerNameLabel.SetLabel(newName)
 				msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
 				network.udpconnector.sendMessage(msgData, self.host)
+			dlg.Destroy()
+		elif button.GetName() == 'btn_reboot':
+			msgData = network.messages.getMessage(PLAYER_REBOOT)
+			network.udpconnector.sendMessage(msgData, self.host)
+			# wait for player to Reboot
+			waitingTime = 45
+			dlg = wx.ProgressDialog("Rebooting...", "The player is rebooting, please stand by...", waitingTime, style = wx.PD_AUTO_HIDE | wx.PD_REMAINING_TIME)
+			wait = True
+			cnt = 0
+			while wait and cnt < waitingTime:
+				cnt += 1
+				time.sleep(1)
+				wait = dlg.Update(cnt)
 			dlg.Destroy()
 
 

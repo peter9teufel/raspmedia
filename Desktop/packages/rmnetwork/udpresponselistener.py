@@ -1,5 +1,5 @@
 import socket, select
-import interpreter
+import interpreter, netutil
 
 from constants import *
 
@@ -23,7 +23,7 @@ def startListening():
 	global sock, wait
 	if not sock:
 		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		sock.bind(('', 60007))
+		sock.bind(('', UDP_PORT))
 
 	wait = True
 
@@ -34,27 +34,31 @@ def startListening():
 		#print "Result from select - processing..."
 		#rec, address = result[0][0].recvfrom(1024)
 		rec, address = sock.recvfrom(1024)
-		result, response = interpreter.interpret(rec)
-		if result == INTERPRETER_SERVER_REQUEST:
-			print "Server request response - length: ", len(rec)
-			print ":".join("{:02x}".format(ord(c)) for c in rec)
-			print "Server address: ", str(address)
-			print ""
-			for observer in observers:
-				if observer[0] == OBS_HOST_SEARCH:
-					observer[1](address, response)
-		elif result == INTERPRETER_FILELIST_REQUEST:
-			print "File list received!"
-			print response
-			for observer in observers:
-				if observer[0] == OBS_FILE_LIST:
-					observer[1](address, response)
-		elif result == CONFIG_REQUEST:
-			print "Config data received:"
-			for observer in observers:
-				if observer[0] == OBS_CONFIG:
-					observer[1](response)
-			print response
+		print "Incoming data from ", str(address)
+		if not address[0] in netutil.ip4_addresses():
+			print "Incoming data not from own broadcast --> processing..."
+			result, response = interpreter.interpret(rec)
+			if result == INTERPRETER_SERVER_REQUEST:
+				print "Server request response - length: ", len(rec)
+				print ":".join("{:02x}".format(ord(c)) for c in rec)
+				print "Server address: ", str(address)
+				print ""
+				if response[1] == TYPE_RASPMEDIA_PLAYER:
+					for observer in observers:
+						if observer[0] == OBS_HOST_SEARCH:
+							observer[1](address, response[0])
+			elif result == INTERPRETER_FILELIST_REQUEST:
+				print "File list received!"
+				print response
+				for observer in observers:
+					if observer[0] == OBS_FILE_LIST:
+						observer[1](address, response)
+			elif result == CONFIG_REQUEST:
+				print "Config data received:"
+				for observer in observers:
+					if observer[0] == OBS_CONFIG:
+						observer[1](response)
+				print response
 
 def registerObserver(observer):
 	global observers

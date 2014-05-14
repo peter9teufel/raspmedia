@@ -38,7 +38,7 @@ def sendMessage(data,host='<broadcast>'):
 def _sendMessage(data,host,local_bind=None):
 	global sock
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	port = 60005
+	port = UDP_PORT
 	# if valid message data present --> send it
 	if data:
 		print "Creating socket..."
@@ -46,7 +46,7 @@ def _sendMessage(data,host,local_bind=None):
 
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 		if local_bind:
-			sock.bind((local_bind, port))
+			sock.bind((local_bind, 29885))
 		print "Sending message..."
 		sent = False
 		while not sent:

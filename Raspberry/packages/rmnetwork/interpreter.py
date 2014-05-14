@@ -1,4 +1,4 @@
-import threading
+import os, threading
 from constants import *
 from packages.rmmedia import mediaplayer
 from packages.rmconfig import configtool
@@ -51,6 +51,8 @@ def interpret(msg_data):
 	elif flag == PLAYER_IDENTIFY_DONE:
 		print 'Identifying done...'
 		mediaplayer.identifyDone()
+	elif flag == PLAYER_REBOOT:
+		os.system("sudo reboot")
 
 	#print "Remaining data: " + data.decode("utf-8")
 
@@ -88,13 +90,17 @@ def readConfigValue(data, key):
 def readInt(data):
 	intBytes = data[:4]
 	remainingData = data[4:]
-	num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
+	#num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
+	# LE change
+	num = (intBytes[3] << 24) + (intBytes[2] << 16) + (intBytes[1] << 8) + intBytes[0]
 	return num, remainingData
 
 def readShort(data):
 	intBytes = data[:2]
 	remainingData = data[2:]
-	num = (intBytes[0] << 8) + intBytes[1]
+	#num = (intBytes[0] << 8) + intBytes[1]
+	# LE change
+	num = (intBytes[1] << 8) + intBytes[0]
 	return num, remainingData
 
 def readString(data):

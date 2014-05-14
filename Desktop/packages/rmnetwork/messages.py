@@ -1,23 +1,25 @@
 import sys
 from constants import *
 
-def appendBytes(data, append):
-	# print "APPENDING BYTES: ", append
-	for b in append:
-		b = str(b)
-		val = int(b)
-		# print "VAL: ",val
-		data.append(val)
+def appendBytes(data, append, LE=False):
+	if LE:
+		for b in reversed(append):
+			data.append(int(b))
+	else:
+		for b in append:
+			b = str(b)
+			val = int(b)
+			data.append(val)
 	return data
 
 def appendInt(data, num):
 	sizeBytes = [hex(num >> i & 0xff) for i in (24,16,8,0)]
 	sizeBytes = [int(num >> i & 0xff) for i in (24,16,8,0)]
-	return appendBytes(data, sizeBytes)
+	return appendBytes(data, sizeBytes, True)
 
 def appendShort(data, num):
 	sizeBytes = [int(num >> i & 0xff) for i in (8,0)]
-	return appendBytes(data, sizeBytes)
+	return appendBytes(data, sizeBytes, True)
 
 def appendString(data, str):
 	strBytes = bytearray(str)

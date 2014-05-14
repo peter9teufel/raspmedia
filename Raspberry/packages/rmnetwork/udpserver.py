@@ -27,13 +27,13 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         if result == SERVER_REQUEST:
             print "{} on {} wrote:".format(self.client_address[0], curThread.name)
             print "\nServer request received - sending response...\n"
-            responseData = messages.getMessage(SERVER_REQUEST, ["-s", str(configtool.readConfig()['player_name'])])
+            responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name'])])
             addr = (self.client_address[0], UDP_PORT)
             #print "Response delay..."
             #time.sleep(1)
             print "Sending response to:"
-            print (self.client_address[0], 60007)
-            if cSocket.sendto(responseData, (self.client_address[0], 60007)):
+            print (addr)
+            if cSocket.sendto(responseData, addr):
                 print "Response sent!"
             else:
                 print "Sending response failed!"
@@ -45,11 +45,11 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                 args.append('-s')
                 args.append(file)
             responseData = messages.getMessage(FILELIST_RESPONSE,args)
-            if cSocket.sendto(responseData, (self.client_address[0], 60007)):
+            if cSocket.sendto(responseData, (self.client_address[0], UDP_PORT)):
                 print "Filelist sent!"
         elif result == CONFIG_REQUEST:
             responseData = messages.getConfigMessage()
-            if cSocket.sendto(responseData, (self.client_address[0], 60007)):
+            if cSocket.sendto(responseData, (self.client_address[0], UDP_PORT)):
                 print "Config sent!"
 
 

@@ -15,9 +15,14 @@ def interpret(msg_data):
 	flag, data = readShort(data)
 	returnData = None
 	print "Flag: " + str(flag)
-	if flag == SERVER_REQUEST:
+	if flag == SERVER_REQUEST_ACKNOWLEDGE:
 		result = INTERPRETER_SERVER_REQUEST
-		returnData, data = readString(data)
+		devType, data = readInt(data)
+		devFlag, data = readInt(data)
+		devName, data = readString(data)
+		print "DEVICE FOUND: ", devName
+		print "Type: %d - Flag: %d" % (devType, devFlag)
+		returnData = (devName, devType, devFlag)
 	elif flag == FILELIST_REQUEST:
 		result = INTERPRETER_FILELIST_REQUEST
 	elif flag == FILELIST_RESPONSE:
@@ -47,13 +52,17 @@ def readFileList(data):
 def readInt(data):
 	intBytes = data[:4]
 	remainingData = data[4:]
-	num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
+	#num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
+	# LE change
+	num = (intBytes[3] << 24) + (intBytes[2] << 16) + (intBytes[1] << 8) + intBytes[0]
 	return num, remainingData
 
 def readShort(data):
 	intBytes = data[:2]
 	remainingData = data[2:]
-	num = (intBytes[0] << 8) + intBytes[1]
+	#num = (intBytes[0] << 8) + intBytes[1]
+	# LE change
+	num = (intBytes[1] << 8) + intBytes[0]
 	return num, remainingData
 
 def readString(data):

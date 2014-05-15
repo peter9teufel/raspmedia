@@ -388,8 +388,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbAutoplay.SetValue(configDict['autoplay'])
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
-		#self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
-		#self.parent.parent.Refresh()
+		self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+		self.parent.parent.Refresh()
 
 	def LocalFileSelected(self, event):
 		filePath = self.path + '/' +  event.GetText()
@@ -584,13 +584,14 @@ class RaspMediaCtrlPanel(wx.Panel):
 		elif button.GetName() == 'btn_image_interval':
 			dlg = wx.TextEntryDialog(self, "New Interval:", "Image Interval", self.imgIntervalLabel.GetLabel())
 			if dlg.ShowModal() == wx.ID_OK:
-				newInterval = int(dlg.GetValue())
-				self.imgIntervalLabel.SetLabel(str(newInterval))
-				msgData = network.messages.getConfigUpdateMessage("image_interval", newInterval)
-				network.udpconnector.sendMessage(msgData, self.host)
-				#except Exception, e:
-				#	error = wx.MessageDialog(self, "Please enter a valid number!", "Invalid interval", wx.OK | wx.ICON_EXCLAMATION)
-				#	error.ShowModal()
+				try:
+					newInterval = int(dlg.GetValue())
+					self.imgIntervalLabel.SetLabel(str(newInterval))
+					msgData = network.messages.getConfigUpdateMessage("image_interval", newInterval)
+					network.udpconnector.sendMessage(msgData, self.host)
+				except Exception, e:
+					error = wx.MessageDialog(self, "Please enter a valid number!", "Invalid interval", wx.OK | wx.ICON_EXCLAMATION)
+					error.ShowModal()
 
 			dlg.Destroy()
 		elif button.GetName() == 'btn_player_name':
@@ -600,6 +601,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 				self.playerNameLabel.SetLabel(newName)
 				msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
 				network.udpconnector.sendMessage(msgData, self.host)
+				dlg = wx.ProgressDialog("Updating", "Updating player name...")
+				dlg.Pulse()
+				self.LoadRemoteConfig()
+				time.sleep(0.5)
+				dlg.Destroy()
 			dlg.Destroy()
 		elif button.GetName() == 'btn_reboot':
 			msgData = network.messages.getMessage(PLAYER_REBOOT)

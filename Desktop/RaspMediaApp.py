@@ -234,10 +234,13 @@ class RemoteNotebook(wx.Notebook):
 		self.Update()
 
 	def OnPageChanged(self, event):
-		#if not event.GetOldSelection() == -1:
+		global HOST_SYS
+		if HOST_SYS == HOST_LINUX and event.GetOldSelection() == -1:
+			pass
+		else:
 			# pass event to all pages, appropriate one will load data
-		for page in self.pages:
-			page.PageChanged(event)
+			for page in self.pages:
+				page.PageChanged(event)
 
 
 ################################################################################
@@ -503,7 +506,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbAutoplay.SetValue(configDict['autoplay'])
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
-		if HOST_SYS == HOST_MAC:
+		if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
 			if self.notebook_event:
 				self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
 			self.parent.parent.Refresh()
@@ -681,7 +684,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def UdpListenerStopped(self):
 		global HOST_SYS
 		if self.remoteListLoading:
-			if HOST_SYS == HOST_MAC:
+			if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
 				if self.parent.prgDialog:
 					self.parent.prgDialog.Destroy()
 		else:

@@ -9,7 +9,8 @@ except ImportError:
 playerCount = 0
 activePage = 0
 HOST_WIN = 1
-HOST_UNIX = 2
+HOST_MAC = 2
+HOST_LINUX = 3
 HOST_SYS = None
 
 class ConnectFrame(wx.Frame):
@@ -131,9 +132,9 @@ class AppFrame(wx.Frame):
 					self.Close()
 			else:
 				retry = False
-				
-				self.notebook.prgDialog.Destroy()
-				#self.notebook.prgDialog.Raise()
+
+				#self.notebook.prgDialog.Destroy()
+				self.notebook.prgDialog.Raise()
 				time.sleep(1)
 				self.notebook.LoadPageData(0)
 
@@ -178,8 +179,11 @@ class RemoteNotebook(wx.Notebook):
 		self.parent = parent
 		self.log = log
 		self.pages = []
-		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
-		#self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanging)
+		global HOST_SYS
+		if HOST_SYS == HOST_LINUX:
+			self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
+		elif HOST_SYS == HOST_MAC:
+			self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanged)
 
 	def Close(self):
 		self.Destroy()
@@ -230,10 +234,10 @@ class RemoteNotebook(wx.Notebook):
 		self.Update()
 
 	def OnPageChanged(self, event):
-		if not event.GetOldSelection() == -1:
+		#if not event.GetOldSelection() == -1:
 			# pass event to all pages, appropriate one will load data
-			for page in self.pages:
-				page.PageChanged(event)
+		for page in self.pages:
+			page.PageChanged(event)
 
 
 ################################################################################
@@ -250,6 +254,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.configSizer = wx.GridBagSizer()
 		self.playerSizer = wx.GridBagSizer()
 		self.filesSizer = wx.GridBagSizer()
+		self.notebook_event = None
 		self.prgDialog = None
 		self.pageDataLoading = False
 		self.remoteListLoading = False
@@ -276,6 +281,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		old = event.GetOldSelection()
 		new = event.GetSelection()
 		sel = self.parent.GetSelection()
+		self.notebook_event = event
 		print "OnPageChanged, old:%d, new:%d, sel:%d" % (old, new, sel)
 		newPage = self.parent.GetPage(new)
 		if self.index == newPage.index:
@@ -479,6 +485,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.localList.SetColumn(0, col)
 
 	def InsertReceivedFileList(self, serverAddr, files):
+		print "UPDATING REMOTE FILELIST UI..."
 		self.remoteList.DeleteAllItems()
 		files.sort()
 		for file in reversed(files):
@@ -486,6 +493,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 				self.remoteList.InsertStringItem(0, file)
 
 	def UpdateConfigUI(self, config):
+		print "UPDATING CONFIG UI..."
 		global HOST_SYS
 		configDict = ast.literal_eval(config)
 		print configDict
@@ -495,8 +503,9 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbAutoplay.SetValue(configDict['autoplay'])
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
-		if HOST_SYS == HOST_UNIX:
-			self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+		if HOST_SYS == HOST_MAC:
+			if self.notebook_event:
+				self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
 			self.parent.parent.Refresh()
 		elif HOST_SYS == HOST_WIN:
 			self.parent.SetTitle(str(configDict['player_name']))
@@ -672,7 +681,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def UdpListenerStopped(self):
 		global HOST_SYS
 		if self.remoteListLoading:
-			if HOST_SYS == HOST_UNIX:
+			if HOST_SYS == HOST_MAC:
 				if self.parent.prgDialog:
 					self.parent.prgDialog.Destroy()
 		else:
@@ -754,8 +763,11 @@ if __name__ == '__main__':
 	if platform.system() == 'Windows':
 		HOST_SYS = HOST_WIN
 		frame = ConnectFrame(None, -1, 'RaspMedia Control')
-	else:
-		HOST_SYS = HOST_UNIX
+	elif platform.system() == 'Darwin':
+		HOST_SYS = HOST_MAC
+		frame = AppFrame(None, -1, 'RaspMedia Control')
+	elif platform.system() == 'Linux':
+		HOST_SYS = HOST_LINUX
 		frame = AppFrame(None, -1, 'RaspMedia Control')
 
 	app.MainLoop()

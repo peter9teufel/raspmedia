@@ -119,6 +119,8 @@ class AppFrame(wx.Frame):
 		self.parent = parent
 		self.Bind(wx.EVT_CLOSE, self.Close)
 		self.notebook = RemoteNotebook(self,-1,None)
+		self.Center()
+		self.Show()
 		retry = True
 		while retry:
 			self.notebook.SearchHosts()
@@ -129,8 +131,7 @@ class AppFrame(wx.Frame):
 					self.Close()
 			else:
 				retry = False
-				self.Center()
-				self.Show()
+				
 				self.notebook.prgDialog.Destroy()
 				#self.notebook.prgDialog.Raise()
 				time.sleep(1)
@@ -177,8 +178,8 @@ class RemoteNotebook(wx.Notebook):
 		self.parent = parent
 		self.log = log
 		self.pages = []
-		#self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
-		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanging)
+		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
+		#self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanging)
 
 	def Close(self):
 		self.Destroy()
@@ -228,11 +229,11 @@ class RemoteNotebook(wx.Notebook):
 		print "Number of observers: ", len(network.udpresponselistener.observers)
 		self.Update()
 
-	def OnPageChanging(self, event):
-		event.Skip()
-		# pass event to all pages, appropriate one will load data
-		for page in self.pages:
-			page.PageChanged(event)
+	def OnPageChanged(self, event):
+		if not event.GetOldSelection() == -1:
+			# pass event to all pages, appropriate one will load data
+			for page in self.pages:
+				page.PageChanged(event)
 
 
 ################################################################################
@@ -277,7 +278,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		sel = self.parent.GetSelection()
 		print "OnPageChanged, old:%d, new:%d, sel:%d" % (old, new, sel)
 		newPage = self.parent.GetPage(new)
-		if self == newPage:
+		if self.index == newPage.index:
+			print "PAGE CHANGED TO INDEX %d - PROCESSING AND LOADING DATA..." % (self.index)
 			self.pageDataLoading = True
 			dlg = wx.ProgressDialog("Loading...", "Loading Player Data...")
 			dlg.Pulse()

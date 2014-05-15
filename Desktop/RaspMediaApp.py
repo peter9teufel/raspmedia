@@ -7,6 +7,7 @@ except ImportError:
 	raise ImportError,"Wx Python is required."
 
 playerCount = 0
+activePage = 0
 HOST_WIN = 1
 HOST_UNIX = 2
 HOST_SYS = None
@@ -30,7 +31,7 @@ class ConnectFrame(wx.Frame):
 		# Text label
 		label = wx.StaticText(self,-1,label="Available RaspMedia Players:")
 		self.mainSizer.Add(label,(0,0),(1,2),wx.EXPAND)
-		
+
 		label = wx.StaticText(self,-1,label="(double-click to connect)")
 		self.mainSizer.Add(label,(1,0),(1,2),wx.EXPAND)
 
@@ -184,10 +185,10 @@ class RemoteNotebook(wx.Notebook):
 
 	def HostFound(self, host, playerName):
 		global playerCount
-		playerCount += 1
 		print "HOST FOUND!"
 		# add page for found Player
-		page = RaspMediaCtrlPanel(self,-1,playerName)
+		page = RaspMediaCtrlPanel(self,-1,playerName,playerCount)
+		playerCount += 1
 		page.SetHost(host[0])
 		self.pages.append(page)
 		#page.LoadRemoteConfig()
@@ -237,10 +238,11 @@ class RemoteNotebook(wx.Notebook):
 # RASP MEDIA CONTROL PANEL #####################################################
 ################################################################################
 class RaspMediaCtrlPanel(wx.Panel):
-	def __init__(self,parent,id,title):
+	def __init__(self,parent,id,title,index):
 		#wx.Panel.__init__(self,parent,id,title)
 		wx.Panel.__init__(self,parent,-1)
 		self.parent = parent
+		self.index = index
 		self.path = self.DefaultPath()
 		self.mainSizer = wx.GridBagSizer()
 		self.configSizer = wx.GridBagSizer()
@@ -491,7 +493,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
 		if HOST_SYS == HOST_UNIX:
-			self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+			self.parent.SetPageText(self.index, str(configDict['player_name']))
 			self.parent.parent.Refresh()
 		elif HOST_SYS == HOST_WIN:
 			self.parent.SetTitle(str(configDict['player_name']))
@@ -742,7 +744,7 @@ if __name__ == '__main__':
 	abspath = os.path.abspath(__file__)
 	dname = os.path.dirname(abspath)
 	os.chdir(dname)
-	
+
 	app = wx.App()
 
 	# check platform
@@ -752,6 +754,6 @@ if __name__ == '__main__':
 	else:
 		HOST_SYS = HOST_UNIX
 		frame = AppFrame(None, -1, 'RaspMedia Control')
-	
+
 	app.MainLoop()
 	del app

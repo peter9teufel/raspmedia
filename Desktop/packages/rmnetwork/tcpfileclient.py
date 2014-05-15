@@ -38,6 +38,7 @@ def sendFile(filePath, host, parent):
 	    prgDialog.Update(bytesSent)
 	    l = f.read(_BLOCK_SIZE)
 	s.close()
+	prgDialog.Destroy()
 	for observer in observers:
 		observer(None)
 

@@ -22,11 +22,15 @@ def _ip_addresses(v6):
         if iface != None:
             for j in iface:
                 curIP = j['addr']
+                append = False
                 if v6:
-                    check_ip6_address(curIP)
-                ip_list.append(curIP)
+                    append = check_ip6_address(curIP)
+                else:
+                    append = not curIP.startswith('127.') and not curIP.startswith('169.254.')
+                if append:
+                    ip_list.append(curIP)
 
     return ip_list
 
 def check_ip6_address(ip6):
-    pass
+    return True

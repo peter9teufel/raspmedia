@@ -1,12 +1,112 @@
 import packages.rmnetwork as network
 from packages.rmnetwork.constants import *
-import os, sys, ast, time
+import os, sys, platform, ast, time
 try:
 	import wx
 except ImportError:
 	raise ImportError,"Wx Python is required."
 
 playerCount = 0
+HOST_WIN = 1
+HOST_UNIX = 2
+HOST_SYS = None
+
+class ConnectFrame(wx.Frame):
+	def __init__(self,parent,id,title):
+		wx.Frame.__init__(self,parent,id,title)
+		self.parent = parent
+		self.Bind(wx.EVT_CLOSE, self.close)
+		self.mediaCtrlFrame = None
+		self.hosts = []
+		self.mainSizer = wx.GridBagSizer()
+		self.initGui()
+		self.searchHosts()
+
+	def close(self, event):
+		self.Destroy()
+		sys.exit(0)
+
+	def initGui(self):
+		# Text label
+		label = wx.StaticText(self,-1,label="Available RaspMedia Players:")
+		self.mainSizer.Add(label,(0,0),(1,2),wx.EXPAND)
+		
+		label = wx.StaticText(self,-1,label="(double-click to connect)")
+		self.mainSizer.Add(label,(1,0),(1,2),wx.EXPAND)
+
+		id=wx.NewId()
+		self.hostList=wx.ListCtrl(self,id,size=(300,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+		self.hostList.Show(True)
+
+		self.hostList.InsertColumn(0,"Host Address", width = 150)
+		self.hostList.InsertColumn(1,"Player Name", width = 150)
+		self.mainSizer.Add(self.hostList, (2,0))
+		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.HostListDoubleClicked, self.hostList)
+
+		self.SetSizerAndFit(self.mainSizer)
+		self.Center()
+		self.Show(True)
+
+	def HostFound(self, host, name):
+		# self.hosts.Add(host)
+		idx = self.hostList.InsertStringItem(0, host[0])
+
+		port = str(host[1])
+		print "Host insert in row " + str(idx) + ": " + host[0] + " - " + port
+		self.hostList.SetStringItem(idx, 1, name)
+
+	def searchHosts(self):
+		# clear host list
+		self.hostList.DeleteAllItems()
+		network.udpresponselistener.registerObserver([OBS_HOST_SEARCH, self.HostFound])
+		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+		msgData = network.messages.getMessage(SERVER_REQUEST)
+		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...")
+		self.prgDialog.Pulse()
+		network.udpconnector.sendMessage(msgData)
+
+	def UdpListenerStopped(self):
+		if self.prgDialog:
+			self.prgDialog.Destroy()
+
+	def HostListDoubleClicked(self, event):
+		print "You double clicked ", event.GetText()
+		playerName = self.hostList.GetItem(self.hostList.GetFirstSelected(),1).GetText()
+		self.Hide()
+		self.mediaCtrlFrame = RemoteFrame(self.parent,-1, playerName)
+		self.mediaCtrlFrame.SetHost(event.GetText())
+		self.mediaCtrlFrame.Bind(wx.EVT_CLOSE, self.ChildFrameClosed)
+		self.mediaCtrlFrame.Center()
+		self.mediaCtrlFrame.Show(True)
+		self.mediaCtrlFrame.Load()
+		#self.mediaCtrlFrame.LoadRemoteConfig(None)
+		#self.mediaCtrlFrame.LoadRemoteFileList(None)
+
+	def ChildFrameClosed(self, event):
+		self.mediaCtrlFrame.Destroy()
+		self.Center()
+		self.Show(True)
+		self.searchHosts()
+
+################################################################################
+# REMOTE FRAME OF APP FOR WIN VERSION ##########################################
+################################################################################
+
+class RemoteFrame(wx.Frame):
+	def __init__(self,parent,id,title):
+		wx.Frame.__init__(self,parent,id,title,size=(600,600))
+		self.parent = parent
+		self.panel = RaspMediaCtrlPanel(self,-1,"RaspMedia Remote")
+		self.prgDialog = None
+		self.Center()
+		self.Fit()
+
+	def SetHost(self, host):
+		self.panel.SetHost(host)
+
+	def Load(self):
+		self.panel.LoadRemoteConfig()
+
 
 ################################################################################
 # MAIN FRAME OF APP ############################################################
@@ -30,7 +130,9 @@ class AppFrame(wx.Frame):
 				retry = False
 				self.Center()
 				self.Show()
-				self.notebook.prgDialog.Raise()
+				self.notebook.prgDialog.Destroy()
+				#self.notebook.prgDialog.Raise()
+				time.sleep(1)
 				self.notebook.LoadPageData(0)
 
 	def Close(self, event=None):
@@ -109,7 +211,7 @@ class RemoteNotebook(wx.Notebook):
 		msgData = network.messages.getMessage(SERVER_REQUEST)
 		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self)
 		self.prgDialog.Pulse()
-		self.prgDialog.SetFocus()
+		#self.prgDialog.SetFocus()
 		self.prgDialog.Raise()
 		network.udpconnector.sendMessage(msgData)
 
@@ -188,8 +290,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.mainSizer.Add(self.playerSizer,(0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
 		self.mainSizer.Add(self.configSizer, (0,2), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
 
-		self.mainSizer.Add(self.filesSizer, (2,0), span=(1,4), flag=wx.ALL, border=10)
-
+		self.mainSizer.Add(self.filesSizer, (2,0), span=(1,4), flag=wx.BOTTOM | wx.LEFT | wx.RIGHT, border=10)
 
 		self.SetSizerAndFit(self.mainSizer)
 
@@ -200,6 +301,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.mainSizer.Add(line,(0,1), flag = wx.LEFT, border = 10)
 
 		# self.SetSizeHints(self.GetSize().x,self.GetSize().y,-1,self.GetSize().y)
+		#self.SetSizerAndFit(self.mainSizer)
 		self.Show(True)
 
 	def SetupPlayerSection(self):
@@ -374,12 +476,12 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def InsertReceivedFileList(self, serverAddr, files):
 		self.remoteList.DeleteAllItems()
 		files.sort()
-		for file in files:
+		for file in reversed(files):
 			if not file.startswith('.') and '.' in file:
-				self.remoteList.InsertStringItem(self.remoteList.GetItemCount(), file)
+				self.remoteList.InsertStringItem(0, file)
 
 	def UpdateConfigUI(self, config):
-		print "Update CONFIG METHOD"
+		global HOST_SYS
 		configDict = ast.literal_eval(config)
 		print configDict
 		self.cbImgEnabled.SetValue(configDict['image_enabled'])
@@ -388,8 +490,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbAutoplay.SetValue(configDict['autoplay'])
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
-		self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
-		self.parent.parent.Refresh()
+		if HOST_SYS == HOST_UNIX:
+			self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+			self.parent.parent.Refresh()
+		elif HOST_SYS == HOST_WIN:
+			self.parent.SetTitle(str(configDict['player_name']))
 
 	def LocalFileSelected(self, event):
 		filePath = self.path + '/' +  event.GetText()
@@ -475,7 +580,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 		if event.GetText() == '..':
 			# directory up
 			self.ShowParentDirectory()
-			pass
 		elif os.path.isdir(filePath):
 			# open directory
 			self.ShowDirectory(filePath)
@@ -561,9 +665,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.udpconnector.sendMessage(msgData, self.host)
 
 	def UdpListenerStopped(self):
+		global HOST_SYS
 		if self.remoteListLoading:
-			if self.parent.prgDialog:
-				self.parent.prgDialog.Destroy()
+			if HOST_SYS == HOST_UNIX:
+				if self.parent.prgDialog:
+					self.parent.prgDialog.Destroy()
 		else:
 			self.LoadRemoteFileList()
 		if self.prgDialog:
@@ -630,15 +736,22 @@ class RaspMediaCtrlPanel(wx.Panel):
 		msgData = network.messages.getMessage(PLAYER_STOP)
 		network.udpconnector.sendMessage(msgData, self.host)
 
-
 # MAIN ROUTINE
 if __name__ == '__main__':
 	# set working directory to scripts path
 	abspath = os.path.abspath(__file__)
 	dname = os.path.dirname(abspath)
 	os.chdir(dname)
+	
 	app = wx.App()
-	# frame = RaspMediaCtrlFrame(None, -1, 'RaspMedia Control')
-	# frame = ConnectFrame(None, -1, 'RaspMedia Control')
-	frame = AppFrame(None, -1, 'RaspMedia Control')
+
+	# check platform
+	if platform.system() == 'Windows':
+		HOST_SYS = HOST_WIN
+		frame = ConnectFrame(None, -1, 'RaspMedia Control')
+	else:
+		HOST_SYS = HOST_UNIX
+		frame = AppFrame(None, -1, 'RaspMedia Control')
+	
 	app.MainLoop()
+	del app

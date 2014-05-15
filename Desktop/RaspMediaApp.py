@@ -229,6 +229,7 @@ class RemoteNotebook(wx.Notebook):
 		self.Update()
 
 	def OnPageChanging(self, event):
+		event.Skip()
 		# pass event to all pages, appropriate one will load data
 		for page in self.pages:
 			page.PageChanged(event)
@@ -493,7 +494,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
 		if HOST_SYS == HOST_UNIX:
-			self.parent.SetPageText(self.index, str(configDict['player_name']))
+			self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
 			self.parent.parent.Refresh()
 		elif HOST_SYS == HOST_WIN:
 			self.parent.SetTitle(str(configDict['player_name']))

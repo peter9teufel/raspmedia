@@ -43,7 +43,7 @@ def interpret(msg_data):
 	elif flag == DELETE_FILE:
 		numFiles, data = readInt(data)
 		files = []
-		for i in range(numFiles-1):
+		for i in range(numFiles):
 			msg, data = readString(data)
 			if msg:
 				files.append(msg)

@@ -571,9 +571,10 @@ class RaspMediaCtrlPanel(wx.Panel):
 		while not index == -1:
 			item = self.remoteList.GetItem(index,0)
 			fileName = item.GetText()
-			files.append(fileName)
+			files.append(str(fileName))
 			index = self.remoteList.GetNextSelected(index)
 		print "Files to delete: ", files
+		self.DeleteRemoteFiles(files)
 
 
 	def SendSelectedFilesToPlayer(self, event):

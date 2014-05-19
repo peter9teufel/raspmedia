@@ -41,10 +41,13 @@ def interpret(msg_data):
 	elif flag == CONFIG_REQUEST:
 		result = CONFIG_REQUEST
 	elif flag == DELETE_FILE:
-		msg, data = readString(data)
-		if msg:
-			# filename received --> initiate delete
-			mediaplayer.deleteFile(msg)
+		numFiles, data = readInt(data)
+		files = []
+		for i in range(numFiles-1):
+			msg, data = readString(data)
+			if msg:
+				files.append(msg)
+		mediaplayer.deleteFiles(files)
 	elif flag == PLAYER_IDENTIFY:
 		print 'Showing identify image...'
 		mediaplayer.identifySelf()

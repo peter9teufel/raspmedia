@@ -566,8 +566,15 @@ class RaspMediaCtrlPanel(wx.Panel):
 		menu.Destroy()
 
 	def DeleteSelectedRemoteFile(self, event):
-		fileName = self.remoteList.GetItemText(self.remoteList.GetFocusedItem())
-		self.DeleteRemoteFile(fileName)
+		index = self.remoteList.GetFirstSelected()
+		files = []
+		while not index == -1:
+			item = self.remoteList.GetItem(index,0)
+			fileName = item.GetText()
+			files.append(fileName)
+			index = self.remoteList.GetNextSelected(index)
+		print "Files to delete: ", files
+
 
 	def SendSelectedFilesToPlayer(self, event):
 		index = self.localList.GetFirstSelected()
@@ -632,18 +639,25 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 	def RemoteFileDoubleClicked(self, event):
 		fileName = event.GetText()
-		filePath = self.path + '/' +  fileName
 		self.DeleteRemoteFile(fileName)
 
 	def DeleteRemoteFile(self, fileName):
+		files = [fileName]
+		self.DeleteRemoteFiles(files)
+
+	def DeleteRemoteFiles(self, files):
 		# dialog to verify deleting file on player
-		msg = "Delete the file '" + fileName + "' from the player (will stop and restart player)? This can not be undone!"
-		dlg = wx.MessageDialog(self, msg, "Delete file from player?", wx.YES_NO | wx.ICON_EXCLAMATION)
+		msg = "Delete the selected file(s) from the player (will stop and restart player)? This can not be undone!"
+		dlg = wx.MessageDialog(self, msg, "Delete file(s) from player?", wx.YES_NO | wx.ICON_EXCLAMATION)
 		if dlg.ShowModal() == wx.ID_YES:
 			dlgStyle =  wx.PD_AUTO_HIDE
-			self.prgDialog = wx.ProgressDialog("Deleting file...", "Deleting file from player...", maximum = 1, parent = self, style = dlgStyle)
+			self.prgDialog = wx.ProgressDialog("Deleting file(s)...", "Deleting file(s) from player...", maximum = 1, parent = self, style = dlgStyle)
 			self.prgDialog.Pulse()
-			msgData = network.messages.getMessage(DELETE_FILE, ["-s", str(fileName)])
+			args = ["-i", str(len(files))]
+			for file in files:
+				args.append("-s")
+				args.append(file)
+			msgData = network.messages.getMessage(DELETE_FILE, args)
 			network.udpconnector.sendMessage(msgData, self.host)
 			time.sleep(3)
 			self.prgDialog.Update(1, "Done!")

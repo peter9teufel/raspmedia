@@ -332,7 +332,7 @@ def setMediaPath(curMediaPath):
     mediaPath = curMediaPath
     mp_thread.mediaPath = curMediaPath
 
-def deleteFile(fileName):
+def deleteFiles(files):
     global mediaPath
     global playerState
     restart = False
@@ -344,9 +344,10 @@ def deleteFile(fileName):
     path = mediaPath
     if not path.endswith('/'):
         path += "/"
-    fullPath = path + fileName
-    if os.path.isfile(fullPath):
-        os.remove(fullPath)
+    for file in files:
+        fullPath = path + file
+        if os.path.isfile(fullPath):
+            os.remove(fullPath)
 
     if restart:
         play()

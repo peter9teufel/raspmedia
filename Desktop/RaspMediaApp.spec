@@ -10,7 +10,7 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas + Tree('img', 'img'),
-          name='RaspMediaApp' + ('.exe' if sys.platform == 'win32' else ''),
+          name='RaspMedia Control' + ('.exe' if sys.platform == 'win32' else ''),
           debug=False,
           strip=None,
           upx=True,
@@ -18,5 +18,5 @@ exe = EXE(pyz,
           icon='img/ic_main.ico')
 if sys.platform == 'darwin':
     app = BUNDLE(exe,
-             name='RaspMediaApp.app',
+             name='RaspMedia Control.app',
              icon='img/ic_main.icns')

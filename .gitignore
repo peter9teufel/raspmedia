@@ -3,3 +3,5 @@
 *.mpg
 *.m4v
 *.mp4
+build
+dist

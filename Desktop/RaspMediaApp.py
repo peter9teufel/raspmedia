@@ -120,11 +120,12 @@ class AppFrame(wx.Frame):
 		self.parent = parent
 		self.Bind(wx.EVT_CLOSE, self.Close)
 		self.notebook = RemoteNotebook(self,-1,None)
-		self.Center()
 		self.Show()
+		self.Center()
 		retry = True
 		while retry:
 			self.notebook.SearchHosts()
+			self.Center()
 			if playerCount == 0:
 				self.notebook.prgDialog.Destroy()
 				dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
@@ -135,7 +136,7 @@ class AppFrame(wx.Frame):
 
 				#self.notebook.prgDialog.Destroy()
 				self.notebook.prgDialog.Raise()
-				time.sleep(1)
+				time.sleep(0.5)
 				self.notebook.LoadPageData(0)
 
 	def Close(self, event=None):
@@ -406,7 +407,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.AddImagePreview()
 		self.AddRemoteList()
 
-		imageFile = "img/ic_folder_select.png"
+		imageFile = resource_path("img/ic_folder_select.png")
 		btnIcon = wx.Image(imageFile, wx.BITMAP_TYPE_ANY)
 		btnIcon = btnIcon.Scale(30,30)
 		btnIcon = btnIcon.ConvertToBitmap()
@@ -449,7 +450,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def AddImagePreview(self):
 		img = wx.EmptyImage(200,200)
 		self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(img))
-		self.SetPreviewImage(os.getcwd() + '/img/preview.png')
+		self.SetPreviewImage('img/preview.png')
 		self.filesSizer.Add(self.imageCtrl, (1,1), flag = wx.LEFT, border=5)
 
 	def AddRemoteList(self):
@@ -509,6 +510,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
 			if self.notebook_event:
 				self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
+			else:
+				self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
 			self.parent.parent.Refresh()
 		elif HOST_SYS == HOST_WIN:
 			self.parent.SetTitle(str(configDict['player_name']))
@@ -520,13 +523,14 @@ class RaspMediaCtrlPanel(wx.Panel):
 		imagePath = filePath
 
 		if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
-			imagePath = os.getcwd() + '/img/video.png'
+			imagePath = 'img/video.png'
 		elif os.path.isdir(filePath):
-			imagePath = os.getcwd() + '/img/preview.png'
+			imagePath = 'img/preview.png'
 
 		self.SetPreviewImage(imagePath)
 
 	def LocalFileRightClicked(self, event):
+		global HOST_SYS
 		file = event.GetText()
 		menu = wx.Menu()
 		if file == '..' or os.path.isdir(self.path + '/' + file):
@@ -534,10 +538,13 @@ class RaspMediaCtrlPanel(wx.Panel):
 			self.Bind(wx.EVT_MENU, self.ShowSelectedDirectory, item)
 		else:
 			item = menu.Append(wx.NewId(), "Send to Player")
-			self.Bind(wx.EVT_MENU, self.SendSelectedFileToPlayer, item)
+			self.Bind(wx.EVT_MENU, self.SendSelectedFilesToPlayer, item)
 		rect = self.localList.GetRect()
 		point = event.GetPoint()
-		self.PopupMenu(menu, (rect[0]+point[0]+10,rect[1]+point[1]+30))
+		if HOST_SYS == HOST_WIN:
+			self.PopupMenu(menu, (rect[0]+point[0]+10,rect[1]+point[1]+10))
+		else:
+			self.PopupMenu(menu, (rect[0]+point[0]+10,rect[1]+point[1]+30))
 		menu.Destroy()
 
 	def ShowSelectedDirectory(self, event):
@@ -562,18 +569,30 @@ class RaspMediaCtrlPanel(wx.Panel):
 		fileName = self.remoteList.GetItemText(self.remoteList.GetFocusedItem())
 		self.DeleteRemoteFile(fileName)
 
-	def SendSelectedFileToPlayer(self, event):
-		print "Sending from right click menu call..."
-		fileName = self.localList.GetItemText(self.localList.GetFocusedItem())
-		print "Filename: ", fileName
+	def SendSelectedFilesToPlayer(self, event):
+		index = self.localList.GetFirstSelected()
+		files = []
+		while not index == -1:
+			item = self.localList.GetItem(index,0)
+			fileName = item.GetText()
+			files.append(fileName)
+			index = self.localList.GetNextSelected(index)
+		print "Files to send: ", files
+		for file in files:
+			self.SendFileToPlayer(file)
+		self.LoadRemoteFileList()
+
+	def SendFileToPlayer(self, fileName):
 		filePath = self.path + '/' +  fileName
 		print "Path: ", filePath
 		network.tcpfileclient.registerObserver(self.LoadRemoteFileList)
 		network.tcpfileclient.sendFile(filePath, self.host, self)
-		self.LoadRemoteFileList()
 
 	def SetPreviewImage(self, imagePath):
-		img = wx.Image(imagePath)
+		print "PREVIEW IMAGE PATH: " + imagePath
+		path = resource_path(imagePath)
+		print "RESOURCE PATH: " + path
+		img = wx.Image(path)
 		# scale the image, preserving the aspect ratio
 		W = img.GetWidth()
 		H = img.GetHeight()
@@ -652,7 +671,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def ShowDirectory(self, newPath):
 		if not self.path == newPath:
 			self.path = newPath
-			self.SetPreviewImage(os.getcwd() + '/img/preview.png')
+			self.SetPreviewImage('img/preview.png')
 			self.UpdateLocalFiles()
 
 	def ShowParentDirectory(self, event=None):
@@ -753,6 +772,22 @@ class RaspMediaCtrlPanel(wx.Panel):
 		msgData = network.messages.getMessage(PLAYER_STOP)
 		network.udpconnector.sendMessage(msgData, self.host)
 
+
+def resource_path(relative_path):
+	""" Get absolute path to resource, works for dev and for PyInstaller """
+	try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+		base_path = sys._MEIPASS
+		print "BASE PATH FOUND: "+ base_path
+	except Exception:
+		print "BASE PATH NOT FOUND!"
+		base_path = os.path.abspath(".")
+	print "JOINING " + base_path + " WITH " + relative_path
+	resPath = os.path.join(base_path, relative_path)
+	#resPath = base_path + relative_path
+	print resPath
+	return resPath
+
 # MAIN ROUTINE
 if __name__ == '__main__':
 	# set working directory to scripts path
@@ -774,4 +809,3 @@ if __name__ == '__main__':
 		frame = AppFrame(None, -1, 'RaspMedia Control')
 
 	app.MainLoop()
-	del app

@@ -1,6 +1,6 @@
 import packages.rmnetwork as network
 from packages.rmnetwork.constants import *
-import os, sys, platform, ast, time
+import os, sys, platform, ast, time, threading
 try:
 	import wx
 except ImportError:
@@ -12,6 +12,7 @@ HOST_WIN = 1
 HOST_MAC = 2
 HOST_LINUX = 3
 HOST_SYS = None
+BASE_PATH = None
 
 class ConnectFrame(wx.Frame):
 	def __init__(self,parent,id,title):
@@ -70,6 +71,7 @@ class ConnectFrame(wx.Frame):
 	def UdpListenerStopped(self):
 		if self.prgDialog:
 			self.prgDialog.Destroy()
+		self.Raise()
 
 	def HostListDoubleClicked(self, event):
 		print "You double clicked ", event.GetText()
@@ -98,7 +100,7 @@ class RemoteFrame(wx.Frame):
 	def __init__(self,parent,id,title):
 		wx.Frame.__init__(self,parent,id,title,size=(600,600))
 		self.parent = parent
-		self.panel = RaspMediaCtrlPanel(self,-1,"RaspMedia Remote")
+		self.panel = RaspMediaCtrlPanel(self,-1,"RaspMedia Remote",0)
 		self.prgDialog = None
 		self.Center()
 		self.Fit()
@@ -108,6 +110,7 @@ class RemoteFrame(wx.Frame):
 
 	def Load(self):
 		self.panel.LoadRemoteConfig()
+		self.SetSize((self.GetSize()[0]-1, self.GetSize()[1]-1))
 
 
 ################################################################################
@@ -119,12 +122,15 @@ class AppFrame(wx.Frame):
 		global playerCount
 		self.parent = parent
 		self.Bind(wx.EVT_CLOSE, self.Close)
+		print "Initializing Notebook..."
 		self.notebook = RemoteNotebook(self,-1,None)
+		print "Showing window..."
 		self.Show()
-		self.Center()
 		retry = True
 		while retry:
+			print "Starting host search..."
 			self.notebook.SearchHosts()
+			print "Centering AppFrame and checking result..."
 			self.Center()
 			if playerCount == 0:
 				self.notebook.prgDialog.Destroy()
@@ -133,10 +139,8 @@ class AppFrame(wx.Frame):
 					self.Close()
 			else:
 				retry = False
-
 				#self.notebook.prgDialog.Destroy()
 				self.notebook.prgDialog.Raise()
-				time.sleep(0.5)
 				self.notebook.LoadPageData(0)
 
 	def Close(self, event=None):
@@ -193,17 +197,16 @@ class RemoteNotebook(wx.Notebook):
 		global playerCount
 		print "HOST FOUND!"
 		# add page for found Player
-		page = RaspMediaCtrlPanel(self,-1,playerName,playerCount)
-		playerCount += 1
+		page = RaspMediaCtrlPanel(self,-1,playerName,playerCount-1)
 		page.SetHost(host[0])
 		self.pages.append(page)
 		#page.LoadRemoteConfig()
 		#page.LoadRemoteFileList()
 		#page.Fit()
 		self.AddPage(page, playerName)
+		playerCount += 1
 		self.Fit()
 		self.parent.Fit()
-
 		# self.hosts.Add(host)
 		#idx = self.hostList.InsertStringItem(0, playerName)
 		#port = str(host[1])
@@ -214,7 +217,7 @@ class RemoteNotebook(wx.Notebook):
 		# clear host list
 		#self.hostList.DeleteAllItems()
 		network.udpresponselistener.registerObserver([OBS_HOST_SEARCH, self.HostFound])
-		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped, self])
 		msgData = network.messages.getMessage(SERVER_REQUEST)
 		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self)
 		self.prgDialog.Pulse()
@@ -229,13 +232,16 @@ class RemoteNotebook(wx.Notebook):
 		#self.GetPage(pageNumber).LoadRemoteFileList()
 
 	def UdpListenerStopped(self):
+		global playerCount
 		network.udpresponselistener.removeObserver([OBS_HOST_SEARCH, self.HostFound])
 		network.udpresponselistener.removeObserver([OBS_STOP, self.UdpListenerStopped])
 		print "Number of observers: ", len(network.udpresponselistener.observers)
+		print "Number of players found: ", playerCount
 		self.Update()
 
 	def OnPageChanged(self, event):
 		global HOST_SYS
+		print "ON PAGE CHANGED TRIGGER"
 		if HOST_SYS == HOST_LINUX and event.GetOldSelection() == -1:
 			pass
 		else:
@@ -314,7 +320,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 		line = wx.StaticLine(self,-1,size=(2,self.mainSizer.GetCellSize(0,0)[1]),style=wx.LI_VERTICAL)
 		self.mainSizer.Add(line,(0,1), flag = wx.LEFT, border = 10)
-
 		# self.SetSizeHints(self.GetSize().x,self.GetSize().y,-1,self.GetSize().y)
 		#self.SetSizerAndFit(self.mainSizer)
 		self.Show(True)
@@ -322,7 +327,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def SetupPlayerSection(self):
 		# Text label
 		label = wx.StaticText(self,-1,label="Remote Control:")
-		self.playerSizer.Add(label,(0,0),(1,2), flag = wx.EXPAND | wx.BOTTOM, border=5)
+		self.playerSizer.Add(label,(0,0),(1,2), flag = wx.BOTTOM, border=5)
 
 		# Play and Stop Button
 		button = wx.Button(self,-1,label="Play")
@@ -562,7 +567,10 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.Bind(wx.EVT_MENU, self.DeleteSelectedRemoteFile, item)
 		rect = self.remoteList.GetRect()
 		point = event.GetPoint()
-		self.PopupMenu(menu, (rect[0]+point[0]+10,rect[1]+point[1]+30))
+		if HOST_SYS == HOST_WIN:
+			self.PopupMenu(menu, (rect[0]+point[0]+10,rect[1]+point[1]+10))
+		else:
+			self.PopupMenu(menu, (rect[0]+point[0]+10,rect[1]+point[1]+30))
 		menu.Destroy()
 
 	def DeleteSelectedRemoteFile(self, event):
@@ -597,6 +605,10 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.tcpfileclient.sendFile(filePath, self.host, self)
 
 	def SetPreviewImage(self, imagePath):
+		self._SetPreview('img/clear.png')
+		self._SetPreview(imagePath)
+		
+	def _SetPreview(self, imagePath):
 		print "PREVIEW IMAGE PATH: " + imagePath
 		path = resource_path(imagePath)
 		print "RESOURCE PATH: " + path
@@ -678,10 +690,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 		# Call the dialog as a model-dialog so we're required to choose Ok or Cancel
 		if dlg.ShowModal() == wx.ID_OK:
-			# User has selected something, get the path, set the window's title to the path
+			# User has selected something, get the path
 			filename = dlg.GetPath()
+			print "Changing local list to new path: " + filename
 			self.ShowDirectory(filename)
-		dlg.Destroy() # we don't need the dialog any more so we ask it to clean-up
+		dlg.Destroy()
 
 	def ShowDirectory(self, newPath):
 		if not self.path == newPath:
@@ -705,8 +718,10 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.udpconnector.sendMessage(msgData, self.host)
 
 	def LoadRemoteConfig(self, event=None):
+		print "Entering LoadRemoteConfig routine...."
 		network.udpresponselistener.registerObserver([OBS_CONFIG, self.UpdateConfigUI])
 		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+		print "Observers registered..."
 		msgData = network.messages.getMessage(CONFIG_REQUEST)
 		dlgStyle =  wx.PD_AUTO_HIDE
 		#self.prgDialog = wx.ProgressDialog("Loading...", "Loading configuration from player...", maximum = 0, parent = self, style = dlgStyle)
@@ -789,6 +804,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 
 def resource_path(relative_path):
+	global BASE_PATH
 	""" Get absolute path to resource, works for dev and for PyInstaller """
 	try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -796,9 +812,9 @@ def resource_path(relative_path):
 		print "BASE PATH FOUND: "+ base_path
 	except Exception:
 		print "BASE PATH NOT FOUND!"
-		base_path = os.path.abspath(".")
+		base_path = BASE_PATH
 	print "JOINING " + base_path + " WITH " + relative_path
-	resPath = os.path.join(base_path, relative_path)
+	resPath = os.path.normcase(os.path.join(base_path, relative_path))
 	#resPath = base_path + relative_path
 	print resPath
 	return resPath
@@ -809,7 +825,7 @@ if __name__ == '__main__':
 	abspath = os.path.abspath(__file__)
 	dname = os.path.dirname(abspath)
 	os.chdir(dname)
-
+	BASE_PATH = dname
 	app = wx.App()
 
 	# check platform

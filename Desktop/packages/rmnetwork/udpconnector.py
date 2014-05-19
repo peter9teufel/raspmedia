@@ -31,7 +31,6 @@ def sendMessage(data,host='<broadcast>'):
 			_sendMessage(data,host,ip)
 	else:
 		_sendMessage(data,host)
-
 	# ensure a clean exit when data is sent and response processed
 	cleanExit()
 

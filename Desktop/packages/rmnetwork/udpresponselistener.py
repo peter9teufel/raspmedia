@@ -1,4 +1,4 @@
-import socket, select
+import socket, select, time
 import interpreter, netutil
 
 from constants import *
@@ -47,6 +47,7 @@ def startListening():
 					for observer in observers:
 						if observer[0] == OBS_HOST_SEARCH:
 							observer[1](address, response[0])
+				time.sleep(1)
 			elif result == INTERPRETER_FILELIST_REQUEST:
 				print "File list received!"
 				print response

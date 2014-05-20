@@ -50,7 +50,7 @@ def main():
     time.sleep(0.5)
     # send boot complete broadcast
     msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
-    usdudpbroadcaster.sendBroadcast(msgData)
+    udpbroadcaster.sendBroadcast(msgData)
 
     # simple CLI to modify and quit program when debugging
     print ""

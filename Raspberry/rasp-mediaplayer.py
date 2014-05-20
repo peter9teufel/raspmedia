@@ -48,7 +48,7 @@ def main():
     openFileSocket()
 
     print "Delaying launch of media player..."
-    time.sleep(5)
+    time.sleep(10)
 
     startMediaPlayer()
 

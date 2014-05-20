@@ -30,7 +30,7 @@ def sendMessage(data,host='<broadcast>',response_timeout=None):
 			print "Broadcasting over IP ",ip
 			_sendMessage(data,host,ip,response_timeout)
 	else:
-		_sendMessage(data,host,response_timeout)
+		_sendMessage(data,host,None,response_timeout)
 	# ensure a clean exit when data is sent and response processed
 	cleanExit()
 

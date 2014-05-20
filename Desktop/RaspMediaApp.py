@@ -144,6 +144,7 @@ class AppFrame(wx.Frame):
 				retry = False
 				self.notebook.prgDialog.Raise()
 				self.notebook.LoadPageData(0)
+		self.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
 
 	def Close(self, event=None):
 		global playerCount
@@ -795,27 +796,36 @@ class RaspMediaCtrlPanel(wx.Panel):
 				dlg.Destroy()
 			dlg.Destroy()
 		elif button.GetName() == 'btn_reboot':
-			msgData = network.messages.getMessage(PLAYER_REBOOT)
-			network.udpconnector.sendMessage(msgData, self.host)
-			# wait for player to Reboot
-			waitingTime = 45
-			dlg = wx.ProgressDialog("Rebooting...", "The player is rebooting, please stand by...", waitingTime, style = wx.PD_AUTO_HIDE | wx.PD_REMAINING_TIME)
-			wait = True
-			cnt = 0
-			while wait and cnt < waitingTime:
-				cnt += 1
-				time.sleep(1)
-				wait = dlg.Update(cnt)
-			dlg.Destroy()
+			self.RebootPlayer()
 		elif button.GetName() == 'btn_update':
 			# register observer
 			network.udpresponselistener.registerObserver([OBS_UPDATE, self.OnPlayerUpdated])
 			network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+
+			self.prgDialog = wx.ProgressDialog("Updating...", "Player is trying to update, please stand by...")
+			#self.prgDialog.ShowModal()
+			self.prgDialog.Pulse()
+
 			msgData = network.messages.getMessage(PLAYER_UPDATE)
 			network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
-			self.prgDialog = wx.ProgressDialog("Updating...", "Player is trying to update, please stand by...")
-			self.prgDialog.ShowModal()
-			self.prgDialog.Pulse()
+
+	def RebootPlayer(self):
+		network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete])
+		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+		msgData = network.messages.getMessage(PLAYER_REBOOT)
+		network.udpconnector.sendMessage(msgData, self.host, UDP_REBOOT_TIMEOUT)
+		# wait for player to Reboot
+		waitingTime = UDP_REBOOT_TIMEOUT
+		self.prgDialog = wx.ProgressDialog("Rebooting...", "The player is rebooting, this can take up to 1 minute - please stand by...")
+		self.prgDialog.ShowModal()
+		self.prgDialog.Pulse()
+
+
+	def RebootComplete(self):
+		self.prgDialog.Destroy()
+		dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
+		dlg.Show()
+		dlg.Destroy()
 
 	def OnPlayerUpdated(self, result):
 			self.prgDialog.Destroy()

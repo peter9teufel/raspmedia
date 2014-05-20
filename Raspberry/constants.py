@@ -6,6 +6,7 @@ UDP_BROADCAST_HOST = '<broadcast>'
 TYPE_RASPMEDIA_PLAYER = 0x03
 
 # predefined message flags
+PLAYER_BOOT_COMPLETE = 0xeeee
 SERVER_REQUEST = 0xffff
 SERVER_REQUEST_ACKNOWLEDGE = 0xfffe
 PLAYER_REBOOT = 0xefff

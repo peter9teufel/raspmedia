@@ -61,9 +61,14 @@ def startListening():
 						observer[1](response)
 				print response
 			elif result == PLAYER_UPDATE_ERROR:
+				print "Player update failed: " + response
 				for observer in observers:
 					if observer[0] == OBS_UPDATE:
 						observer[1](response)
+			elif result == PLAYER_BOOT_COMPLETE:
+				for observer in observers:
+					if observer[0] == OBS_BOOT_COMPLETE:
+						observer[1]
 
 def registerObserver(observer):
 	global observers

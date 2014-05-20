@@ -34,6 +34,8 @@ def interpret(msg_data):
 	elif flag == PLAYER_UPDATE_ERROR:
 		result = flag
 		returnData, data = readString(data)
+	elif flag == PLAYER_BOOT_COMPLETE:
+		result = flag
 
 	#print "Remaining data: " + data.decode("utf-8")
 

@@ -8,7 +8,8 @@ os.system('sudo setterm -foreground black -clear >/dev/tty1')
 
 # own modules and packages
 from packages import rmconfig, rmmedia, rmutil, rmnetwork
-from packages.rmnetwork import udpserver, tcpfilesocket
+from packages.rmnetwork import udpserver, tcpfilesocket, udpbroadcaster, messages
+from constants import *
 
 def shellquote(s):
     return "'" +  s.replace("'", "'\\''") + "'"
@@ -46,9 +47,12 @@ def main():
     startUdpServer()
     openFileSocket()
 
+    time.sleep(0.5)
+    # send boot complete broadcast
+    msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
+    usdudpbroadcaster.sendBroadcast(msgData)
 
     # simple CLI to modify and quit program when debugging
-    time.sleep(0.5)
     print ""
     print ""
     print "Loading CLI....."

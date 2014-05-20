@@ -14,6 +14,9 @@ HOST_LINUX = 3
 HOST_SYS = None
 BASE_PATH = None
 
+################################################################################
+# HOST SEARCH FRAME FOR WIN VERSION ############################################
+################################################################################
 class ConnectFrame(wx.Frame):
 	def __init__(self,parent,id,title):
 		wx.Frame.__init__(self,parent,id,title)
@@ -77,8 +80,8 @@ class ConnectFrame(wx.Frame):
 		print "You double clicked ", event.GetText()
 		playerName = self.hostList.GetItem(self.hostList.GetFirstSelected(),1).GetText()
 		self.Hide()
-		self.mediaCtrlFrame = RemoteFrame(self.parent,-1, playerName)
-		self.mediaCtrlFrame.SetHost(event.GetText())
+		self.mediaCtrlFrame = RemoteFrame(self.parent,-1, playerName,event.GetText())
+		#self.mediaCtrlFrame.SetHost(event.GetText())
 		self.mediaCtrlFrame.Bind(wx.EVT_CLOSE, self.ChildFrameClosed)
 		self.mediaCtrlFrame.Center()
 		self.mediaCtrlFrame.Show(True)
@@ -97,10 +100,10 @@ class ConnectFrame(wx.Frame):
 ################################################################################
 
 class RemoteFrame(wx.Frame):
-	def __init__(self,parent,id,title):
+	def __init__(self,parent,id,title,host):
 		wx.Frame.__init__(self,parent,id,title,size=(600,600))
 		self.parent = parent
-		self.panel = RaspMediaCtrlPanel(self,-1,"RaspMedia Remote",0)
+		self.panel = RaspMediaCtrlPanel(self,-1,"RaspMedia Remote",0,host)
 		self.prgDialog = None
 		self.Center()
 		self.Fit()
@@ -114,7 +117,7 @@ class RemoteFrame(wx.Frame):
 
 
 ################################################################################
-# MAIN FRAME OF APP ############################################################
+# MAIN FRAME OF APP MAC AND LINUX ##############################################
 ################################################################################
 class AppFrame(wx.Frame):
 	def __init__(self,parent,id,title):
@@ -139,7 +142,6 @@ class AppFrame(wx.Frame):
 					self.Close()
 			else:
 				retry = False
-				#self.notebook.prgDialog.Destroy()
 				self.notebook.prgDialog.Raise()
 				self.notebook.LoadPageData(0)
 
@@ -169,7 +171,7 @@ class AppFrame(wx.Frame):
 		self.SetMenuBar(menuBar)
 
 ################################################################################
-# REMOTE NOTEBOOK FOR PLAYER PANELS ############################################
+# REMOTE NOTEBOOK FOR PLAYER PANELS MAC AND LINUX ##############################
 ################################################################################
 class RemoteNotebook(wx.Notebook):
 	def __init__(self, parent, id, log):
@@ -197,7 +199,7 @@ class RemoteNotebook(wx.Notebook):
 		global playerCount
 		print "HOST FOUND!"
 		# add page for found Player
-		page = RaspMediaCtrlPanel(self,-1,playerName,playerCount-1)
+		page = RaspMediaCtrlPanel(self,-1,playerName,playerCount,host[0])
 		page.SetHost(host[0])
 		self.pages.append(page)
 		#page.LoadRemoteConfig()
@@ -219,7 +221,7 @@ class RemoteNotebook(wx.Notebook):
 		network.udpresponselistener.registerObserver([OBS_HOST_SEARCH, self.HostFound])
 		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped, self])
 		msgData = network.messages.getMessage(SERVER_REQUEST)
-		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self)
+		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...")
 		self.prgDialog.Pulse()
 		#self.prgDialog.SetFocus()
 		self.prgDialog.Raise()
@@ -254,11 +256,12 @@ class RemoteNotebook(wx.Notebook):
 # RASP MEDIA CONTROL PANEL #####################################################
 ################################################################################
 class RaspMediaCtrlPanel(wx.Panel):
-	def __init__(self,parent,id,title,index):
+	def __init__(self,parent,id,title,index,host):
 		#wx.Panel.__init__(self,parent,id,title)
 		wx.Panel.__init__(self,parent,-1)
 		self.parent = parent
 		self.index = index
+		self.host = host
 		self.path = self.DefaultPath()
 		self.mainSizer = wx.GridBagSizer()
 		self.configSizer = wx.GridBagSizer()
@@ -358,11 +361,13 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbAutoplay = wx.CheckBox(self, -1, "Autoplay")
 		self.cbRepeat = wx.CheckBox(self, -1, "Repeat")
 
-		# interval and player name
+		# interval, player name and ip
 		intervalLabel = wx.StaticText(self,-1,label="Image interval:")
 		self.imgIntervalLabel = wx.StaticText(self,-1,label="")
 		nameLabel = wx.StaticText(self,-1,label="Player name:")
 		self.playerNameLabel = wx.StaticText(self,-1,label="")
+		addrLabel = wx.StaticText(self,-1,label="IP-Address:")
+		playerAddr = wx.StaticText(self,-1,label=self.host)
 
 		# Sample code for bitmap button
 		#imageFile = "img/ic_edit.png"
@@ -403,6 +408,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.configSizer.Add(nameLabel, (5,0), flag=wx.ALIGN_CENTER_VERTICAL)
 		self.configSizer.Add(self.playerNameLabel, (5,1), flag=wx.ALIGN_CENTER_VERTICAL)
 		self.configSizer.Add(self.editName, (5,3))
+		self.configSizer.Add(addrLabel, (6,0), flag = wx.ALIGN_CENTER_VERTICAL)
+		self.configSizer.Add(playerAddr, (6,1), flag = wx.ALIGN_CENTER_VERTICAL)
 		self.configSizer.Add(line, (3,0), span=(1,4), flag=wx.TOP | wx.BOTTOM, border=5)
 
 	def SetupFileLists(self):
@@ -512,6 +519,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbAutoplay.SetValue(configDict['autoplay'])
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
+
 		if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
 			if self.notebook_event:
 				self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
@@ -607,7 +615,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def SetPreviewImage(self, imagePath):
 		self._SetPreview('img/clear.png')
 		self._SetPreview(imagePath)
-		
+
 	def _SetPreview(self, imagePath):
 		print "PREVIEW IMAGE PATH: " + imagePath
 		path = resource_path(imagePath)
@@ -735,6 +743,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		if self.remoteListLoading:
 			if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
 				if self.parent.prgDialog:
+					self.parent.prgDialog.Hide()
 					self.parent.prgDialog.Destroy()
 		else:
 			self.LoadRemoteFileList()

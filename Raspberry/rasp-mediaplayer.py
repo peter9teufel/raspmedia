@@ -43,11 +43,17 @@ def main():
     mediaPath = os.getcwd() + '/media/'
     print "Media Path: " + mediaPath
 
-    startMediaPlayer()
+
     startUdpServer()
     openFileSocket()
 
-    time.sleep(0.5)
+    print "Delaying launch of media player..."
+    time.sleep(5)
+
+    startMediaPlayer()
+
+    print "Media player started, boot complete broadcast in 5 seconds..."
+    time.sleep(5)
     # send boot complete broadcast
     msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
     udpbroadcaster.sendBroadcast(msgData)

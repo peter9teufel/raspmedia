@@ -59,6 +59,7 @@ def _sendMessage(data,host,local_bind=None,response_timeout=None):
 
 	# wait a given timeout for a network response
 	if response_timeout:
+		print "Halting for given timeout of %d seconds..." % (response_timeout)
 		time.sleep(response_timeout)
 	else:
 		if host == '<broadcast>' or local_bind:

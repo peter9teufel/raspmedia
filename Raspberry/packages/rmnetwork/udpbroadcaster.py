@@ -13,7 +13,7 @@ def sendBroadcast(data,wait_for_connection=False):
 			t += 1
 			if t % 5 == 0:
 				print t
-				
+
 	ips = netutil.ip4_addresses()
 	for ip in ips:
 		print "Broadcasting over IP ",ip
@@ -34,7 +34,7 @@ def _sendMessage(data,local_bind=None):
 		print "Sending message..."
 		sent = False
 		while not sent:
-			sent = sock.sendto(data + "\n", ('<broadcast>', port))
+			sent = sock.sendto(data, ('<broadcast>', port))
 		print "Message sent: ",sent
 		sock.close()
 

@@ -32,7 +32,9 @@ def sendMessage(data,host='<broadcast>',response_timeout=None):
 	else:
 		_sendMessage(data,host,None,response_timeout)
 	# ensure a clean exit when data is sent and response processed
-	cleanExit()
+	# cleanExit()
+	if not response_timeout:
+		cleanExit()
 
 def _sendMessage(data,host,local_bind=None,response_timeout=None):
 	global sock
@@ -59,13 +61,18 @@ def _sendMessage(data,host,local_bind=None,response_timeout=None):
 
 	# wait a given timeout for a network response
 	if response_timeout:
-		print "Halting for given timeout of %d seconds..." % (response_timeout)
-		time.sleep(response_timeout)
+		print "Stopping listener after given timeout of %d seconds..." % (response_timeout)
+		t = threading.Timer(response_timeout, udpresponselistener.stopListening)
+		t.start()
+		print "Moving on with execution..."
+		# time.sleep(response_timeout)
 	else:
 		if host == '<broadcast>' or local_bind:
 			print "Using longer Broadcast Timeout..."
+			#t = threading.Timer(UDP_BROADCAST_RESPONSE_TIMEOUT, udpresponselistener.stopListening)
 			time.sleep(UDP_BROADCAST_RESPONSE_TIMEOUT)
 		else:
+			#t = threading.Timer(UDP_RESPONSE_TIMEOUT, udpresponselistener.stopListening)
 			time.sleep(UDP_RESPONSE_TIMEOUT)
 
 def cleanExit():

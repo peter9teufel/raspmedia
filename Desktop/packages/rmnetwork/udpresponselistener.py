@@ -69,6 +69,7 @@ def startListening():
 				print "Player BOOT_COMPLETE"
 				for observer in observers:
 					if observer[0] == OBS_BOOT_COMPLETE:
+						print "Passing BOOT_COMPLETE message to oberserver..."
 						observer[1]
 
 def registerObserver(observer):

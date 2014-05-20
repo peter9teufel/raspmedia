@@ -746,14 +746,16 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 	def UdpListenerStopped(self):
 		global HOST_SYS
-		if self.remoteListLoading:
-			if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
-				if self.parent.prgDialog:
-					self.parent.prgDialog.Hide()
-					self.parent.prgDialog.Destroy()
-					self.parent.prgDialog = None
-		else:
-			self.LoadRemoteFileList()
+		if self.pageDataLoading:
+			if self.remoteListLoading:
+				self.pageDataLoading = False
+				if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
+					if self.parent.prgDialog:
+						self.parent.prgDialog.Hide()
+						self.parent.prgDialog.Destroy()
+						self.parent.prgDialog = None
+			else:
+				self.LoadRemoteFileList()
 		if self.prgDialog:
 			self.prgDialog.Destroy()
 			self.prgDialog = None
@@ -813,7 +815,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete])
 		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
 
-		waitingTime = UDP_REBOOT_TIMEOUT
 		self.prgDialog = wx.ProgressDialog("Rebooting...", "Player rebooting, this can take up to 1 minute - please stand by...")
 		self.prgDialog.Pulse()
 
@@ -821,6 +822,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.udpconnector.sendMessage(msgData, self.host, UDP_REBOOT_TIMEOUT)
 
 	def RebootComplete(self):
+		print "REBOOT COMPLETE CALLBACK"
 		self.prgDialog.Destroy()
 		dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
 		dlg.Show()

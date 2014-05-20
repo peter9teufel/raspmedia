@@ -814,7 +814,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
 
 		waitingTime = UDP_REBOOT_TIMEOUT
-		self.prgDialog = wx.ProgressDialog("Rebooting...", "The player is rebooting, this can take up to 1 minute - please stand by...")
+		self.prgDialog = wx.ProgressDialog("Rebooting...", "Player rebooting, this can take up to 1 minute - please stand by...")
 		self.prgDialog.Pulse()
 
 		msgData = network.messages.getMessage(PLAYER_REBOOT)

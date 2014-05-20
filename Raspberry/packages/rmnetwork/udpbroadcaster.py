@@ -3,7 +3,17 @@ import socket, select
 import netutil
 from constants import *
 
-def sendBroadcast(data):
+def sendBroadcast(data,wait_for_connection=False):
+	if wait_for_connection:
+		# wait until at least one interface is connected but not longer as a defined timeout
+		t = 0
+		print "Waiting for connected interface..."
+		while t < STARTUP_IF_TIMEOUT and netutil.num_connected_interfaces() == 0:
+			time.sleep(1)
+			t += 1
+			if t % 5 == 0:
+				print t
+				
 	ips = netutil.ip4_addresses()
 	for ip in ips:
 		print "Broadcasting over IP ",ip

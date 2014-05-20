@@ -3,9 +3,6 @@
 # libraries
 import os, sys, subprocess, time, threading
 
-# hide console text of local tty0 on hdmi
-os.system('sudo setterm -foreground black -clear >/dev/tty1')
-
 # own modules and packages
 from packages import rmconfig, rmmedia, rmutil, rmnetwork
 from packages.rmnetwork import udpserver, tcpfilesocket, udpbroadcaster, messages
@@ -41,22 +38,23 @@ def main():
 
     # default media path
     mediaPath = os.getcwd() + '/media/'
-    print "Media Path: " + mediaPath
+    #print "Media Path: " + mediaPath
 
+    print "Boot complete - sending broadcast..."
+    # send boot complete broadcast
+    msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
+    udpbroadcaster.sendBroadcast(msgData, True)
+
+    print "Launching player..."
+
+    # hide console text of local tty0 on hdmi
+    os.system('sudo setterm -foreground black -clear >/dev/tty1')
 
     startUdpServer()
     openFileSocket()
-
-    print "Delaying launch of media player..."
-    time.sleep(10)
-
     startMediaPlayer()
 
-    print "Media player started, boot complete broadcast in 5 seconds..."
-    time.sleep(5)
-    # send boot complete broadcast
-    msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
-    udpbroadcaster.sendBroadcast(msgData)
+
 
     # simple CLI to modify and quit program when debugging
     print ""

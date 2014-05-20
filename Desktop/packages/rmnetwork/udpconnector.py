@@ -18,7 +18,7 @@ def main():
 	if data and not flag == -1:
 		sendMessage(data)
 
-def sendMessage(data,host='<broadcast>'):
+def sendMessage(data,host='<broadcast>',response_timeout=None):
 	print "Starting udp response listening thread..."
 	rcv_thread = threading.Thread(target=udpresponselistener.startListening)
 	rcv_thread.daemon = True
@@ -28,13 +28,13 @@ def sendMessage(data,host='<broadcast>'):
 		ips = netutil.ip4_addresses()
 		for ip in ips:
 			print "Broadcasting over IP ",ip
-			_sendMessage(data,host,ip)
+			_sendMessage(data,host,ip,response_timeout)
 	else:
-		_sendMessage(data,host)
+		_sendMessage(data,host,response_timeout)
 	# ensure a clean exit when data is sent and response processed
 	cleanExit()
 
-def _sendMessage(data,host,local_bind=None):
+def _sendMessage(data,host,local_bind=None,response_timeout=None):
 	global sock
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	port = UDP_PORT
@@ -58,11 +58,14 @@ def _sendMessage(data,host,local_bind=None):
 		sock.close()
 
 	# wait a given timeout for a network response
-	if host == '<broadcast>' or local_bind:
-		print "Using longer Broadcast Timeout..."
-		time.sleep(UDP_BROADCAST_RESPONSE_TIMEOUT)
+	if response_timeout:
+		time.sleep(response_timeout)
 	else:
-		time.sleep(UDP_RESPONSE_TIMEOUT)
+		if host == '<broadcast>' or local_bind:
+			print "Using longer Broadcast Timeout..."
+			time.sleep(UDP_BROADCAST_RESPONSE_TIMEOUT)
+		else:
+			time.sleep(UDP_RESPONSE_TIMEOUT)
 
 def cleanExit():
 	if sock:

@@ -60,6 +60,10 @@ def startListening():
 					if observer[0] == OBS_CONFIG:
 						observer[1](response)
 				print response
+			elif result == PLAYER_UPDATE_ERROR:
+				for observer in observers:
+					if observer[0] == OBS_UPDATE:
+						observer[1](response)
 
 def registerObserver(observer):
 	global observers

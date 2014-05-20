@@ -51,6 +51,9 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             responseData = messages.getConfigMessage()
             if cSocket.sendto(responseData, (self.client_address[0], UDP_PORT)):
                 print "Config sent!"
+        elif result == PLAYER_UPDATE_ERROR:
+            responseData = messages.getMessage(PLAYER_UPDATE_ERROR, ["-s", str(msg)])
+            cSocket.sendto(responseData, (self.client_address[0], UDP_PORT))
 
 
         # DEBUG CODE to echo the received message

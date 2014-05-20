@@ -56,6 +56,12 @@ def interpret(msg_data):
 		mediaplayer.identifyDone()
 	elif flag == PLAYER_REBOOT:
 		os.system("sudo reboot")
+	elif flag == PLAYER_UPDATE:
+		if is_connected():
+			os.system("/home/pi/raspmedia/Raspberry/scripts/update.sh")
+		else:
+			result = PLAYER_UPDATE_ERROR
+			msg = "Player is not connected to the internet."
 
 	#print "Remaining data: " + data.decode("utf-8")
 
@@ -112,3 +118,16 @@ def readString(data):
 	remainingData = data[size:]
 	inStr = str(strBytes)
 	return inStr, remainingData
+
+def is_connected():
+  try:
+    # see if we can resolve the host name -- tells us if there is
+    # a DNS listening
+    host = socket.gethostbyname('www.google.com')
+    # connect to the host -- tells us if the host is actually
+    # reachable
+    s = socket.create_connection((host, 80), 2)
+    return True
+  except:
+     pass
+  return False

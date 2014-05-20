@@ -369,6 +369,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		addrLabel = wx.StaticText(self,-1,label="IP-Address:")
 		playerAddr = wx.StaticText(self,-1,label=self.host)
 
+		updateBtn = wx.Button(self, -1, "Update player")
+
 		# Sample code for bitmap button
 		#imageFile = "img/ic_edit.png"
 		#editIcon = wx.Image(imageFile, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
@@ -388,6 +390,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.cbRepeat.SetName('repeat')
 		self.editInterval.SetName('btn_image_interval')
 		self.editName.SetName('btn_player_name')
+		updateBtn.SetName('btn_update')
 
 		# bind UI element events
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbImgEnabled)
@@ -396,6 +399,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbRepeat)
 		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editInterval)
 		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editName)
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, updateBtn)
 
 		self.configSizer.Add(wx.StaticText(self,-1,label="Configuration:"),(0,0), flag=wx.BOTTOM, border=5)
 		self.configSizer.Add(self.cbImgEnabled, (1,0))
@@ -410,7 +414,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.configSizer.Add(self.editName, (5,3))
 		self.configSizer.Add(addrLabel, (6,0), flag = wx.ALIGN_CENTER_VERTICAL)
 		self.configSizer.Add(playerAddr, (6,1), flag = wx.ALIGN_CENTER_VERTICAL)
-		self.configSizer.Add(line, (3,0), span=(1,4), flag=wx.TOP | wx.BOTTOM, border=5)
+		self.configSizer.Add(updateBtn, (0,4))
+		self.configSizer.Add(line, (3,0), span=(1,5), flag=wx.TOP | wx.BOTTOM, border=5)
 
 	def SetupFileLists(self):
 		self.filesSizer.SetEmptyCellSize((0,0))
@@ -745,6 +750,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 				if self.parent.prgDialog:
 					self.parent.prgDialog.Hide()
 					self.parent.prgDialog.Destroy()
+					self.parent.prgDialog = None
 		else:
 			self.LoadRemoteFileList()
 		if self.prgDialog:
@@ -801,6 +807,19 @@ class RaspMediaCtrlPanel(wx.Panel):
 				time.sleep(1)
 				wait = dlg.Update(cnt)
 			dlg.Destroy()
+		elif button.GetName() == 'btn_update':
+			# register observer
+			network.udpresponselistener.registerObserver([OBS_UPDATE, self.OnPlayerUpdated])
+			network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+			msgData = network.messages.getMessage(PLAYER_UPDATE)
+			network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
+			self.prgDialog = wx.ProgressDialog("Updating...", "Player is trying to update, please stand by...")
+			self.prgDialog.ShowModal()
+			self.prgDialog.Pulse()
+
+	def OnPlayerUpdated(self, result):
+			self.prgDialog.Destroy()
+			dlg = wx.MessageDialog(self,str(result),"Player Update",style=wx.OK)
 
 
 	def PlayClicked(self, event):

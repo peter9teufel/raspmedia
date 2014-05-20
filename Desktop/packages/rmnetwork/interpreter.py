@@ -31,6 +31,9 @@ def interpret(msg_data):
 	elif flag == CONFIG_REQUEST:
 		result = CONFIG_REQUEST
 		returnData = readConfigData(data)
+	elif flag == PLAYER_UPDATE_ERROR:
+		result = flag
+		returnData, data = readString(data)
 
 	#print "Remaining data: " + data.decode("utf-8")
 

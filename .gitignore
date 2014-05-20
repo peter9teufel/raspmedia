@@ -1,7 +1,16 @@
 *.pyc
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.png
+*.PNG
+*.mpeg1
+*.mpeg4
 *.mpeg
 *.mpg
 *.m4v
 *.mp4
 build
 dist
+

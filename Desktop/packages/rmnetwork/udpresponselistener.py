@@ -66,6 +66,7 @@ def startListening():
 					if observer[0] == OBS_UPDATE:
 						observer[1](response)
 			elif result == PLAYER_BOOT_COMPLETE:
+				print "Player BOOT_COMPLETE"
 				for observer in observers:
 					if observer[0] == OBS_BOOT_COMPLETE:
 						observer[1]

@@ -824,7 +824,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.prgDialog.Destroy()
 		dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
 		dlg.Show()
-		dlg.Destroy()
 
 	def OnPlayerUpdated(self, result):
 			self.prgDialog.Destroy()

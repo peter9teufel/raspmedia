@@ -8,7 +8,7 @@ echo 'Done!'
 
 echo 'Updating files...'
 cd /home/pi/raspmedia
-git pull origin master
+sudo git pull origin master
 
 echo 'Done! Rebooting player now...'
 sudo reboot

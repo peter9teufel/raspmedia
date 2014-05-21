@@ -13,6 +13,8 @@ def sendBroadcast(data,wait_for_connection=False):
 			t += 1
 			if t % 5 == 0:
 				print t
+		print "Connected interface available..."
+		time.sleep(5)
 
 	ips = netutil.ip4_addresses()
 	for ip in ips:

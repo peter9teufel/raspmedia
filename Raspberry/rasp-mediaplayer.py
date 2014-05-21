@@ -40,11 +40,6 @@ def main():
     mediaPath = os.getcwd() + '/media/'
     #print "Media Path: " + mediaPath
 
-    print "Boot complete - sending broadcast..."
-    # send boot complete broadcast
-    msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
-    udpbroadcaster.sendBroadcast(msgData, True)
-
     print "Launching player..."
 
     # hide console text of local tty0 on hdmi
@@ -54,6 +49,10 @@ def main():
     openFileSocket()
     startMediaPlayer()
 
+    print "Boot complete - sending broadcast..."
+    # send boot complete broadcast
+    msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
+    udpbroadcaster.sendBroadcast(msgData, True)
 
 
     # simple CLI to modify and quit program when debugging

@@ -1,5 +1,7 @@
 import socket, select, time
 import interpreter, netutil
+import wx
+from wx.lib.pubsub import pub as Publisher
 
 from constants import *
 
@@ -8,6 +10,7 @@ def stopListening():
 	print "Stopping UDP Broadcast Listening routine..."
 	global sock, wait
 	wait = False
+	wx.CallAfter(Publisher.sendMessage("udp_listening_stopped"))
 	#print "Observers: ", observers
 	# notify observers that listening is stopped
 	for observer in observers:
@@ -68,10 +71,11 @@ def startListening():
 						observer[1](response)
 			elif result == PLAYER_BOOT_COMPLETE:
 				print "Player BOOT_COMPLETE"
-				for observer in observers:
-					if observer[0] == OBS_BOOT_COMPLETE:
-						print "Passing BOOT_COMPLETE message to oberserver..."
-						observer[1]()
+				#for observer in observers:
+				#	if observer[0] == OBS_BOOT_COMPLETE:
+				#		print "Passing BOOT_COMPLETE message to oberserver..."
+				#		observer[1]()
+				wx.CallAfter(Publisher.sendMessage("boot_complete"))
 				stopListening()
 
 def registerObserver(observer):

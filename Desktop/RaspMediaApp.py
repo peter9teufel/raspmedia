@@ -1,6 +1,8 @@
 import packages.rmnetwork as network
 from packages.rmnetwork.constants import *
 import os, sys, platform, ast, time, threading
+from wx.lib.pubsub import pub as Publisher
+
 try:
 	import wx
 except ImportError:
@@ -837,10 +839,12 @@ class RaspMediaCtrlPanel(wx.Panel):
 			network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
 
 	def RebootPlayer(self):
-		self.prgDialog = wx.ProgressDialog("Rebooting...", "Player rebooting, this can take up to 1 minute - please stand by...", parent = self.parent)
+		self.prgDialog = wx.ProgressDialog("Rebooting...", "Player rebooting, this can take up to 1 minute - please stand by...")
 		# register observer
-		network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete])
-		#network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+		# network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete])
+		# network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+
+		Publisher.subscribe(self.RebootComplete, "boot_complete")
 
 		self.prgDialog.Pulse()
 

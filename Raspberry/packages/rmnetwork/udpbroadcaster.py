@@ -36,7 +36,7 @@ def _sendMessage(data,local_bind=None):
 		print "Sending message..."
 		sent = False
 		while not sent:
-			sent = sock.sendto(data, ('<broadcast>', port))
+			sent = sock.sendto(data + "\n", ('<broadcast>', port))
 		print "Message sent: ",sent
 		sock.close()
 

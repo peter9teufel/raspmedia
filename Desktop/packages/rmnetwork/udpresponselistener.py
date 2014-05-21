@@ -8,6 +8,7 @@ def stopListening():
 	print "Stopping UDP Broadcast Listening routine..."
 	global sock, wait
 	wait = False
+	#print "Observers: ", observers
 	# notify observers that listening is stopped
 	for observer in observers:
 		if observer[0] == OBS_STOP:
@@ -70,7 +71,8 @@ def startListening():
 				for observer in observers:
 					if observer[0] == OBS_BOOT_COMPLETE:
 						print "Passing BOOT_COMPLETE message to oberserver..."
-						observer[1]
+						observer[1]()
+				stopListening()
 
 def registerObserver(observer):
 	global observers

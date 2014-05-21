@@ -129,22 +129,8 @@ class AppFrame(wx.Frame):
 		self.notebook = RemoteNotebook(self,-1,None)
 		print "Showing window..."
 		self.Show()
-		retry = True
-		while retry:
-			print "Starting host search..."
-			self.notebook.SearchHosts()
-			print "Centering AppFrame and checking result..."
-			self.Center()
-			if playerCount == 0:
-				self.notebook.prgDialog.Destroy()
-				dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
-				if dlg.ShowModal() == wx.ID_OK:
-					self.Close()
-			else:
-				retry = False
-				self.notebook.prgDialog.Raise()
-				self.notebook.LoadPageData(0)
-		self.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
+		print "Starting host search..."
+		self.notebook.SearchHosts()
 
 	def Close(self, event=None):
 		global playerCount
@@ -152,6 +138,19 @@ class AppFrame(wx.Frame):
 		self.notebook.Close()
 		self.Destroy()
 		sys.exit(0)
+
+	def OnHostSearchDone(self):
+		print "CALLBACK OnHostSearchDone entered..."
+		self.Center()
+		if playerCount == 0:
+			self.notebook.prgDialog.Destroy()
+			dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
+			if dlg.ShowModal() == wx.ID_OK:
+				self.Close()
+		else:
+			self.notebook.prgDialog.Raise()
+			self.notebook.LoadPageData(0)
+		self.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
 
 	def SetupMenuBar(self):
 		# menus
@@ -187,44 +186,44 @@ class RemoteNotebook(wx.Notebook):
 		self.parent = parent
 		self.log = log
 		self.pages = []
+		self.hostSearch = False
+		self.hosts = []
 		global HOST_SYS
 		if HOST_SYS == HOST_LINUX:
 			self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 		elif HOST_SYS == HOST_MAC:
 			self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanged)
+		self.Show()
 
 	def Close(self):
 		self.Destroy()
 
 	def HostFound(self, host, playerName):
 		global playerCount
-		print "HOST FOUND!"
+		print "Player found - initializing panel..."
+
 		# add page for found Player
-		page = RaspMediaCtrlPanel(self,-1,playerName,playerCount,host[0])
-		page.SetHost(host[0])
-		self.pages.append(page)
-		#page.LoadRemoteConfig()
-		#page.LoadRemoteFileList()
-		#page.Fit()
-		self.AddPage(page, playerName)
+		#page = RaspMediaCtrlPanel(self,-1,playerName,playerCount,host[0])
+		#print "Appending page to list..."
+		#self.pages.append(page)
+		#print "Adding page to notebook..."
+		#self.AddPage(page, playerName)
+
+		print "Adding host to list..."
+		self.hosts.append({"addr": host[0], "name": playerName})
 		playerCount += 1
-		self.Fit()
-		self.parent.Fit()
-		# self.hosts.Add(host)
-		#idx = self.hostList.InsertStringItem(0, playerName)
-		#port = str(host[1])
-		#print "Host insert in row " + str(idx) + ": " + host[0] + " - " + port
-		#self.hostList.SetStringItem(idx, 1, host[0])
+		#print "Fitting window..."
+		#self.Fit()
+		#self.parent.Fit()
 
 	def SearchHosts(self):
-		# clear host list
-		#self.hostList.DeleteAllItems()
+		self.hostSearch = True
 		network.udpresponselistener.registerObserver([OBS_HOST_SEARCH, self.HostFound])
 		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped, self])
+		#network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped, self])
 		msgData = network.messages.getMessage(SERVER_REQUEST)
 		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...")
 		self.prgDialog.Pulse()
-		#self.prgDialog.SetFocus()
 		self.prgDialog.Raise()
 		network.udpconnector.sendMessage(msgData)
 
@@ -240,7 +239,27 @@ class RemoteNotebook(wx.Notebook):
 		network.udpresponselistener.removeObserver([OBS_STOP, self.UdpListenerStopped])
 		print "Number of observers: ", len(network.udpresponselistener.observers)
 		print "Number of players found: ", playerCount
-		self.Update()
+		if self.hostSearch:
+			self.hostSearch = False
+			if playerCount == 0:
+				self.prgDialog.Destroy()
+				dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
+				if dlg.ShowModal() == wx.ID_OK:
+					self.parent.Close()
+			else:
+				self.prgDialog.Raise()
+				ind = 0
+				for host in self.hosts:
+					print "Preparing page for " + host['name']
+					print "Player address: " + host['addr']
+					curPage = RaspMediaCtrlPanel(self,-1,host['name'],ind,host['addr'])
+					self.pages.append(curPage)
+					self.AddPage(curPage, host['name'])
+					ind += 1
+				self.LoadPageData(0)
+			self.Fit()
+			self.parent.Fit()
+			self.parent.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
 
 	def OnPageChanged(self, event):
 		global HOST_SYS
@@ -308,9 +327,12 @@ class RaspMediaCtrlPanel(wx.Panel):
 			dlg.Destroy()
 
 	def Initialize(self):
-		self.SetupFileLists()
+		print "Setting up player section..."
 		self.SetupPlayerSection()
+		print "Setting up config section..."
 		self.SetupConfigSection()
+		print "Setting up file lists..."
+		self.SetupFileLists()
 
 		self.mainSizer.Add(self.playerSizer,(0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
 		self.mainSizer.Add(self.configSizer, (0,2), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
@@ -421,8 +443,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def SetupFileLists(self):
 		self.filesSizer.SetEmptyCellSize((0,0))
 		# setup file lists and image preview
+		print "Adding local list..."
 		self.AddLocalList()
+		print "Adding image preview..."
 		self.AddImagePreview()
+		print "Adding remote list..."
 		self.AddRemoteList()
 
 		imageFile = resource_path("img/ic_folder_select.png")
@@ -454,11 +479,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.filesSizer.Fit(self)
 
 	def AddLocalList(self):
-		id=wx.NewId()
-		self.localList=wx.ListCtrl(self,id,size=(400,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+		print "Initializing empty local lists..."
+		self.localList = wx.ListCtrl(self,-1,size=(400,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+		print "Showing list..."
 		self.localList.Show(True)
-
-		self.localList.InsertColumn(0,"Local Files: " + self.path, width = 598)
+		self.localList.InsertColumn(0,"Local Files: " + self.path, width = 398)
 		self.filesSizer.Add(self.localList, (1,0), span=(1,1))
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.LocalFileDoubleClicked, self.localList)
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.LocalFileSelected, self.localList)
@@ -472,8 +497,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.filesSizer.Add(self.imageCtrl, (1,1), flag = wx.LEFT, border=5)
 
 	def AddRemoteList(self):
-		id=wx.NewId()
-		self.remoteList=wx.ListCtrl(self,id,size=(600,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+		print "Initializing empty remote lists..."
+		self.remoteList=wx.ListCtrl(self,-1,size=(600,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
 		self.remoteList.Show(True)
 		self.remoteList.InsertColumn(0,"Remote Files: ", width = 598)
 		self.filesSizer.Add(self.remoteList, (2,0), span=(1,2), flag = wx.EXPAND | wx.TOP, border = 10)
@@ -669,7 +694,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.DeleteRemoteFile(fileName)
 
 	def DeleteRemoteFile(self, fileName):
-		files = [fileName]
+		files = [str(fileName)]
 		self.DeleteRemoteFiles(files)
 
 	def DeleteRemoteFiles(self, files):
@@ -824,8 +849,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def RebootComplete(self):
 		print "REBOOT COMPLETE CALLBACK"
 		self.prgDialog.Destroy()
-		dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
-		dlg.Show()
+		#dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
+		#dlg.Show()
 
 	def OnPlayerUpdated(self, result):
 			self.prgDialog.Destroy()

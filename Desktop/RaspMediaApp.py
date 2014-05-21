@@ -837,10 +837,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 			network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
 
 	def RebootPlayer(self):
-		network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete])
-		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
-
 		self.prgDialog = wx.ProgressDialog("Rebooting...", "Player rebooting, this can take up to 1 minute - please stand by...")
+		# register observer
+		network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete, self.prgDialog])
+		#network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+
 		self.prgDialog.Pulse()
 
 		msgData = network.messages.getMessage(PLAYER_REBOOT)
@@ -849,8 +850,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def RebootComplete(self):
 		print "REBOOT COMPLETE CALLBACK"
 		self.prgDialog.Destroy()
-		#dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
-		#dlg.Show()
+		self.prgDialog = None
+		dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
+		if dlg.ShowModal() == wx.ID_OK:
+			print "Reboot complete dialog closed!"
+		dlg.Destroy()
 
 	def OnPlayerUpdated(self, result):
 			self.prgDialog.Destroy()

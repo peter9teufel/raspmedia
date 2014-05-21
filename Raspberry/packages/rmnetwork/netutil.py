@@ -7,7 +7,7 @@ def num_connected_interfaces():
         try:
                 inetAddrs = addrs[netifaces.AF_INET]
                 for inetA in inetAddrs:
-                        if 'broadcast' in inetA:
+                        if 'broadcast' in inetA and not inetA['broadcast'] == '' and 'addr' in inetA and not inetA['addr'] == '':
                             count += 1
         except:
             pass

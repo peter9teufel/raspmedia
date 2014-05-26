@@ -880,6 +880,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def RebootComplete(self):
 		print "REBOOT COMPLETE CALLBACK"
 		self.prgDialog.Update(100)
+		if HOST_SYS == HOST_WIN:
+			self.prgDialog.Destroy()
 		dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
 		dlg.Show()
 		dlg.Destroy()

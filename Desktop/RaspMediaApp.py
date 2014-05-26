@@ -76,9 +76,7 @@ class AppFrame(wx.Frame):
 
 		# Menubar
 		menuBar = wx.MenuBar()
-		if HOST_SYS == HOST_WIN:
-			# only append file menu on windows as it only contains the close call for now
-			menuBar.Append(fileMenu, "&File") # Adding the "filemenu" to the MenuBar
+		menuBar.Append(fileMenu, "&File") # Adding the "filemenu" to the MenuBar
 
 		menuBar.Append(helpMenu, "&About")
 		self.SetMenuBar(menuBar)

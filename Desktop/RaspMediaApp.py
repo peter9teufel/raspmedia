@@ -127,6 +127,7 @@ class AppFrame(wx.Frame):
 		global playerCount
 		self.parent = parent
 		self.Bind(wx.EVT_CLOSE, self.Close)
+		self.SetupMenuBar()
 		print "Initializing Notebook..."
 		self.notebook = RemoteNotebook(self,-1,None)
 		print "Showing window..."
@@ -167,12 +168,19 @@ class AppFrame(wx.Frame):
 
 		# Help Menu
 		about = helpMenu.Append(wx.ID_ANY, "&About")
+		self.Bind(wx.EVT_MENU, self.ShowAbout, about)
 
 		# Menubar
 		menuBar = wx.MenuBar()
 		menuBar.Append(fileMenu,"&File") # Adding the "filemenu" to the MenuBar
 		menuBar.Append(helpMenu, "&Help")
 		self.SetMenuBar(menuBar)
+
+	def ShowAbout(self, event):
+		# message read from defined version info file in the future
+		msg = "RaspMedia Control v1.0\n(c) 2014 by www.multimedia-installationen.at\nContact: software@multimedia-installationen.at\nAll rights reserved."
+		dlg = wx.MessageDialog(self, msg, "About", style=wx.OK)
+		dlg.ShowModal()
 
 ################################################################################
 # REMOTE NOTEBOOK FOR PLAYER PANELS MAC AND LINUX ##############################
@@ -574,7 +582,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
 		self.playerNameLabel.SetLabel(str(configDict['player_name']))
 
-		if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
+		if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX or HOST_SYS == HOST_WIN:
 			if self.notebook_event:
 				self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
 			else:
@@ -664,7 +672,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		filePath = self.path + '/' +  fileName
 		print "Path: ", filePath
 		#network.tcpfileclient.registerObserver(self.LoadRemoteFileList)
-		network.tcpfileclient.sendFile(filePath, self.host, self)
+		network.tcpfileclient.sendFile(filePath, self.host, self, HOST_SYS == HOST_WIN)
 
 	def SetPreviewImage(self, imagePath):
 		self._SetPreview('img/clear.png')
@@ -805,7 +813,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 			if self.remoteListLoading:
 				self.pageDataLoading = False
 				Publisher.unsubAll()
-				if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
+				if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX or HOST_SYS == HOST_WIN:
 					if self.parent.prgDialog:
 						self.parent.prgDialog.Hide()
 						self.parent.prgDialog.Destroy()
@@ -930,7 +938,7 @@ if __name__ == '__main__':
 	# check platform
 	if platform.system() == 'Windows':
 		HOST_SYS = HOST_WIN
-		frame = ConnectFrame(None, -1, 'RaspMedia Control')
+		frame = AppFrame(None, -1, 'RaspMedia Control')
 	elif platform.system() == 'Darwin':
 		HOST_SYS = HOST_MAC
 		frame = AppFrame(None, -1, 'RaspMedia Control')

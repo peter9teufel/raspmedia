@@ -5,7 +5,7 @@ from wx.lib.pubsub import pub as Publisher
 
 observers = []
 _BLOCK_SIZE = 1024
-def sendFile(filePath, host, parent):
+def sendFile(filePath, host, parent, isWindows=False):
 	s = socket.socket()
 	s.connect((host,60020))
 
@@ -40,6 +40,8 @@ def sendFile(filePath, host, parent):
 	    prgDialog.Update(bytesSent)
 	    l = f.read(_BLOCK_SIZE)
 	s.close()
+	if isWindows:
+		prgDialog.Destroy()
 	#for observer in observers:
 	#	observer(None)
 

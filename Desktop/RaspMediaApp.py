@@ -172,7 +172,10 @@ class AppFrame(wx.Frame):
 
 		# Menubar
 		menuBar = wx.MenuBar()
-		menuBar.Append(fileMenu,"&File") # Adding the "filemenu" to the MenuBar
+		if HOST_SYS == HOST_WIN:
+			# only append file menu on windows as it only contains the close call for now
+			menuBar.Append(fileMenu,"&File") # Adding the "filemenu" to the MenuBar
+
 		menuBar.Append(helpMenu, "&Help")
 		self.SetMenuBar(menuBar)
 
@@ -483,21 +486,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 		selectFolder = wx.Button(self,-1,label="Select directory...")
 		self.filesSizer.Add(selectFolder, (0,0), flag = wx.TOP | wx.BOTTOM, border = 5)
 		self.Bind(wx.EVT_BUTTON, self.ChangeDir, selectFolder)
-
-		#separator = wx.StaticLine(self,-1,size=(2,35), style=wx.LI_VERTICAL)
-		#self.filesSizer.Add(separator, (0,1), flag = wx.ALIGN_CENTER)
-
-		#button = wx.Button(self,-1,label="Change local directory")
-		#self.filesSizer.Add(button,(0,0))
-		#self.Bind(wx.EVT_BUTTON, self.ChangeDir, button)
-
-		#imageFile = "img/ic_folder_up.png"
-		#btnIcon = wx.Image(imageFile, wx.BITMAP_TYPE_ANY)
-		#btnIcon = btnIcon.Scale(30,30)
-		#btnIcon = btnIcon.ConvertToBitmap()
-		#folderUp = wx.BitmapButton(self, id=-1, bitmap=btnIcon, pos=(7,7), size=(44,44))
-		#self.filesSizer.Add(folderUp, (0,2), flag = wx.ALIGN_RIGHT)
-		#self.Bind(wx.EVT_BUTTON, self.ShowParentDirectory, folderUp)
 
 		button = wx.Button(self,-1,label="Refresh remote filelist")
 		self.filesSizer.Add(button,(3,0))
@@ -858,7 +846,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 				network.udpconnector.sendMessage(msgData, self.host)
 				#dlg = wx.ProgressDialog("Updating", "Updating player name...")
 				#dlg.Pulse()
-				self.LoadRemoteConfig()
+				self.LoadData()
 				#time.sleep(0.5)
 				#dlg.Destroy()
 			dlg.Destroy()

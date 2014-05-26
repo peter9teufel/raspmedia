@@ -204,7 +204,7 @@ class RemoteNotebook(wx.Notebook):
 		self.hostSearch = False
 		self.hosts = []
 		global HOST_SYS
-		if HOST_SYS == HOST_LINUX:
+		if HOST_SYS == HOST_LINUX or HOST_SYS == HOST_WIN:
 			self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 		elif HOST_SYS == HOST_MAC:
 			self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanged)
@@ -810,7 +810,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 				self.LoadRemoteFileList()
 		if self.prgDialog:
 			self.prgDialog.Update(100)
-			#self.prgDialog.Destroy()
+			self.prgDialog.Destroy()
 			#self.prgDialog = None
 
 	def ButtonClicked(self, event):

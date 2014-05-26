@@ -16,110 +16,9 @@ HOST_LINUX = 3
 HOST_SYS = None
 BASE_PATH = None
 
-################################################################################
-# HOST SEARCH FRAME FOR WIN VERSION ############################################
-################################################################################
-class ConnectFrame(wx.Frame):
-	def __init__(self,parent,id,title):
-		wx.Frame.__init__(self,parent,id,title)
-		self.parent = parent
-		self.Bind(wx.EVT_CLOSE, self.close)
-		self.mediaCtrlFrame = None
-		self.hosts = []
-		self.mainSizer = wx.GridBagSizer()
-		self.initGui()
-		self.searchHosts()
-
-	def close(self, event):
-		self.Destroy()
-		sys.exit(0)
-
-	def initGui(self):
-		# Text label
-		label = wx.StaticText(self,-1,label="Available RaspMedia Players:")
-		self.mainSizer.Add(label,(0,0),(1,2),wx.EXPAND)
-
-		label = wx.StaticText(self,-1,label="(double-click to connect)")
-		self.mainSizer.Add(label,(1,0),(1,2),wx.EXPAND)
-
-		id=wx.NewId()
-		self.hostList=wx.ListCtrl(self,id,size=(300,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
-		self.hostList.Show(True)
-
-		self.hostList.InsertColumn(0,"Host Address", width = 150)
-		self.hostList.InsertColumn(1,"Player Name", width = 150)
-		self.mainSizer.Add(self.hostList, (2,0))
-		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.HostListDoubleClicked, self.hostList)
-
-		self.SetSizerAndFit(self.mainSizer)
-		self.Center()
-		self.Show(True)
-
-	def HostFound(self, host, playerName):
-		# self.hosts.Add(host)
-		idx = self.hostList.InsertStringItem(0, host[0])
-
-		port = str(host[1])
-		print "Host insert in row " + str(idx) + ": " + host[0] + " - " + port
-		self.hostList.SetStringItem(idx, 1, playerName)
-
-	def searchHosts(self):
-		# clear host list
-		self.hostList.DeleteAllItems()
-		network.udpresponselistener.registerObserver([OBS_HOST_SEARCH, self.HostFound])
-		network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
-		msgData = network.messages.getMessage(SERVER_REQUEST)
-		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...")
-		self.prgDialog.Pulse()
-		network.udpconnector.sendMessage(msgData)
-
-	def UdpListenerStopped(self):
-		if self.prgDialog:
-			self.prgDialog.Destroy()
-		self.Raise()
-
-	def HostListDoubleClicked(self, event):
-		print "You double clicked ", event.GetText()
-		playerName = self.hostList.GetItem(self.hostList.GetFirstSelected(),1).GetText()
-		self.Hide()
-		self.mediaCtrlFrame = RemoteFrame(self.parent,-1, playerName,event.GetText())
-		#self.mediaCtrlFrame.SetHost(event.GetText())
-		self.mediaCtrlFrame.Bind(wx.EVT_CLOSE, self.ChildFrameClosed)
-		self.mediaCtrlFrame.Center()
-		self.mediaCtrlFrame.Show(True)
-		self.mediaCtrlFrame.Load()
-		#self.mediaCtrlFrame.LoadRemoteConfig(None)
-		#self.mediaCtrlFrame.LoadRemoteFileList(None)
-
-	def ChildFrameClosed(self, event):
-		self.mediaCtrlFrame.Destroy()
-		self.Center()
-		self.Show(True)
-		self.searchHosts()
 
 ################################################################################
-# REMOTE FRAME OF APP FOR WIN VERSION ##########################################
-################################################################################
-
-class RemoteFrame(wx.Frame):
-	def __init__(self,parent,id,title,host):
-		wx.Frame.__init__(self,parent,id,title,size=(600,600))
-		self.parent = parent
-		self.panel = RaspMediaCtrlPanel(self,-1,"RaspMedia Remote",0,host)
-		self.prgDialog = None
-		self.Center()
-		self.Fit()
-
-	def SetHost(self, host):
-		self.panel.SetHost(host)
-
-	def Load(self):
-		self.panel.LoadRemoteConfig()
-		self.SetSize((self.GetSize()[0]-1, self.GetSize()[1]-1))
-
-
-################################################################################
-# MAIN FRAME OF APP MAC AND LINUX ##############################################
+# MAIN FRAME OF APPLICATION ####################################################
 ################################################################################
 class AppFrame(wx.Frame):
 	def __init__(self,parent,id,title):
@@ -155,7 +54,10 @@ class AppFrame(wx.Frame):
 		else:
 			self.notebook.prgDialog.Destroy()
 			self.notebook.LoadPageData(0)
-		self.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
+		if not HOST_SYS == HOST_WIN:
+			self.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
+		else:
+			self.SetSize((self.GetSize()[0]+90, self.GetSize()[1]+20))
 
 	def SetupMenuBar(self):
 		# menus
@@ -163,8 +65,10 @@ class AppFrame(wx.Frame):
 		helpMenu = wx.Menu()
 
 		# File Menu
-		menuExit = fileMenu.Append(wx.ID_EXIT, "&Exit RaspMedia Control"," Terminate the program")
+		menuSettings = fileMenu.Append(wx.ID_ANY, "&Player Settings", "Player Settings")
+		menuExit = fileMenu.Append(wx.ID_EXIT, "&Exit"," Terminate the program")
 		self.Bind(wx.EVT_MENU, self.Close, menuExit)
+		self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, menuSettings)
 
 		# Help Menu
 		about = helpMenu.Append(wx.ID_ANY, "&About")
@@ -174,9 +78,9 @@ class AppFrame(wx.Frame):
 		menuBar = wx.MenuBar()
 		if HOST_SYS == HOST_WIN:
 			# only append file menu on windows as it only contains the close call for now
-			menuBar.Append(fileMenu,"&File") # Adding the "filemenu" to the MenuBar
+			menuBar.Append(fileMenu, "&File") # Adding the "filemenu" to the MenuBar
 
-		menuBar.Append(helpMenu, "&Help")
+		menuBar.Append(helpMenu, "&About")
 		self.SetMenuBar(menuBar)
 
 	def ShowAbout(self, event):
@@ -185,8 +89,170 @@ class AppFrame(wx.Frame):
 		dlg = wx.MessageDialog(self, msg, "About", style=wx.OK)
 		dlg.ShowModal()
 
+	def ShowPlayerSettings(self, event):
+		settings = SettingsFrame(self,-1,"Player Settings",self.notebook.CurrentlyActiveHost(), self.notebook.CurrentConfig())
+		settings.Center()
+		settings.SetBackgroundColour('WHITE')
+		settings.Refresh()
+		settings.Show()
+
+	def SettingsClosedWithConfig(self, config):
+		self.notebook.UpdateCurrentPlayerUI(config)
+
+
+
 ################################################################################
-# REMOTE NOTEBOOK FOR PLAYER PANELS MAC AND LINUX ##############################
+# SETTINGS FRAME ###############################################################
+################################################################################
+class SettingsFrame(wx.Frame):
+	def __init__(self,parent,id,title,host,config):
+		wx.Frame.__init__(self,parent,id,title,size=(400,300))
+		self.parent = parent
+		self.Bind(wx.EVT_CLOSE, self.Close)
+		self.host = host['addr']
+		self.name = host['name']
+		self.prgDialog = None
+		self.Initialize()
+		self.SetSizerAndFit(self.configSizer)
+		self.Show()
+		self.UpdateUI(config, True)
+
+	def Close(self, event=None):
+		Publisher.unsubAll()
+		self.parent.SettingsClosedWithConfig(self.config)
+		self.Destroy()
+
+	def Initialize(self):
+		self.configSizer = wx.GridBagSizer()
+		# checkboxes
+		self.cbImgEnabled = wx.CheckBox(self, -1, "Enable Images")
+		self.cbVidEnabled = wx.CheckBox(self, -1, "Enable Videos")
+		self.cbAutoplay = wx.CheckBox(self, -1, "Autoplay")
+		self.cbRepeat = wx.CheckBox(self, -1, "Repeat")
+
+		# interval, player name and ip
+		intervalLabel = wx.StaticText(self,-1,label="Image interval:")
+		self.imgIntervalLabel = wx.StaticText(self,-1,label="")
+		nameLabel = wx.StaticText(self,-1,label="Player name:")
+		self.playerNameLabel = wx.StaticText(self,-1,label="")
+		addrLabel = wx.StaticText(self,-1,label="IP-Address:")
+		playerAddr = wx.StaticText(self,-1,label=self.host)
+
+		updateBtn = wx.Button(self, -1, "Update player")
+
+		self.editInterval = wx.Button(self,-1,label="...",size=(27,25))
+		self.editName = wx.Button(self,-1,label="...",size=(27,25))
+
+		# horizontal divider line
+		line = wx.StaticLine(self,-1,size=(260,2))
+
+        # set names for further identifying
+		self.cbImgEnabled.SetName('image_enabled')
+		self.cbVidEnabled.SetName('video_enabled')
+		self.cbAutoplay.SetName('autoplay')
+		self.cbRepeat.SetName('repeat')
+		self.editInterval.SetName('btn_image_interval')
+		self.editName.SetName('btn_player_name')
+		updateBtn.SetName('btn_update')
+
+		# bind UI element events
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbImgEnabled)
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbVidEnabled)
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbAutoplay)
+		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbRepeat)
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editInterval)
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editName)
+		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, updateBtn)
+
+		self.configSizer.Add(self.cbImgEnabled, (0,0), flag=wx.TOP | wx.LEFT, border = 5)
+		self.configSizer.Add(self.cbVidEnabled, (1,0), flag=wx.LEFT, border = 5)
+		self.configSizer.Add(self.cbAutoplay, (0,1), flag=wx.TOP, border = 5)
+		self.configSizer.Add(self.cbRepeat, (1,1))
+		self.configSizer.Add(intervalLabel, (3,0), flag=wx.ALIGN_CENTER_VERTICAL | wx.LEFT, border = 5)
+		self.configSizer.Add(self.imgIntervalLabel, (3,1), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.configSizer.Add(self.editInterval, (3,3))
+		self.configSizer.Add(nameLabel, (4,0), flag=wx.ALIGN_CENTER_VERTICAL | wx.LEFT, border = 5)
+		self.configSizer.Add(self.playerNameLabel, (4,1), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.configSizer.Add(self.editName, (4,3))
+		self.configSizer.Add(addrLabel, (5,0), flag = wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.BOTTOM, border = 5)
+		self.configSizer.Add(playerAddr, (5,1), flag = wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, border = 5)
+		self.configSizer.Add(updateBtn, (0,4), flag = wx.ALL, border = 5)
+		self.configSizer.Add(line, (2,0), span=(1,5), flag=wx.TOP | wx.BOTTOM, border=5)
+
+
+	def UpdateUI(self, config, isDict=False):
+		if isDict:
+			configDict = config
+		else:
+			configDict = ast.literal_eval(config)
+		self.config = configDict
+		self.cbImgEnabled.SetValue(configDict['image_enabled'])
+		self.cbVidEnabled.SetValue(configDict['video_enabled'])
+		self.cbRepeat.SetValue(configDict['repeat'])
+		self.cbAutoplay.SetValue(configDict['autoplay'])
+		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
+		self.playerNameLabel.SetLabel(str(configDict['player_name']))
+
+	def LoadConfig(self):
+		Publisher.subscribe(self.UpdateUI, 'config')
+		Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
+		print "Observers registered..."
+		msgData = network.messages.getMessage(CONFIG_REQUEST)
+		dlgStyle =  wx.PD_AUTO_HIDE
+		#self.prgDialog = wx.ProgressDialog("Loading...", "Loading configuration from player...", maximum = 0, parent = self, style = dlgStyle)
+		#self.prgDialog.Pulse()
+		network.udpconnector.sendMessage(msgData, self.host)
+
+	def UdpListenerStopped(self):
+		if self.prgDialog:
+			self.prgDialog.Update(100)
+			self.prgDialog.Destroy()
+			#self.prgDialog = None
+
+	def ButtonClicked(self, event):
+		button = event.GetEventObject()
+		if button.GetName() == 'btn_image_interval':
+			dlg = wx.TextEntryDialog(self, "New Interval:", "Image Interval", self.imgIntervalLabel.GetLabel())
+			if dlg.ShowModal() == wx.ID_OK:
+				try:
+					newInterval = int(dlg.GetValue())
+					self.imgIntervalLabel.SetLabel(str(newInterval))
+					msgData = network.messages.getConfigUpdateMessage("image_interval", newInterval)
+					network.udpconnector.sendMessage(msgData, self.host)
+				except Exception, e:
+					error = wx.MessageDialog(self, "Please enter a valid number!", "Invalid interval", wx.OK | wx.ICON_EXCLAMATION)
+					error.ShowModal()
+
+			dlg.Destroy()
+		elif button.GetName() == 'btn_player_name':
+			dlg = wx.TextEntryDialog(self, "New name:", "Player Name", self.playerNameLabel.GetLabel())
+			if dlg.ShowModal() == wx.ID_OK:
+				newName = dlg.GetValue()
+				self.playerNameLabel.SetLabel(newName)
+				msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
+				network.udpconnector.sendMessage(msgData, self.host)
+				self.LoadConfig()
+			dlg.Destroy()
+		elif button.GetName() == 'btn_update':
+			# register observer
+			network.udpresponselistener.registerObserver([OBS_UPDATE, self.OnPlayerUpdated])
+			network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+
+			self.prgDialog = wx.ProgressDialog("Updating...", "Player is trying to update, please stand by...")
+			#self.prgDialog.ShowModal()
+			self.prgDialog.Pulse()
+
+			msgData = network.messages.getMessage(PLAYER_UPDATE)
+			network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
+
+	def CheckboxToggled(self, event):
+		checkbox = event.GetEventObject()
+		print checkbox.GetName()
+		msgData = network.messages.getConfigUpdateMessage(checkbox.GetName(), checkbox.IsChecked())
+		network.udpconnector.sendMessage(msgData, self.host)
+
+################################################################################
+# REMOTE NOTEBOOK FOR PLAYER PANELS ############################################
 ################################################################################
 class RemoteNotebook(wx.Notebook):
 	def __init__(self, parent, id, log):
@@ -203,6 +269,7 @@ class RemoteNotebook(wx.Notebook):
 		self.pages = []
 		self.hostSearch = False
 		self.hosts = []
+		self.activePageNr = 0
 		global HOST_SYS
 		if HOST_SYS == HOST_LINUX or HOST_SYS == HOST_WIN:
 			self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
@@ -212,6 +279,15 @@ class RemoteNotebook(wx.Notebook):
 
 	def Close(self):
 		self.Destroy()
+
+	def CurrentlyActiveHost(self):
+		return self.hosts[self.activePageNr]
+
+	def CurrentConfig(self):
+		return self.GetPage(self.activePageNr).config
+
+	def UpdateCurrentPlayerUI(self, config):
+		self.GetPage(self.activePageNr).UpdateConfigUI(config, True)
 
 	def HostFound(self, host, playerName):
 		global playerCount
@@ -280,6 +356,7 @@ class RemoteNotebook(wx.Notebook):
 	def OnPageChanged(self, event):
 		global HOST_SYS
 		print "ON PAGE CHANGED TRIGGER"
+		self.activePageNr = event.GetSelection()
 		if HOST_SYS == HOST_LINUX and event.GetOldSelection() == -1:
 			pass
 		else:
@@ -357,12 +434,12 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def Initialize(self):
 		print "Setting up player section..."
 		self.SetupPlayerSection()
-		print "Setting up config section..."
-		self.SetupConfigSection()
+		#print "Setting up config section..."
+		#self.SetupConfigSection()
 		print "Setting up file lists..."
 		self.SetupFileLists()
 
-		self.mainSizer.Add(self.playerSizer,(0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
+		self.mainSizer.Add(self.playerSizer,(0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.LEFT | wx.RIGHT, border=10)
 		self.mainSizer.Add(self.configSizer, (0,2), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
 
 		self.mainSizer.Add(self.filesSizer, (2,0), span=(1,4), flag=wx.BOTTOM | wx.LEFT | wx.RIGHT, border=10)
@@ -374,6 +451,13 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 		line = wx.StaticLine(self,-1,size=(2,self.mainSizer.GetCellSize(0,0)[1]),style=wx.LI_VERTICAL)
 		self.mainSizer.Add(line,(0,1), flag = wx.LEFT, border = 10)
+
+		self.Fit()
+		psHeight = self.playerSizer.GetSize()[1]
+		print "PlayerSizer height: ",psHeight
+		line = wx.StaticLine(self,-1,size=(2,psHeight),style=wx.LI_VERTICAL)
+		self.playerSizer.Add(line,(0,2), span=(3,1), flag=wx.LEFT | wx.RIGHT, border=5)
+
 		# self.SetSizeHints(self.GetSize().x,self.GetSize().y,-1,self.GetSize().y)
 		#self.SetSizerAndFit(self.mainSizer)
 		self.Show(True)
@@ -381,92 +465,36 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def SetupPlayerSection(self):
 		# Text label
 		label = wx.StaticText(self,-1,label="Remote Control:")
-		self.playerSizer.Add(label,(0,0),(1,2), flag = wx.BOTTOM, border=5)
+		self.playerSizer.Add(label,(0,0),(1,2), flag = wx.TOP | wx.BOTTOM, border=5)
+
+		# player name and address
+		nameLabel = wx.StaticText(self,-1,label="Player name: ")
+		self.playerNameLabel = wx.StaticText(self,-1,label="", size = (130,nameLabel.GetSize()[1]))
+		addrLabel = wx.StaticText(self,-1,label="IP-Address: ")
+		playerAddr = wx.StaticText(self,-1,label=self.host)
+		self.playerSizer.Add(nameLabel, (1,0), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.playerSizer.Add(self.playerNameLabel, (1,1), flag=wx.ALIGN_CENTER_VERTICAL)
+		self.playerSizer.Add(addrLabel, (2,0), flag = wx.ALIGN_CENTER_VERTICAL)
+		self.playerSizer.Add(playerAddr, (2,1), flag = wx.ALIGN_CENTER_VERTICAL)
 
 		# Play and Stop Button
 		button = wx.Button(self,-1,label="Play")
-		self.playerSizer.Add(button,(1,0))
+		self.playerSizer.Add(button,(1,3))
 		self.Bind(wx.EVT_BUTTON, self.PlayClicked, button)
 
 		button = wx.Button(self,-1,label="Stop")
-		self.playerSizer.Add(button,(2,0), flag=wx.TOP, border=5)
+		self.playerSizer.Add(button,(2,3), flag=wx.TOP, border=5)
 		self.Bind(wx.EVT_BUTTON, self.StopClicked, button)
-
-		line = wx.StaticLine(self,-1,size=(button.GetSize()[0],2))
-		self.playerSizer.Add(line,(3,0), flag=wx.TOP | wx.BOTTOM, border=10)
 
 		button = wx.Button(self,-1,label="Identify")
 		button.SetName("btn_identify")
-		self.playerSizer.Add(button,(4,0))
+		self.playerSizer.Add(button,(1,5), flag = wx.BOTTOM, border = 5)
 		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
 
 		button = wx.Button(self,-1,label="Reboot")
 		button.SetName("btn_reboot")
-		self.playerSizer.Add(button,(5,0), flag=wx.TOP, border=5)
+		self.playerSizer.Add(button,(2,5), flag=wx.TOP | wx.BOTTOM, border=5)
 		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
-
-	def SetupConfigSection(self):
-		# checkboxes
-		self.cbImgEnabled = wx.CheckBox(self, -1, "Enable Images")
-		self.cbVidEnabled = wx.CheckBox(self, -1, "Enable Videos")
-		self.cbAutoplay = wx.CheckBox(self, -1, "Autoplay")
-		self.cbRepeat = wx.CheckBox(self, -1, "Repeat")
-
-		# interval, player name and ip
-		intervalLabel = wx.StaticText(self,-1,label="Image interval:")
-		self.imgIntervalLabel = wx.StaticText(self,-1,label="")
-		nameLabel = wx.StaticText(self,-1,label="Player name:")
-		self.playerNameLabel = wx.StaticText(self,-1,label="")
-		addrLabel = wx.StaticText(self,-1,label="IP-Address:")
-		playerAddr = wx.StaticText(self,-1,label=self.host)
-
-		updateBtn = wx.Button(self, -1, "Update player")
-
-		# Sample code for bitmap button
-		#imageFile = "img/ic_edit.png"
-		#editIcon = wx.Image(imageFile, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
-		#self.editInterval = wx.BitmapButton(self, id=-1, bitmap=editIcon, size = (editIcon.GetWidth()+10, editIcon.GetHeight()+10))
-		#self.editName = wx.BitmapButton(self, id=-1, bitmap=editIcon, size = (editIcon.GetWidth()+10, editIcon.GetHeight()+10))
-
-		self.editInterval = wx.Button(self,-1,label="...",size=(27,25))
-		self.editName = wx.Button(self,-1,label="...",size=(27,25))
-
-		# horizontal divider line
-		line = wx.StaticLine(self,-1,size=(260,2))
-
-        # set names for further identifying
-		self.cbImgEnabled.SetName('image_enabled')
-		self.cbVidEnabled.SetName('video_enabled')
-		self.cbAutoplay.SetName('autoplay')
-		self.cbRepeat.SetName('repeat')
-		self.editInterval.SetName('btn_image_interval')
-		self.editName.SetName('btn_player_name')
-		updateBtn.SetName('btn_update')
-
-		# bind UI element events
-		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbImgEnabled)
-		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbVidEnabled)
-		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbAutoplay)
-		self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbRepeat)
-		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editInterval)
-		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editName)
-		self.Bind(wx.EVT_BUTTON, self.ButtonClicked, updateBtn)
-
-		self.configSizer.Add(wx.StaticText(self,-1,label="Configuration:"),(0,0), flag=wx.BOTTOM, border=5)
-		self.configSizer.Add(self.cbImgEnabled, (1,0))
-		self.configSizer.Add(self.cbVidEnabled, (2,0))
-		self.configSizer.Add(self.cbAutoplay, (1,1))
-		self.configSizer.Add(self.cbRepeat, (2,1))
-		self.configSizer.Add(intervalLabel, (4,0), flag=wx.ALIGN_CENTER_VERTICAL)
-		self.configSizer.Add(self.imgIntervalLabel, (4,1), flag=wx.ALIGN_CENTER_VERTICAL)
-		self.configSizer.Add(self.editInterval, (4,3))
-		self.configSizer.Add(nameLabel, (5,0), flag=wx.ALIGN_CENTER_VERTICAL)
-		self.configSizer.Add(self.playerNameLabel, (5,1), flag=wx.ALIGN_CENTER_VERTICAL)
-		self.configSizer.Add(self.editName, (5,3))
-		self.configSizer.Add(addrLabel, (6,0), flag = wx.ALIGN_CENTER_VERTICAL)
-		self.configSizer.Add(playerAddr, (6,1), flag = wx.ALIGN_CENTER_VERTICAL)
-		self.configSizer.Add(updateBtn, (0,4))
-		self.configSizer.Add(line, (3,0), span=(1,5), flag=wx.TOP | wx.BOTTOM, border=5)
 
 	def SetupFileLists(self):
 		self.filesSizer.SetEmptyCellSize((0,0))
@@ -558,18 +586,15 @@ class RaspMediaCtrlPanel(wx.Panel):
 			if not file.startswith('.') and '.' in file:
 				self.remoteList.InsertStringItem(0, file)
 
-	def UpdateConfigUI(self, config):
-		print "UPDATING CONFIG UI..."
+	def UpdateConfigUI(self, config, isDict=False):
 		global HOST_SYS
-		configDict = ast.literal_eval(config)
+		if isDict:
+			configDict = config
+		else:
+			configDict = ast.literal_eval(config)
 		print configDict
-		self.cbImgEnabled.SetValue(configDict['image_enabled'])
-		self.cbVidEnabled.SetValue(configDict['video_enabled'])
-		self.cbRepeat.SetValue(configDict['repeat'])
-		self.cbAutoplay.SetValue(configDict['autoplay'])
-		self.imgIntervalLabel.SetLabel(str(configDict['image_interval']))
-		self.playerNameLabel.SetLabel(str(configDict['player_name']))
-
+		self.config = configDict
+		self.playerNameLabel.SetLabel(configDict['player_name'])
 		if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX or HOST_SYS == HOST_WIN:
 			if self.notebook_event:
 				self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
@@ -741,8 +766,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 		print checkbox.GetName()
 		msgData = network.messages.getConfigUpdateMessage(checkbox.GetName(), checkbox.IsChecked())
 		network.udpconnector.sendMessage(msgData, self.host)
-		#print "Checkbox toggled: ", event.GetEventObject().GedId()
-		pass
 
 	def ChangeDir(self, event):
 		dlg = wx.DirDialog(self, message="Select a directory that contains images or videos you would like to browse and upload to your media player.", defaultPath=self.path, style=wx.DD_CHANGE_DIR)
@@ -928,12 +951,11 @@ if __name__ == '__main__':
 	# check platform
 	if platform.system() == 'Windows':
 		HOST_SYS = HOST_WIN
-		frame = AppFrame(None, -1, 'RaspMedia Control')
 	elif platform.system() == 'Darwin':
 		HOST_SYS = HOST_MAC
-		frame = AppFrame(None, -1, 'RaspMedia Control')
 	elif platform.system() == 'Linux':
 		HOST_SYS = HOST_LINUX
-		frame = AppFrame(None, -1, 'RaspMedia Control')
+	
+	frame = AppFrame(None, -1, 'RaspMedia Control')
 
 	app.MainLoop()

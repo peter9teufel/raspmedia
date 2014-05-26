@@ -1,6 +1,7 @@
 import socket
 import sys, os
 import wx
+from wx.lib.pubsub import pub as Publisher
 
 observers = []
 _BLOCK_SIZE = 1024
@@ -22,9 +23,10 @@ def sendFile(filePath, host, parent):
 	filesize = os.stat(filePath).st_size
 
 	# show progress dialog
-	dlgStyle =  wx.PD_AUTO_HIDE
-	prgDialog = wx.ProgressDialog("Sending...", "Sending file to player: " + filename, maximum = filesize, parent = parent, style = dlgStyle)
-
+	dlgStyle =  wx.PD_SMOOTH
+	#prgDialog = wx.ProgressDialog("Sending...", "Sending file to player: " + filename, maximum = filesize, parent = parent, style = dlgStyle)
+	prgDialog = wx.ProgressDialog("Sending...", "Sending file to player: " + filename, maximum = filesize)
+	prgDialog.Show()
 	s.send(data)
 	s.send(filenameEnc)
 
@@ -38,9 +40,8 @@ def sendFile(filePath, host, parent):
 	    prgDialog.Update(bytesSent)
 	    l = f.read(_BLOCK_SIZE)
 	s.close()
-	prgDialog.Destroy()
-	for observer in observers:
-		observer(None)
+	#for observer in observers:
+	#	observer(None)
 
 def registerObserver(observer):
 	if not observer in observers:

@@ -19,11 +19,6 @@ def main():
 		sendMessage(data)
 
 def sendMessage(data,host='<broadcast>',response_timeout=None):
-	print "Starting udp response listening thread..."
-	rcv_thread = threading.Thread(target=udpresponselistener.startListening)
-	rcv_thread.daemon = True
-	rcv_thread.start()
-
 	if host == '<broadcast>':
 		ips = netutil.ip4_addresses()
 		for ip in ips:
@@ -33,8 +28,8 @@ def sendMessage(data,host='<broadcast>',response_timeout=None):
 		_sendMessage(data,host,None,response_timeout)
 	# ensure a clean exit when data is sent and response processed
 	#cleanExit()
-	if not response_timeout:
-		cleanExit()
+	#if not response_timeout:
+	#	cleanExit()
 
 def _sendMessage(data,host,local_bind=None,response_timeout=None):
 	global sock
@@ -48,6 +43,27 @@ def _sendMessage(data,host,local_bind=None,response_timeout=None):
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 		if local_bind:
 			sock.bind((local_bind, 29885))
+
+		print "Starting response listener in background thread..."
+		# wait a given timeout for a network response
+		timeout = UDP_RESPONSE_TIMEOUT
+		if response_timeout:
+			timeout = response_timeout
+		else:
+			if host == '<broadcast>' or local_bind:
+				print "Using longer Broadcast Timeout..."
+				timeout = UDP_BROADCAST_RESPONSE_TIMEOUT
+				#time.sleep(UDP_BROADCAST_RESPONSE_TIMEOUT)
+			else:
+				pass
+				#time.sleep(UDP_RESPONSE_TIMEOUT)
+		# start timer to stop listener after timeout
+		t = threading.Timer(timeout, udpresponselistener.stopListening)
+		t.start()
+		# set timeout in listener and start it
+		udpresponselistener.setTimeout(timeout)
+		udpresponselistener.startListening()
+
 		print "Sending message..."
 		sent = False
 		while not sent:
@@ -59,28 +75,12 @@ def _sendMessage(data,host,local_bind=None,response_timeout=None):
 		#print "Response from ", addr
 		sock.close()
 
-	# wait a given timeout for a network response
-	if response_timeout:
-		print "Stopping listener after given timeout of %d seconds..." % (response_timeout)
-		t = threading.Timer(response_timeout, udpresponselistener.stopListening)
-		t.start()
-		#time.sleep(response_timeout)
-	else:
-		if host == '<broadcast>' or local_bind:
-			print "Using longer Broadcast Timeout..."
-			#t = threading.Timer(UDP_BROADCAST_RESPONSE_TIMEOUT, udpresponselistener.stopListening)
-			#t.start()
-			time.sleep(UDP_BROADCAST_RESPONSE_TIMEOUT)
-		else:
-			#t = threading.Timer(UDP_RESPONSE_TIMEOUT, udpresponselistener.stopListening)
-			time.sleep(UDP_RESPONSE_TIMEOUT)
-
 def cleanExit():
 	if sock:
 		print "Closing socket before quitting..."
 		if sock:
 			sock.close()
-	udpresponselistener.stopListening()
+	#udpresponselistener.stopListening()
 	print "Done! Bye bye..."
 
 # global socket variable

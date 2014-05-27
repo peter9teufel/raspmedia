@@ -423,11 +423,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		if self.index == newPage.index:
 			print "PAGE CHANGED TO INDEX %d - PROCESSING AND LOADING DATA..." % (self.index)
 			self.pageDataLoading = True
-			dlg = wx.ProgressDialog("Loading...", "Loading Player Data...")
-			dlg.Pulse()
-			self.LoadRemoteConfig()
-			time.sleep(0.5)
-			dlg.Destroy()
+			self.LoadData()
 
 	def Initialize(self):
 		print "Setting up player section..."
@@ -593,14 +589,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 		print configDict
 		self.config = configDict
 		self.playerNameLabel.SetLabel(configDict['player_name'])
-		if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX or HOST_SYS == HOST_WIN:
-			if self.notebook_event:
-				self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
-			else:
-				self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
-			self.parent.parent.Refresh()
-		elif HOST_SYS == HOST_WIN:
-			self.parent.SetTitle(str(configDict['player_name']))
+		#if self.notebook_event:
+		#	self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
+		#else:
+		self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+		self.parent.parent.Refresh()
 
 	def LocalFileSelected(self, event):
 		filePath = self.path + '/' +  event.GetText()
@@ -817,22 +810,29 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.udpconnector.sendMessage(msgData, self.host)
 
 	def UdpListenerStopped(self):
+		print "UDP LISTENER STOPPED IN PANEL %d" % self.index
 		global HOST_SYS
 		if self.pageDataLoading:
 			if self.remoteListLoading:
 				self.pageDataLoading = False
 				Publisher.unsubAll()
-				if HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX or HOST_SYS == HOST_WIN:
-					if self.parent.prgDialog:
-						self.parent.prgDialog.Hide()
-						self.parent.prgDialog.Destroy()
-						self.parent.prgDialog = None
+				if self.parent.prgDialog:
+					print "CLOSING PRG DIALOG IN PARENT..."
+					self.parent.prgDialog.Hide()
+					self.parent.prgDialog.Destroy()
+					self.parent.prgDialog = None
+				if self.prgDialog:
+					print "CLOSING PRG DIALOG IN PANEL..."
+					self.prgDialog.Update(100)
+					if HOST_SYS == HOST_WIN:
+						self.prgDialog.Destroy()
 			else:
 				self.LoadRemoteFileList()
-		if self.prgDialog:
-			self.prgDialog.Update(100)
-			self.prgDialog.Destroy()
-			#self.prgDialog = None
+		else:
+			if self.prgDialog:
+				self.prgDialog.Update(100)
+				self.prgDialog.Destroy()
+				#self.prgDialog = None
 
 	def ButtonClicked(self, event):
 		button = event.GetEventObject()
@@ -953,7 +953,7 @@ if __name__ == '__main__':
 		HOST_SYS = HOST_MAC
 	elif platform.system() == 'Linux':
 		HOST_SYS = HOST_LINUX
-	
+
 	frame = AppFrame(None, -1, 'RaspMedia Control')
 
 	app.MainLoop()

@@ -58,7 +58,20 @@ def _openSocket():
 
 def _optimize(filePath):
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
-        img = Image.open(filePath)
+        if img and img.meta_type == 'Image':
+            pilImg = PIL.Image.open( StringIO(str(img.data)) )
+        elif imgData:
+            pilImg = PIL.Image.open( StringIO(imgData) )
+
+        try:
+            pilImg.load()
+        except IOError:
+            pass # You can always log it to logger
+        img = Image.open(StringIO(str(filePath)))
+        try:
+            pilImg.load()
+        except IOError:
+            print "IOError in loading PIL image while optimizing, filling up with grey pixels..."
         maxW = 1920
         maxH = 1080
         w,h = img.size

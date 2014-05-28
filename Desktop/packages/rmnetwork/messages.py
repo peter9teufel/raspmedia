@@ -4,10 +4,10 @@ from constants import *
 def appendBytes(data, append, LE=False):
 	if LE:
 		for b in reversed(append):
-			data.append(int(b))
+			data.append(b)
 	else:
 		for b in append:
-			data.append(int(b))
+			data.append(b)
 	return data
 
 def appendInt(data, num, LE=True):
@@ -19,9 +19,9 @@ def appendShort(data, num, LE=True):
 	sizeBytes = [int(num >> i & 0xff) for i in (8,0)]
 	return appendBytes(data, sizeBytes, LE)
 
-def appendString(data, str):
+def appendString(data, str, sizeLE=True):
 	strBytes = bytearray(str)
-	data = appendInt(data, len(strBytes))
+	data = appendInt(data, len(strBytes), sizeLE)
 	return appendBytes(data, strBytes)
 
 
@@ -91,18 +91,20 @@ def getTcpFileMessage(files, basePath):
 	numFiles = len(files)
 
 	data = bytearray()
-	appendInt(data, numFiles)
+	appendInt(data, numFiles, False)
 
 	for filename in files:
 		filePath = basePath + '/' + filename
 
 		f=open (unicode(filePath), "rb")
-		appendString(data, str(filename))
-
+		#print "Appending filename %s with size %d" % (filename, len(bytearray(filename)))
+		appendString(data, str(filename), sizeLE=False)
 		filesize = os.stat(filePath).st_size
-		appendInt(data, filesize)
+		print "Appending filesize %d " % filesize
+		appendInt(data, filesize, False)
+		print "Appending file data..."
 		fileData = f.read(1024)
 		while fileData:
 			appendBytes(data, fileData)
-			fileData = r.read(1024)
+			fileData = f.read(1024)
 	return data

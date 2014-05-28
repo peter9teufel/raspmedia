@@ -54,18 +54,21 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 	s = socket.socket()
 	s.connect((host,60020))
 
-	prgDialog = wx.ProgressDialog("Sending...", "Sending file to player: " + filename, maximum = filesize, style = wx.PD_AUTO_HIDE)
 	msgData = messages.getTcpFileMessage(files, basePath)
 	msgSize = len(msgData)
+	print "File message size: ", msgSize
+	prgDialog = wx.ProgressDialog("Sending...", "Sending files to player...", maximum = msgSize, style = wx.PD_AUTO_HIDE)
 	bytesSent = 0;
 	index = 0
 	while index < msgSize:
 		packEnd = index + _BLOCK_SIZE
+		# print "INDEX: %d PACKEND: %d MESSAGE SIZE: %d" % (index,packEnd,msgSize)
 		if packEnd > msgSize:
 			curPacket = msgData[index:]
 		else:
 			curPacket = msgData[index:packEnd]
-			s.send(curPacket)
+		
+		s.send(curPacket)
 		bytesSent += _BLOCK_SIZE
 		if bytesSent > msgSize:
 			bytesSent = msgSize

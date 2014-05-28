@@ -2,7 +2,7 @@ import packages.rmnetwork as network
 from packages.rmnetwork.constants import *
 import os, sys, platform, ast, time, threading
 from wx.lib.pubsub import pub as Publisher
-
+from wx.lib.wordwrap import wordwrap
 try:
 	import wx
 except ImportError:
@@ -42,22 +42,6 @@ class AppFrame(wx.Frame):
 		network.udpresponselistener.destroy()
 		self.Destroy()
 		sys.exit(0)
-
-	def OnHostSearchDone(self):
-		print "CALLBACK OnHostSearchDone entered..."
-		self.Center()
-		if playerCount == 0:
-			self.notebook.prgDialog.Destroy()
-			dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
-			if dlg.ShowModal() == wx.ID_OK:
-				self.Close()
-		else:
-			self.notebook.prgDialog.Destroy()
-			self.notebook.LoadPageData(0)
-		if not HOST_SYS == HOST_WIN:
-			self.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
-		else:
-			self.SetSize((self.GetSize()[0]+90, self.GetSize()[1]+20))
 
 	def SetupMenuBar(self):
 		# menus
@@ -312,7 +296,7 @@ class RemoteNotebook(wx.Notebook):
 		Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
 		#network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped, self])
 		msgData = network.messages.getMessage(SERVER_REQUEST)
-		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self, style = wx.PD_SMOOTH)
+		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
 		self.prgDialog.Pulse()
 		network.udpconnector.sendMessage(msgData)
 
@@ -332,9 +316,24 @@ class RemoteNotebook(wx.Notebook):
 		if self.hostSearch:
 			self.hostSearch = False
 			if playerCount == 0:
-				self.prgDialog.Destroy()
-				dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
-				if dlg.ShowModal() == wx.ID_OK:
+				self.prgDialog.Update(100)
+				if HOST_SYS == HOST_WIN:
+					self.prgDialog.Destroy()
+				# dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
+				dlg = wx.SingleChoiceDialog(self,wordwrap("No RaspMedia Players found, check if your players are running and connected to the local network.", 300, wx.ClientDC(self)), "No Player found", ['Rescan', 'Exit'])
+				result = dlg.ShowModal()
+				selection = dlg.GetSelection()
+				print "RESULT: ", result
+				if result == wx.ID_OK:
+					print "OK clicked, checking selected index... ", selection
+					if selection == 0: # RESCAN
+						self.SearchHosts()
+					#elif selection == 1:
+					#	pass
+					elif selection == 1: # EXIT
+						self.parent.Close()
+				elif result == wx.ID_CANCEL:
+					print "Cancel clicked, terminating program, bye bye..."
 					self.parent.Close()
 			else:
 				#self.prgDialog.Destroy()
@@ -347,9 +346,9 @@ class RemoteNotebook(wx.Notebook):
 					self.AddPage(curPage, host['name'])
 					ind += 1
 				self.LoadPageData(0)
-			self.Fit()
-			self.parent.Fit()
-			self.parent.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
+				self.Fit()
+				self.parent.Fit()
+				self.parent.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
 
 	def OnPageChanged(self, event):
 		global HOST_SYS
@@ -721,7 +720,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 				network.tcpfileclient.registerObserver(self.LoadRemoteFileList)
 				network.tcpfileclient.sendFile(filePath, self.host, self)
 				self.LoadRemoteFileList()
-			dlg.Destroy()
+			if HOST_SYS == HOST_WIN:
+				dlg.Destroy()
 
 
 	def RemoteFileDoubleClicked(self, event):
@@ -818,9 +818,9 @@ class RaspMediaCtrlPanel(wx.Panel):
 				Publisher.unsubAll()
 				if self.parent.prgDialog:
 					print "CLOSING PRG DIALOG IN PARENT..."
-					self.parent.prgDialog.Hide()
-					self.parent.prgDialog.Destroy()
-					self.parent.prgDialog = None
+					self.parent.prgDialog.Update(100)
+					if HOST_SYS == HOST_WIN:
+						self.parent.prgDialog.Destroy()
 				if self.prgDialog:
 					print "CLOSING PRG DIALOG IN PANEL..."
 					self.prgDialog.Update(100)
@@ -831,8 +831,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 		else:
 			if self.prgDialog:
 				self.prgDialog.Update(100)
-				self.prgDialog.Destroy()
-				#self.prgDialog = None
+				if HOST_SYS == HOST_WIN:
+					self.prgDialog.Destroy()
 
 	def ButtonClicked(self, event):
 		button = event.GetEventObject()
@@ -886,7 +886,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 			network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
 
 	def RebootPlayer(self):
-		self.prgDialog = wx.ProgressDialog("Rebooting...", "Player rebooting, this can take up to 1 minute.\nThis dialog will close when the reboot is complete,\nyou may close it manually if you see your player\nup and running again.", parent = self, style = wx.PD_SMOOTH)
+		self.prgDialog = wx.ProgressDialog("Rebooting...", wordwrap("Player rebooting, this can take up to 1 minute. This dialog will close when the reboot is complete, you may close it manually if you see your player up and running again.", 350, wx.ClientDC(self)), parent = self)
 		# register observer
 		# network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete])
 		# network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
@@ -905,7 +905,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 			self.prgDialog.Destroy()
 		dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
 		dlg.Show()
-		dlg.Destroy()
+		if HOST_SYS == HOST_WIN:
+			dlg.Destroy()
 
 	def OnPlayerUpdated(self, result):
 		self.prgDialog.Destroy()

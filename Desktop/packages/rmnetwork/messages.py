@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from constants import *
 
 def appendBytes(data, append, LE=False):
@@ -7,9 +7,7 @@ def appendBytes(data, append, LE=False):
 			data.append(int(b))
 	else:
 		for b in append:
-			b = str(b)
-			val = int(b)
-			data.append(val)
+			data.append(int(b))
 	return data
 
 def appendInt(data, num):
@@ -87,4 +85,25 @@ def getMessage(flag, args=None):
 		appendBytes(data, usgData)
 
 	print "Message size: ", size
+	return data
+
+def getTcpFileMessage(files, basePath):
+	numFiles = len(files)
+
+	data = bytearray()
+	appendInt(data, numFiles)
+
+	for filename in files:
+		filePath = basePath + '/' + filename
+
+		f=open (unicode(filePath), "rb")
+		filenameEnc = filename.encode('utf-8')
+		appendString(data, filenameEnc)
+
+		filesize = os.stat(filePath).st_size
+		appendInt(data, filesize)
+		fileData = f.read(1024)
+		while fileData:
+			appendBytes(data, fileData)
+			fileData = r.read(1024)
 	return data

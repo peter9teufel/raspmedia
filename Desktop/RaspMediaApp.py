@@ -597,18 +597,53 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
 		self.parent.parent.Refresh()
 
+	def GetLocalSelectionInfo(self):
+		mixed = False
+		prevType = None
+		index = self.localList.GetFirstSelected()
+		cnt = 0
+		while not index == -1:
+			item = self.localList.GetItem(index,0)
+			filePath = self.path + '/' + item.GetText()
+			curType = None
+			if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)) or filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+				curType = 'media'
+			elif os.path.isdir(filePath):
+				curType = 'dir'
+			if prevType and curType and not curType == prevType:
+				mixed = True
+			cnt += 1
+			index = self.localList.GetNextSelected(index)
+		if mixed:
+			resType = "mixed"
+		else:
+			resType = curType
+		return {"count": cnt, "type": resType}
+
+	def MutlipleLocalFilesSelected(self):
+		index = self.localList.GetFirstSelected()
+		if index == -1:
+			return False
+		else:
+			if self.localList.GetNextSelected(index) == -1:
+				return False
+			else:
+				return True
+		return False
+
 	def LocalFileSelected(self, event):
-		filePath = self.path + '/' +  event.GetText()
-		# print "File: ", filePath
+		if not self.MutlipleLocalFilesSelected():
+			filePath = self.path + '/' +  event.GetText()
+			# print "File: ", filePath
 
-		imagePath = filePath
+			imagePath = filePath
 
-		if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
-			imagePath = 'img/video.png'
-		elif os.path.isdir(filePath):
-			imagePath = 'img/preview.png'
+			if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
+				imagePath = 'img/video.png'
+			elif os.path.isdir(filePath):
+				imagePath = 'img/preview.png'
 
-		self.SetPreviewImage(imagePath)
+			self.SetPreviewImage(imagePath)
 
 	def LocalFileRightClicked(self, event):
 		global HOST_SYS
@@ -670,8 +705,9 @@ class RaspMediaCtrlPanel(wx.Panel):
 			files.append(fileName)
 			index = self.localList.GetNextSelected(index)
 		print "Files to send: ", files
-		for file in files:
-			self.SendFileToPlayer(file)
+		#for file in files:
+		#	self.SendFileToPlayer(file)
+		network.tcpfileclient.sendFiles(files, self.path, self.host, self, HOST_SYS == HOST_WIN)
 		self.LoadRemoteFileList()
 
 	def SendFileToPlayer(self, fileName):

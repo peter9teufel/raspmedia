@@ -22,28 +22,40 @@ def _openSocket():
         sc, address = s.accept()
 
         print address
-        # read file name
-        nameSizeBytes = sc.recv(4)
-        nameSize, remaining = readInt(bytearray(nameSizeBytes))
-        name = sc.recv(nameSize)
-        print "RECEIVING FILE: ", name
-        name = name.decode('utf-8')
-        openPath = os.getcwd() + '/media/' + name
-        if not os.path.isdir(openPath):
-            f = open(openPath, 'w+') #open in binary
+        # read number of files
+        numFilesBytes = sc.recv(4)
+        numFiles, remaining = readInt(bytearray(numFilesBytes))
+        print "RECEIVING %d FILES" % numFiles
+        for i in range(numFiles):
+            # read file name
+            nameSizeBytes = sc.recv(4)
+            nameSize, remaining = readInt(bytearray(nameSizeBytes))
+            name = sc.recv(nameSize)
+            print "RECEIVING FILE: ", name
+            name = name.decode('utf-8')
+            openPath = os.getcwd() + '/media/' + name
+            fileSizeBytes = sc.recv(4)
+            fileSize, remaining = readInt(bytearray(fileSizeBytes))
+            if not os.path.isdir(openPath):
+                f = open(openPath, 'w+') #open in binary
 
-
-            l = sc.recv(1024)
-            total = 1024;
-            while (l):
+                total = 0
+                while total < fileSize:
+                    if fileSize - total > 1024:
+                        # receive full 1024 bytes packet
+                        l = sc.recv(1024)
+                        total += 1024
+                    else:
+                        # receive remaining bytes of current file
+                        l = sc.recv(fileSize - total)
+                        total += fileSize - total
                     f.write(l)
-                    l = sc.recv(1024)
-                    total += 1024
-            print 'Bytes written to file: ', total
-            f.close()
-            print "File saved!"
-            sc.close()
-            _optimize(os.getcwd() + '/media/' + name)
+                    
+                print 'Bytes written to file: ', total
+                f.close()
+                print "File saved!"
+                sc.close()
+                _optimize(os.getcwd() + '/media/' + name)
 
 def _optimize(filePath):
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):

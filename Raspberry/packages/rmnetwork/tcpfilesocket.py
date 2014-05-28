@@ -58,7 +58,7 @@ def _openSocket():
 
 def _optimize(filePath):
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
-        img = Image.open(StringIO(str(filePath)))
+        img = Image.open(str(filePath))
         try:
             pilImg.load()
         except IOError:

@@ -37,19 +37,10 @@ def _openSocket():
             fileSize, remaining = readInt(bytearray(fileSizeBytes))
             if not os.path.isdir(openPath):
                 f = open(openPath, 'w+') #open in binary
-
-                total = 0
-                while total < fileSize:
-                    if fileSize - total > 1024:
-                        # receive full 1024 bytes packet
-                        l = sc.recv(1024)
-                        total += 1024
-                    else:
-                        # receive remaining bytes of current file
-                        l = sc.recv(fileSize - total)
-                        total += fileSize - total
-                    f.write(l)
-                    
+                
+                l = sc.recv(fileSize)
+                f.write(l)
+                total = fileSize  
                 print 'Bytes written to file: ', total
                 f.close()
                 print "File saved!"

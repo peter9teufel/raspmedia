@@ -198,9 +198,11 @@ class SettingsFrame(wx.Frame):
 			if dlg.ShowModal() == wx.ID_OK:
 				try:
 					newInterval = int(dlg.GetValue())
-					self.imgIntervalLabel.SetLabel(str(newInterval))
+					# self.imgIntervalLabel.SetLabel(str(newInterval))
 					msgData = network.messages.getConfigUpdateMessage("image_interval", newInterval)
 					network.udpconnector.sendMessage(msgData, self.host)
+					time.sleep(0.2)
+					self.LoadConfig()
 				except Exception, e:
 					error = wx.MessageDialog(self, "Please enter a valid number!", "Invalid interval", wx.OK | wx.ICON_EXCLAMATION)
 					error.ShowModal()
@@ -213,6 +215,7 @@ class SettingsFrame(wx.Frame):
 				self.playerNameLabel.SetLabel(newName)
 				msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
 				network.udpconnector.sendMessage(msgData, self.host)
+				time.sleep(0.2)
 				self.LoadConfig()
 			dlg.Destroy()
 		elif button.GetName() == 'btn_update':
@@ -845,46 +848,9 @@ class RaspMediaCtrlPanel(wx.Panel):
 				msgData2 = network.messages.getMessage(PLAYER_IDENTIFY_DONE)
 				network.udpconnector.sendMessage(msgData2, self.host)
 			dlg.Destroy()
-		elif button.GetName() == 'btn_image_interval':
-			dlg = wx.TextEntryDialog(self, "New Interval:", "Image Interval", self.imgIntervalLabel.GetLabel())
-			if dlg.ShowModal() == wx.ID_OK:
-				try:
-					newInterval = int(dlg.GetValue())
-					self.imgIntervalLabel.SetLabel(str(newInterval))
-					msgData = network.messages.getConfigUpdateMessage("image_interval", newInterval)
-					network.udpconnector.sendMessage(msgData, self.host)
-				except Exception, e:
-					error = wx.MessageDialog(self, "Please enter a valid number!", "Invalid interval", wx.OK | wx.ICON_EXCLAMATION)
-					error.ShowModal()
-
-			dlg.Destroy()
-		elif button.GetName() == 'btn_player_name':
-			dlg = wx.TextEntryDialog(self, "New name:", "Player Name", self.playerNameLabel.GetLabel())
-			if dlg.ShowModal() == wx.ID_OK:
-				newName = dlg.GetValue()
-				self.playerNameLabel.SetLabel(newName)
-				msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
-				network.udpconnector.sendMessage(msgData, self.host)
-				#dlg = wx.ProgressDialog("Updating", "Updating player name...")
-				#dlg.Pulse()
-				self.LoadData()
-				#time.sleep(0.5)
-				#dlg.Destroy()
-			dlg.Destroy()
 		elif button.GetName() == 'btn_reboot':
 			self.RebootPlayer()
-		elif button.GetName() == 'btn_update':
-			# register observer
-			network.udpresponselistener.registerObserver([OBS_UPDATE, self.OnPlayerUpdated])
-			network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
-
-			self.prgDialog = wx.ProgressDialog("Updating...", "Player is trying to update, please stand by...")
-			#self.prgDialog.ShowModal()
-			self.prgDialog.Pulse()
-
-			msgData = network.messages.getMessage(PLAYER_UPDATE)
-			network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
-
+		
 	def RebootPlayer(self):
 		self.prgDialog = wx.ProgressDialog("Rebooting...", wordwrap("Player rebooting, this can take up to 1 minute. This dialog will close when the reboot is complete, you may close it manually if you see your player up and running again.", 350, wx.ClientDC(self)), parent = self)
 		# register observer

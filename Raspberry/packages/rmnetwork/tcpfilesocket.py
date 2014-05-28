@@ -60,7 +60,7 @@ def _optimize(filePath):
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
         img = Image.open(str(filePath))
         try:
-            pilImg.load()
+            img.load()
         except IOError:
             print "IOError in loading PIL image while optimizing, filling up with grey pixels..."
         maxW = 1920

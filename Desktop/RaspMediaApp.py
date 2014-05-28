@@ -235,6 +235,7 @@ class SettingsFrame(wx.Frame):
 		print checkbox.GetName()
 		msgData = network.messages.getConfigUpdateMessage(checkbox.GetName(), checkbox.IsChecked())
 		network.udpconnector.sendMessage(msgData, self.host)
+		self.LoadConfig()
 
 ################################################################################
 # REMOTE NOTEBOOK FOR PLAYER PANELS ############################################
@@ -713,8 +714,9 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def SendFileToPlayer(self, fileName):
 		filePath = self.path + '/' +  fileName
 		print "Path: ", filePath
+		files = [fileName]
 		#network.tcpfileclient.registerObserver(self.LoadRemoteFileList)
-		network.tcpfileclient.sendFile(filePath, self.host, self, HOST_SYS == HOST_WIN)
+		network.tcpfileclient.sendFiles(files, self.path, self.host, self, HOST_SYS == HOST_WIN)
 
 	def SetPreviewImage(self, imagePath):
 		self._SetPreview('img/clear.png')

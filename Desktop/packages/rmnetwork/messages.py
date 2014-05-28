@@ -10,14 +10,14 @@ def appendBytes(data, append, LE=False):
 			data.append(int(b))
 	return data
 
-def appendInt(data, num):
+def appendInt(data, num, LE=True):
 	sizeBytes = [hex(num >> i & 0xff) for i in (24,16,8,0)]
 	sizeBytes = [int(num >> i & 0xff) for i in (24,16,8,0)]
-	return appendBytes(data, sizeBytes, True)
+	return appendBytes(data, sizeBytes, LE)
 
-def appendShort(data, num):
+def appendShort(data, num, LE=True):
 	sizeBytes = [int(num >> i & 0xff) for i in (8,0)]
-	return appendBytes(data, sizeBytes, True)
+	return appendBytes(data, sizeBytes, LE)
 
 def appendString(data, str):
 	strBytes = bytearray(str)
@@ -97,8 +97,7 @@ def getTcpFileMessage(files, basePath):
 		filePath = basePath + '/' + filename
 
 		f=open (unicode(filePath), "rb")
-		filenameEnc = filename.encode('utf-8')
-		appendString(data, filenameEnc)
+		appendString(data, str(filename))
 
 		filesize = os.stat(filePath).st_size
 		appendInt(data, filesize)

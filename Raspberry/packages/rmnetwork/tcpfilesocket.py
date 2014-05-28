@@ -32,7 +32,6 @@ def _openSocket():
             nameSize, remaining = readInt(bytearray(nameSizeBytes))
             name = sc.recv(nameSize)
             print "RECEIVING FILE: ", name
-            name = name.decode('utf-8')
             openPath = os.getcwd() + '/media/' + name
             fileSizeBytes = sc.recv(4)
             fileSize, remaining = readInt(bytearray(fileSizeBytes))

@@ -44,8 +44,13 @@ def _openSocket():
                 print 'Bytes written to file: ', total
                 f.close()
                 print "File saved!"
-                sc.close()
-                #_optimize(os.getcwd() + '/media/' + name)
+                _optimize(os.getcwd() + '/media/' + name)
+        l = sc.recv(1024)
+        while l:
+            print "Receving trash at message end..."
+            l = sc.recv(1024)
+        print "Closing TCP Client connection..."
+        sc.close()
 
 def _optimize(filePath):
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):

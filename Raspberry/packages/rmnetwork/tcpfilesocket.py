@@ -62,7 +62,7 @@ def _openSocket():
                 #while len(l)< fileSize:
                 #    l += sc.recv(1024)
                 l = data[:fileSize]
-                data = data[fileSize+1:]
+                data = data[fileSize:]
                 f.write(l) 
                 print 'Bytes written to file: ', fileSize
                 f.close()

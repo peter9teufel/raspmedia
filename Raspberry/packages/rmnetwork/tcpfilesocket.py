@@ -67,36 +67,7 @@ def _openSocket():
                 print 'Bytes written to file: ', fileSize
                 f.close()
                 print "File saved!"
-                _optimize(os.getcwd() + '/media/' + name)
 
-        #l = sc.recv(1024)
-        #while l:
-        #    print "Receving trash at message end..."
-        #    l = sc.recv(1024)
-        #print "Closing TCP Client connection..."
-        #sc.close()
-
-def _optimize(filePath):
-    if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
-        img = Image.open(str(filePath))
-        try:
-            img.load()
-        except IOError:
-            print "IOError in loading PIL image while optimizing, filling up with grey pixels..."
-        maxW = 1920
-        maxH = 1080
-        w,h = img.size
-        if w/h > 1.770:
-            width = maxW
-            height = maxW * h / w
-        else:
-            height = maxH
-            width = maxH * w / h
-        img.thumbnail((width, height))
-        print "Saving optimized image..."
-        print "W: ", width
-        print "H: ", height
-        img.save(filePath)
 
 def openFileSocket():
     global server_thread

@@ -1,6 +1,7 @@
 import packages.rmnetwork as network
+import packages.rmutil as rmutil
 from packages.rmnetwork.constants import *
-import os, sys, platform, ast, time, threading
+import os, sys, platform, ast, time, threading, shutil
 from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
 try:
@@ -706,9 +707,18 @@ class RaspMediaCtrlPanel(wx.Panel):
 			files.append(fileName)
 			index = self.localList.GetNextSelected(index)
 		print "Files to send: ", files
-		#for file in files:
-		#	self.SendFileToPlayer(file)
-		network.tcpfileclient.sendFiles(files, self.path, self.host, self, HOST_SYS == HOST_WIN)
+
+		# optimize the files before sending them
+		# create temp directory
+		tmpPath = BASE_PATH + '/' + 'tmp'
+		try:
+			os.makedirs(tmpPath)
+		except OSError as exception:
+			print "Exception in creating DIR: ",exception
+		rmutil.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
+		network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
+		print "Deleting temporary files..."
+		shutil.rmtree(tmpPath)
 		self.LoadRemoteFileList()
 
 	def SendFileToPlayer(self, fileName):

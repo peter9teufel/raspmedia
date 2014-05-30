@@ -61,13 +61,13 @@ def _openSocket():
                 #l=''
                 #while len(l)< fileSize:
                 #    l += sc.recv(1024)
-                l = data[:fileSize]
-                f.write(l)
-                total = fileSize  
-                print 'Bytes written to file: ', total
+                l = data[:fileSize+1]
+                f.write(l) 
+                print 'Bytes written to file: ', fileSize
                 f.close()
                 print "File saved!"
                 _optimize(os.getcwd() + '/media/' + name)
+
         #l = sc.recv(1024)
         #while l:
         #    print "Receving trash at message end..."

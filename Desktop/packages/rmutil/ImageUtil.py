@@ -27,6 +27,14 @@ def _optimizeCrop(fileName, basePath, destPath, maxW, maxH):
         #print "Saving optimized image..."
         #print "W: ", width
         #print "H: ", height
+        if width == 1920:
+            # crop upper and lower part
+            diff = height - 1080
+            img.crop((0,diff/2,width,height-diff/2))
+        else:
+            # crop left and right part
+            diff = width - 1920
+            img.crop((diff/2,0,width-diff/2,height))
         img.save(destFilePath, 'JPEG', quality=90)
 
 def _optimizeFit(fileName, basePath, destPath, maxW, maxH):

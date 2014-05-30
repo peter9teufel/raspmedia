@@ -76,7 +76,7 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'] - 1)
-        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '--autoup', "-blend", blendInterval, "-T","2"]
+        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         numImg = 0
         files = self.allImages()
         files.sort()
@@ -110,7 +110,7 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'])
-        imgCmdList = ["sudo","fbi","-noverbose", "-readahead", "-t", imgInterval, '--autoup', "-blend", blendInterval, "-T","2"]
+        imgCmdList = ["sudo","fbi","-noverbose", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         numImg = 0
         files = self.allImages()
         files.sort()

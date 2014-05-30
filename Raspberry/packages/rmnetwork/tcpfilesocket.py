@@ -11,6 +11,13 @@ def readInt(data):
     num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
     return num, remainingData
 
+def readString(data):
+    size, data = readInt(data)
+    strBytes = data[:size]
+    remainingData = data[size:]
+    inStr = str(strBytes)
+    return inStr, remainingData
+
 
 def _openSocket():
     global s
@@ -22,37 +29,52 @@ def _openSocket():
         sc, address = s.accept()
 
         print address
+
+        dataSizeBytes = sc.recv(4)
+        dataSize, remaining = readInt(bytearray(dataSizeBytes))
+        buff = ''
+        while len(buff) < dataSize:
+            buff += sc.recv(1024)
+
+        print "Closing TCP Client connection..."
+        sc.close()
+
+        print "Data read to buffer, processing bytearray..."
+
+        data = bytearray(buff)
         # read number of files
-        numFilesBytes = sc.recv(4)
-        numFiles, remaining = readInt(bytearray(numFilesBytes))
+        #numFilesBytes = sc.recv(4)
+        numFiles, data = readInt(data)
         print "RECEIVING %d FILES" % numFiles
         for i in range(numFiles):
             # read file name
-            nameSizeBytes = sc.recv(4)
-            nameSize, remaining = readInt(bytearray(nameSizeBytes))
-            name = sc.recv(nameSize)
-            print "RECEIVING FILE: ", name
+            #nameSizeBytes = sc.recv(4)
+            #nameSize, data = readInt(data)
+            #name = sc.recv(nameSize)
+            name, data = readString(data)
+            print "READING FILE: ", name
             openPath = os.getcwd() + '/media/' + name
-            fileSizeBytes = sc.recv(4)
-            fileSize, remaining = readInt(bytearray(fileSizeBytes))
+            #fileSizeBytes = sc.recv(4)
+            fileSize, data = readInt(data)
             print "FILESIZE: ", fileSize
             if not os.path.isdir(openPath):
                 f = open(openPath, 'w+') #open in binary
-                l=''
-                while len(l)< fileSize:
-                    l += sc.recv(1024)
+                #l=''
+                #while len(l)< fileSize:
+                #    l += sc.recv(1024)
+                l = data[:fileSize]
                 f.write(l)
                 total = fileSize  
                 print 'Bytes written to file: ', total
                 f.close()
                 print "File saved!"
                 _optimize(os.getcwd() + '/media/' + name)
-        l = sc.recv(1024)
-        while l:
-            print "Receving trash at message end..."
-            l = sc.recv(1024)
-        print "Closing TCP Client connection..."
-        sc.close()
+        #l = sc.recv(1024)
+        #while l:
+        #    print "Receving trash at message end..."
+        #    l = sc.recv(1024)
+        #print "Closing TCP Client connection..."
+        #sc.close()
 
 def _optimize(filePath):
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):

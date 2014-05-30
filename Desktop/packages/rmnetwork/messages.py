@@ -103,8 +103,6 @@ def getTcpFileMessage(files, basePath):
 		print "Appending filesize %d " % filesize
 		appendInt(data, filesize, False)
 		print "Appending file data..."
-		fileData = f.read(1024)
-		while fileData:
-			appendBytes(data, fileData)
-			fileData = f.read(1024)
+		fileData = f.read()
+		appendBytes(data, fileData)
 	return data

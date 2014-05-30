@@ -60,7 +60,7 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 	prgDialog = wx.ProgressDialog("Sending...", "Sending files to player...", maximum = msgSize, style = wx.PD_AUTO_HIDE)
 	bytesSent = 0;
 	index = 0
-	while index < msgSize:
+	while bytesSent < msgSize:
 		packEnd = index + _BLOCK_SIZE
 		# print "INDEX: %d PACKEND: %d MESSAGE SIZE: %d" % (index,packEnd,msgSize)
 		if packEnd > msgSize:

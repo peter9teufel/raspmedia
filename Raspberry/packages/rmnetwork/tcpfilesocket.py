@@ -35,10 +35,12 @@ def _openSocket():
             openPath = os.getcwd() + '/media/' + name
             fileSizeBytes = sc.recv(4)
             fileSize, remaining = readInt(bytearray(fileSizeBytes))
+            print "FILESIZE: ", fileSize
             if not os.path.isdir(openPath):
                 f = open(openPath, 'w+') #open in binary
-                
-                l = sc.recv(fileSize)
+                l=''
+                while len(l)< fileSize:
+                    l += sc.recv(1024)
                 f.write(l)
                 total = fileSize  
                 print 'Bytes written to file: ', total

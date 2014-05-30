@@ -45,7 +45,7 @@ def _openSocket():
                 f.close()
                 print "File saved!"
                 sc.close()
-                _optimize(os.getcwd() + '/media/' + name)
+                #_optimize(os.getcwd() + '/media/' + name)
 
 def _optimize(filePath):
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):

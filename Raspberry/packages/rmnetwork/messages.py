@@ -27,24 +27,24 @@ def appendString(data, str):
 
 def appendArg(data, type, arg):
 	if type == '-f':
-		print "Saving FLAG"
+		#print "Saving FLAG"
 		global flag
 		flag = int(arg)
 	elif type == '-w':
-		print "Appending SHORT"
+		#print "Appending SHORT"
 		appendShort(data, int(arg))
 	elif type == '-s':
-		print "Appending STRING"
+		#print "Appending STRING"
 		appendString(data, arg)
 	elif type == '-i':
-		print "Appending INT"
+		#print "Appending INT"
 		appendInt(data, int(arg,0))
 
 def getConfigMessage():
 	config = configtool.readConfig()
 	configStr = str(config)
-	print "Building message for CONFIG:"
-	print configStr
+	#print "Building message for CONFIG:"
+	#print configStr
 	confBytes = bytearray(configStr)
 
 	data = bytearray()
@@ -54,7 +54,7 @@ def getConfigMessage():
 	appendInt(data, len(confBytes))
 	appendBytes(data, confBytes)
 
-	print "Message size: ", size
+	#print "Message size: ", size
 	return data
 
 
@@ -65,7 +65,7 @@ def getMessage(flag, args=None):
 		print args
 		for i in range(0,len(args)):
 			arg = args[i]
-			print "Current arg: ", arg
+			#print "Current arg: ", arg
 			if arg.startswith('-'):
 				if i < len(args) - 1:
 					appendArg(usgData, arg, args[i+1])

@@ -31,6 +31,7 @@ def _openSocket():
 
         dataSizeBytes = sc.recv(4)
         dataSize, remaining = readInt(bytearray(dataSizeBytes))
+        print "Receiving %d Bytes" % (dataSize)
         buff = ''
         while len(buff) < dataSize:
             buff += sc.recv(1024)
@@ -44,18 +45,18 @@ def _openSocket():
         # read number of files
         #numFilesBytes = sc.recv(4)
         numFiles, data = readInt(data)
-        print "RECEIVING %d FILES" % numFiles
+        print "READING %d FILES" % numFiles
         for i in range(numFiles):
             # read file name
             #nameSizeBytes = sc.recv(4)
             #nameSize, data = readInt(data)
             #name = sc.recv(nameSize)
             name, data = readString(data)
-            print "READING FILE: ", name
+            #print "READING FILE: ", name
             openPath = os.getcwd() + '/media/' + name
             #fileSizeBytes = sc.recv(4)
             fileSize, data = readInt(data)
-            print "FILESIZE: ", fileSize
+            #print "FILESIZE: ", fileSize
             if not os.path.isdir(openPath):
                 f = open(openPath, 'w+') #open in binary
                 #l=''
@@ -64,10 +65,10 @@ def _openSocket():
                 l = data[:fileSize]
                 data = data[fileSize:]
                 f.write(l) 
-                print 'Bytes written to file: ', fileSize
+                #print 'Bytes written to file: ', fileSize
                 f.close()
-                print "File saved!"
-
+                #print "File saved!"
+        print "FILES SAVED!"
 
 def openFileSocket():
     global server_thread

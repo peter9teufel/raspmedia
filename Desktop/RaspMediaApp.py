@@ -698,7 +698,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.DeleteRemoteFiles(files)
 
 
-	def SendSelectedFilesToPlayer(self, event):
+	def SendSelectedFilesToPlayer(self, event=None):
 		index = self.localList.GetFirstSelected()
 		files = []
 		while not index == -1:
@@ -720,13 +720,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 		print "Deleting temporary files..."
 		shutil.rmtree(tmpPath)
 		self.LoadRemoteFileList()
-
-	def SendFileToPlayer(self, fileName):
-		filePath = self.path + '/' +  fileName
-		print "Path: ", filePath
-		files = [fileName]
-		#network.tcpfileclient.registerObserver(self.LoadRemoteFileList)
-		network.tcpfileclient.sendFiles(files, self.path, self.host, self, HOST_SYS == HOST_WIN)
 
 	def SetPreviewImage(self, imagePath):
 		self._SetPreview('img/clear.png')
@@ -768,9 +761,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 			msg = "Send file '" + fileName + "' to the player? Stop and restart player when the process is complete!"
 			dlg = wx.MessageDialog(self, msg, "Send file to Player", wx.YES_NO | wx.ICON_QUESTION)
 			if dlg.ShowModal() == wx.ID_YES:
-				network.tcpfileclient.registerObserver(self.LoadRemoteFileList)
-				network.tcpfileclient.sendFile(filePath, self.host, self)
-				self.LoadRemoteFileList()
+				self.SendSelectedFilesToPlayer()
 			if HOST_SYS == HOST_WIN:
 				dlg.Destroy()
 

@@ -109,4 +109,5 @@ def getTcpFileMessage(files, basePath):
 	msgSize = len(data)
 	msgData = appendInt(msgData, msgSize)
 	msgData = appendBytes(msgData, data)
+	print "TCP Message size: ", len(msgData)
 	return msgData

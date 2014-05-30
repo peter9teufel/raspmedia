@@ -27,8 +27,7 @@ def _openSocket():
     print "File socket ready, listening for incoming file connections..."
     while True:
         sc, address = s.accept()
-
-        print address
+        print "TCP CLIENT CONNECTED: ", address
 
         dataSizeBytes = sc.recv(4)
         dataSize, remaining = readInt(bytearray(dataSizeBytes))

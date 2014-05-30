@@ -718,7 +718,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 		rmutil.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
 		network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
 		print "Deleting temporary files..."
-		shutil.rmtree(tmpPath)
+		#shutil.rmtree(tmpPath)
 		self.LoadRemoteFileList()
 
 	def SetPreviewImage(self, imagePath):

@@ -31,6 +31,7 @@ class AppFrame(wx.Frame):
 		print "Initializing Notebook..."
 		self.notebook = RemoteNotebook(self,-1,None)
 		print "Showing window..."
+		self.Center()
 		self.Show()
 		print "Starting host search..."
 		self.notebook.SearchHosts()
@@ -288,11 +289,18 @@ class RemoteNotebook(wx.Notebook):
 		#self.AddPage(page, playerName)
 
 		print "Adding host to list..."
-		self.hosts.append({"addr": host[0], "name": playerName})
-		playerCount += 1
+		if not self.HostInList(host[0], playerName):
+			self.hosts.append({"addr": host[0], "name": playerName})
+			playerCount += 1
 		#print "Fitting window..."
 		#self.Fit()
 		#self.parent.Fit()
+
+	def HostInList(self, addr, playerName):
+		for h in self.hosts:
+			if h['addr'] == addr and h['name'] == playerName:
+				return True
+		return False
 
 	def SearchHosts(self):
 		self.hostSearch = True
@@ -353,7 +361,11 @@ class RemoteNotebook(wx.Notebook):
 				self.LoadPageData(0)
 				self.Fit()
 				self.parent.Fit()
-				self.parent.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
+				if HOST_SYS == HOST_WIN:
+					self.parent.SetSize((self.GetSize()[0]-85, self.GetSize()[1]+35))
+				else:
+					self.parent.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
+				self.parent.Center()
 
 	def OnPageChanged(self, event):
 		global HOST_SYS

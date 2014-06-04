@@ -2,7 +2,7 @@ import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmnetwork.constants import *
 import os, sys, platform, ast, time, threading, shutil
-from wx.lib.pubsub import pub as Publisher
+
 from wx.lib.wordwrap import wordwrap
 try:
 	import wx
@@ -972,6 +972,10 @@ if __name__ == '__main__':
 	elif platform.system() == 'Linux':
 		HOST_SYS = HOST_LINUX
 
+	if HOST_SYS == HOST_LINUX:
+		from pubsub import pub as Publisher
+	else:
+		from wx.lib.pubsub import pub as Publisher
 	frame = AppFrame(None, -1, 'RaspMedia Control')
 
 	app.MainLoop()

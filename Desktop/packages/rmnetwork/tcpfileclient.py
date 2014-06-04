@@ -1,8 +1,11 @@
 import socket
-import sys, os
+import sys, os, platform
 import wx
 import messages
-from wx.lib.pubsub import pub as Publisher
+if platform.system() == "Linux":
+	from pubsub import pub as Publisher
+else:
+	from wx.lib.pubsub import pub as Publisher
 
 observers = []
 _BLOCK_SIZE = 1024

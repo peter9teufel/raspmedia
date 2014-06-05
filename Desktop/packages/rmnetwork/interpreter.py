@@ -47,11 +47,13 @@ def readConfigData(data):
 
 def readFileList(data):
 	numFiles, data = readInt(data)
+	print "Reading received file list of size ", numFiles
 	files = []
 	for i in range(numFiles):
 		file, data = readString(data)
 		if file:
 			files.append(file.decode('utf-8'))
+	print "Filelist read: ", files
 	return files
 
 def readInt(data):

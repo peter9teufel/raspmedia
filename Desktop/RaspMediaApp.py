@@ -279,22 +279,10 @@ class RemoteNotebook(wx.Notebook):
 
 	def HostFound(self, host, playerName):
 		global playerCount
-		print "Player found - initializing panel..."
-
-		# add page for found Player
-		#page = RaspMediaCtrlPanel(self,-1,playerName,playerCount,host[0])
-		#print "Appending page to list..."
-		#self.pages.append(page)
-		#print "Adding page to notebook..."
-		#self.AddPage(page, playerName)
-
 		print "Adding host to list..."
 		if not self.HostInList(host[0], playerName):
 			self.hosts.append({"addr": host[0], "name": playerName})
 			playerCount += 1
-		#print "Fitting window..."
-		#self.Fit()
-		#self.parent.Fit()
 
 	def HostInList(self, addr, playerName):
 		for h in self.hosts:
@@ -304,10 +292,8 @@ class RemoteNotebook(wx.Notebook):
 
 	def SearchHosts(self):
 		self.hostSearch = True
-		#network.udpresponselistener.registerObserver([OBS_HOST_SEARCH, self.HostFound])
 		Publisher.subscribe(self.HostFound, 'host_found')
 		Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
-		#network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped, self])
 		msgData = network.messages.getMessage(SERVER_REQUEST)
 		self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
 		self.prgDialog.Pulse()
@@ -316,15 +302,11 @@ class RemoteNotebook(wx.Notebook):
 	def LoadPageData(self, pageNumber):
 		print "Loading config and remote list for page ", pageNumber
 		self.GetPage(pageNumber).LoadData()
-		#self.GetPage(pageNumber).pageDataLoading = True
-		#self.GetPage(pageNumber).LoadRemoteConfig()
-		#self.GetPage(pageNumber).LoadRemoteFileList()
 
 	def UdpListenerStopped(self):
 		global playerCount
 		Publisher.unsubscribe(self.UdpListenerStopped, 'listener_stop')
 		Publisher.unsubscribe(self.HostFound, 'host_found')
-		print "Number of observers: ", len(network.udpresponselistener.observers)
 		print "Number of players found: ", playerCount
 		if self.hostSearch:
 			self.hostSearch = False
@@ -332,7 +314,6 @@ class RemoteNotebook(wx.Notebook):
 				self.prgDialog.Update(100)
 				if HOST_SYS == HOST_WIN:
 					self.prgDialog.Destroy()
-				# dlg = wx.MessageDialog(self,"No RaspMedia Players found, check if your players are running and connected to the local network, restart the application to try again.", "No Player found", style = wx.OK)
 				dlg = wx.SingleChoiceDialog(self,wordwrap("No RaspMedia Players found, check if your players are running and connected to the local network.", 300, wx.ClientDC(self)), "No Player found", ['Rescan', 'Exit'])
 				result = dlg.ShowModal()
 				selection = dlg.GetSelection()
@@ -364,7 +345,7 @@ class RemoteNotebook(wx.Notebook):
 				if HOST_SYS == HOST_WIN:
 					self.parent.SetSize((self.GetSize()[0]-85, self.GetSize()[1]+35))
 				else:
-					self.parent.SetSize((self.GetSize()[0]-53, self.GetSize()[1]))
+					self.parent.SetSize((self.GetSize()[0]-115, self.GetSize()[1]))
 				self.parent.Center()
 
 	def OnPageChanged(self, event):
@@ -398,7 +379,19 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.prgDialog = None
 		self.pageDataLoading = False
 		self.remoteListLoading = False
+		self.shiftDown = False
 		self.Initialize()
+
+	def OnKeyDown(self, event):
+		keycode = event.GetKeyCode()
+		if keycode == wx.WXK_SHIFT:
+			self.shiftDown = True
+		event.Skip()
+
+	def OnKeyUp(self, event):
+		keycode = event.GetKeyCode()
+		if keycode == wx.WXK_SHIFT:
+			self.shiftDown = False
 
 	def DefaultPath(self):
 		path = os.path.expanduser("~")
@@ -444,8 +437,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def Initialize(self):
 		print "Setting up player section..."
 		self.SetupPlayerSection()
-		#print "Setting up config section..."
-		#self.SetupConfigSection()
 		print "Setting up file lists..."
 		self.SetupFileLists()
 
@@ -509,11 +500,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 	def SetupFileLists(self):
 		self.filesSizer.SetEmptyCellSize((0,0))
 		# setup file lists and image preview
-		print "Adding local list..."
 		self.AddLocalList()
-		print "Adding image preview..."
 		self.AddImagePreview()
-		print "Adding remote list..."
 		self.AddRemoteList()
 
 		#imageFile = resource_path("img/ic_folder_select.png")
@@ -526,35 +514,43 @@ class RaspMediaCtrlPanel(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self.ChangeDir, selectFolder)
 
 		button = wx.Button(self,-1,label="Refresh remote filelist")
-		self.filesSizer.Add(button,(3,0))
+		self.filesSizer.Add(button,(4,0))
 		self.Bind(wx.EVT_BUTTON, self.LoadRemoteFileList, button)
 		self.filesSizer.Fit(self)
 
 	def AddLocalList(self):
 		print "Initializing empty local lists..."
-		self.localList = wx.ListCtrl(self,-1,size=(400,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+		self.localList = wx.ListCtrl(self,-1,size=(400,220),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
 		print "Showing list..."
 		self.localList.Show(True)
 		self.localList.InsertColumn(0,"Filename", width = 300)
 		self.localList.InsertColumn(1,"Filesize", width = 80, format = wx.LIST_FORMAT_RIGHT)
-		self.filesSizer.Add(self.localList, (1,0), span=(1,1))
+		self.filesSizer.Add(self.localList, (1,0), span=(2,1))
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.LocalFileDoubleClicked, self.localList)
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.LocalFileSelected, self.localList)
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.LocalFileRightClicked, self.localList)
+
+		self.localList.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+		self.localList.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
 		self.UpdateLocalFiles()
 
 	def AddImagePreview(self):
 		img = wx.EmptyImage(200,200)
+		# create bitmap with preview png
 		self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(img))
 		self.SetPreviewImage('img/preview.png')
 		self.filesSizer.Add(self.imageCtrl, (1,1), flag = wx.LEFT, border=5)
+
+		# add static label to show selected filename or number of selected files
+		self.selectionLabel = wx.StaticText(self,-1,label="")
+		self.filesSizer.Add(self.selectionLabel, (2,1), flag = wx.LEFT, border = 15)
 
 	def AddRemoteList(self):
 		print "Initializing empty remote lists..."
 		self.remoteList=wx.ListCtrl(self,-1,size=(600,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
 		self.remoteList.Show(True)
 		self.remoteList.InsertColumn(0,"Remote Files: ", width = 598)
-		self.filesSizer.Add(self.remoteList, (2,0), span=(1,2), flag = wx.EXPAND | wx.TOP, border = 10)
+		self.filesSizer.Add(self.remoteList, (3,0), span=(1,2), flag = wx.EXPAND | wx.TOP, border = 10)
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.RemoteFileDoubleClicked, self.remoteList)
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.RemoteFileRightClicked, self.remoteList)
 
@@ -616,8 +612,10 @@ class RaspMediaCtrlPanel(wx.Panel):
 		prevType = None
 		index = self.localList.GetFirstSelected()
 		cnt = 0
+		files = []
 		while not index == -1:
 			item = self.localList.GetItem(index,0)
+			files.append(item.GetText())
 			filePath = self.path + '/' + item.GetText()
 			curType = None
 			if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)) or filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
@@ -632,7 +630,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 			resType = "mixed"
 		else:
 			resType = curType
-		return {"count": cnt, "type": resType}
+		return {"count": cnt, "type": resType, "files": files}
 
 	def MutlipleLocalFilesSelected(self):
 		index = self.localList.GetFirstSelected()
@@ -646,10 +644,22 @@ class RaspMediaCtrlPanel(wx.Panel):
 		return False
 
 	def LocalFileSelected(self, event):
-		if not self.MutlipleLocalFilesSelected():
+		filePath = None
+		sel = self.GetLocalSelectionInfo()
+		# preview if only one file selected or multiple without shift key for quick selection
+		if sel['count'] == 1 or (sel['count'] > 1 and not self.shiftDown):
 			filePath = self.path + '/' +  event.GetText()
-			# print "File: ", filePath
+			if sel['count'] == 1:
+				if sel['type'] == 'media':
+					self.selectionLabel.SetLabel(event.GetText())
+				else:
+					self.selectionLabel.SetLabel("")
+			else:
+				self.selectionLabel.SetLabel(self.GetSelectionLabelText(sel))
+		else:
+			self.selectionLabel.SetLabel(self.GetSelectionLabelText(sel))
 
+		if filePath:
 			imagePath = filePath
 
 			if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
@@ -658,6 +668,18 @@ class RaspMediaCtrlPanel(wx.Panel):
 				imagePath = 'img/preview.png'
 
 			self.SetPreviewImage(imagePath)
+
+	def GetSelectionLabelText(self, sel):
+		files = sel['files']
+		selLabel = ""
+		if sel['count'] > 1:
+			if sel['type'] == 'media':
+				selLabel = "%d Mediafiles selected" % (len(files))
+			elif sel['type'] == 'dir':
+				selLabel = "Multiple directories selected"
+			else:
+				selLabel = "%d selected (Mediafiles and directories)" % (len(files))
+		return selLabel
 
 	def LocalFileRightClicked(self, event):
 		global HOST_SYS
@@ -712,12 +734,8 @@ class RaspMediaCtrlPanel(wx.Panel):
 
 	def SendSelectedFilesToPlayer(self, event=None):
 		index = self.localList.GetFirstSelected()
-		files = []
-		while not index == -1:
-			item = self.localList.GetItem(index,0)
-			fileName = item.GetText()
-			files.append(fileName)
-			index = self.localList.GetNextSelected(index)
+		localSelection = self.GetLocalSelectionInfo()
+		files = localSelection['files']
 		print "Files to send: ", files
 
 		# optimize the files before sending them
@@ -731,6 +749,14 @@ class RaspMediaCtrlPanel(wx.Panel):
 		network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
 		print "Deleting temporary files..."
 		shutil.rmtree(tmpPath)
+		dlg = wx.ProgressDialog("Saving", "Saving files on player...", style = wx.PD_AUTO_HIDE)
+		dlg.Pulse()
+		numFiles = len(files)
+		# give the player at least 0.2s per file to save
+		time.sleep(numFiles * 0.4)
+		dlg.Update(100)
+		if HOST_SYS == HOST_WIN:
+			dlg.Destroy()
 		self.LoadRemoteFileList()
 
 	def SetPreviewImage(self, imagePath):
@@ -901,7 +927,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 			dlg.Destroy()
 		elif button.GetName() == 'btn_reboot':
 			self.RebootPlayer()
-		
+
 	def RebootPlayer(self):
 		self.prgDialog = wx.ProgressDialog("Rebooting...", wordwrap("Player rebooting, this can take up to 1 minute. This dialog will close when the reboot is complete, you may close it manually if you see your player up and running again.", 350, wx.ClientDC(self)), parent = self)
 		# register observer

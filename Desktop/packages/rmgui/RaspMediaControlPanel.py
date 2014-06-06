@@ -582,10 +582,6 @@ class RaspMediaCtrlPanel(wx.Panel):
 
     def RebootPlayer(self):
         self.prgDialog = wx.ProgressDialog("Rebooting...", wordwrap("Player rebooting, this can take up to 1 minute. This dialog will close when the reboot is complete, you may close it manually if you see your player up and running again.", 350, wx.ClientDC(self)), parent = self)
-        # register observer
-        # network.udpresponselistener.registerObserver([OBS_BOOT_COMPLETE, self.RebootComplete])
-        # network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
-
         Publisher.subscribe(self.RebootComplete, "boot_complete")
         #Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         self.prgDialog.Pulse()

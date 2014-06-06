@@ -262,6 +262,7 @@ class RaspMediaCtrlPanel(wx.Panel):
     def GetLocalSelectionInfo(self):
         mixed = False
         prevType = None
+        curType = None
         index = self.localList.GetFirstSelected()
         cnt = 0
         files = []

@@ -154,11 +154,11 @@ class SettingsFrame(wx.Frame):
     def RebootComplete(self):
         print "SETTING FRAME - BOOT COMPLETE RECEIVED"
         self.prgDialog.Update(100)
-        if HOST_SYS == HOST_WIN:
+        if platform.system() == "Windows":
             self.prgDialog.Destroy()
         dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
         dlg.Show()
-        if HOST_SYS == HOST_WIN:
+        if platform.system() == "Windows":
             dlg.Destroy()
 
     def CheckboxToggled(self, event):

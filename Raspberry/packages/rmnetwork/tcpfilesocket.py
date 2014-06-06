@@ -1,7 +1,7 @@
 import socket
-import os, sys
-import threading
+import os, sys, time, threading
 import Image
+from packages.rmmedia import mediaplayer
 from constants import *
 
 
@@ -64,11 +64,14 @@ def _openSocket():
                 #    l += sc.recv(1024)
                 l = data[:fileSize]
                 data = data[fileSize:]
-                f.write(l) 
+                f.write(l)
                 #print 'Bytes written to file: ', fileSize
                 f.close()
                 #print "File saved!"
         print "FILES SAVED!"
+        mediaplayer.stop()
+        time.sleep(2)
+        mediaplayer.start()
 
 def openFileSocket():
     global server_thread

@@ -303,12 +303,18 @@ class MediaPlayer(threading.Thread):
         if self.config['image_enabled'] and self.config['video_enabled']:
             if len(self.allMediaFiles()) > 0:
                 self.processAllFiles()
+            else:
+                stop()
         elif self.config['image_enabled']:
             if len(self.allImages()) > 0:
                 self.processImagesOnly()
+            else:
+                stop()
         elif self.config['video_enabled']:
             if len(self.allVideos()) > 0:
                 self.processVideosOnly()
+            else:
+                stop()
 
         # set player state to stopped as processing is done at this point
         playerState = PLAYER_STOPPED

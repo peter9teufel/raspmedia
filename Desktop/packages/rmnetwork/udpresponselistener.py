@@ -1,7 +1,10 @@
-import threading, socket, select, time
+import platform, threading, socket, select, time
 import interpreter, netutil
 import wx
-from wx.lib.pubsub import pub as Publisher
+if platform.system() == "Linux":
+	from pubsub import pub as Publisher
+else:
+	from wx.lib.pubsub import pub as Publisher
 
 from constants import *
 

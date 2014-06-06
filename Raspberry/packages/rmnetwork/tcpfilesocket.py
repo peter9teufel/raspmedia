@@ -70,7 +70,7 @@ def _openSocket():
                 #print "File saved!"
         print "FILES SAVED!"
         mediaplayer.stop()
-        time.sleep(2)
+        time.sleep(5)
         mediaplayer.start()
 
 def openFileSocket():

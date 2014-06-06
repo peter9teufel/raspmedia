@@ -144,16 +144,22 @@ class SettingsFrame(wx.Frame):
                 self.LoadConfig()
             dlg.Destroy()
         elif button.GetName() == 'btn_update':
-            # register observer
-            network.udpresponselistener.registerObserver([OBS_UPDATE, self.OnPlayerUpdated])
-            network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
+            Publisher.subscribe(self.RebootComplete, 'boot_complete')
 
-            self.prgDialog = wx.ProgressDialog("Updating...", "Player is trying to update, please stand by...")
-            #self.prgDialog.ShowModal()
+            self.prgDialog = wx.ProgressDialog("Updating...", wordwrap("Player is trying to update and will automatically reboot. This can last up to 2 minutes, please stand by...", 350, wx.ClientDC(self)))
             self.prgDialog.Pulse()
 
             msgData = network.messages.getMessage(PLAYER_UPDATE)
             network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
+    def RebootComplete(self):
+        print "SETTING FRAME - BOOT COMPLETE RECEIVED"
+        self.prgDialog.Update(100)
+        if HOST_SYS == HOST_WIN:
+            self.prgDialog.Destroy()
+        dlg = wx.MessageDialog(self,"Reboot complete!","",style=wx.OK)
+        dlg.Show()
+        if HOST_SYS == HOST_WIN:
+            dlg.Destroy()
 
     def CheckboxToggled(self, event):
         checkbox = event.GetEventObject()

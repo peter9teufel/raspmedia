@@ -70,8 +70,8 @@ def _openSocket():
                 #print "File saved!"
         print "FILES SAVED!"
         mediaplayer.stop()
-        time.sleep(5)
-        mediaplayer.start()
+        time.sleep(3)
+        mediaplayer.play()
 
 def openFileSocket():
     global server_thread

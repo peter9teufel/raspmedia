@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-a = Analysis(['RaspMediaApp.py'],
+a = Analysis(['RaspMediaControl.py'],
              pathex=['/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/raspberry-mediaplayer/Desktop'],
              hiddenimports=[],
              hookspath=None,

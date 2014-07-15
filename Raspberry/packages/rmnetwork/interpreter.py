@@ -1,4 +1,4 @@
-import os, threading, socket
+import os, threading, socket, time
 from constants import *
 from packages.rmmedia import mediaplayer
 from packages.rmconfig import configtool
@@ -30,6 +30,13 @@ def interpret(msg_data):
 		mediaplayer.playerState = PLAYER_STOPPED
 		mediaplayer.stop()
 		result = INTERPRETER_SUCCESS
+	elif flag == PLAYER_RESTART:
+		print 'UDP COMMAND Mediaplayer restart...'
+		mediaplayer.playerState = PLAYER_STOPPED
+		mediaplayer.stop()
+		time.sleep(2)
+		mediaplayer.playerState = PLAYER_STARTED
+		mediaplayer.play()
 	elif flag == SERVER_REQUEST:
 		data = None
 		result = SERVER_REQUEST
@@ -47,6 +54,9 @@ def interpret(msg_data):
 			msg, data = readString(data)
 			if msg:
 				files.append(msg)
+		mediaplayer.deleteFiles(files)
+	elif flag == DELETE_ALL_IMAGES:
+		files = mediaplayer.getImageFilelist
 		mediaplayer.deleteFiles(files)
 	elif flag == PLAYER_IDENTIFY:
 		print 'Showing identify image...'

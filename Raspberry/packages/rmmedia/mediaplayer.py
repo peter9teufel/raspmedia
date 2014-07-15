@@ -333,6 +333,15 @@ def getMediaFileList():
             files.append(fileEnc)
     return files
 
+def getImageFilelist():
+    global mediaPath
+    files = []
+    for file in os.listdir(mediaPath):
+        if isImage(file):
+            fileEnc = file.encode('utf-8')
+            files.append(fileEnc)
+    return files
+
 def setMediaPath(curMediaPath):
     global mp_thread, mediaPath
     mediaPath = curMediaPath

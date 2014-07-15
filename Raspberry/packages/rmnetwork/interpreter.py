@@ -56,7 +56,7 @@ def interpret(msg_data):
 				files.append(msg)
 		mediaplayer.deleteFiles(files)
 	elif flag == DELETE_ALL_IMAGES:
-		files = mediaplayer.getImageFilelist
+		files = mediaplayer.getImageFilelist()
 		mediaplayer.deleteFiles(files)
 	elif flag == PLAYER_IDENTIFY:
 		print 'Showing identify image...'

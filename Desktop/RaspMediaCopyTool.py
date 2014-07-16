@@ -17,7 +17,6 @@ if __name__ == '__main__':
     base_path = dname
     app = wx.App()
 
-    frame = rm_app.AppFrame(None, -1, 'RaspMedia Control', base_path)
-    # frame = rm_simple_app.SimpleUIAppFrame(None, -1, 'RaspMedia Copy Tool', base_path)
+    frame = rm_simple_app.SimpleUIAppFrame(None, -1, 'RaspMedia Copy Tool', base_path)
 
     app.MainLoop()

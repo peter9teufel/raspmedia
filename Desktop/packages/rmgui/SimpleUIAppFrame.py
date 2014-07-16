@@ -1,4 +1,4 @@
-import wx, win32gui
+import wx, win32gui, win32con, win32api
 import SettingsFrame as prefs
 import packages.rmnetwork as network
 import packages.rmutil as util
@@ -42,7 +42,7 @@ class SimpleUIAppFrame(wx.Frame):
             HOST_SYS = HOST_MAC
         elif platform.system() == 'Linux':
             HOST_SYS = HOST_LINUX
-
+        self.SetBackgroundColour('WHITE')
         self.Center()
         self.Show()
         print "Starting host search..."
@@ -108,6 +108,7 @@ class SimpleUIAppFrame(wx.Frame):
             print "Destroying UDP Response Listener..."
             network.udpresponselistener.destroy()
         self.Destroy()
+        os._exit(0)
 
     def WaitForUSB(self):
         self.prgDialog.UpdatePulse("Please plug in your USB drive now...")
@@ -189,23 +190,52 @@ class SimpleUIAppFrame(wx.Frame):
 
         self.Bind(wx.EVT_CHECKBOX, self.DeleteFilesToggled, delFiles)
 
-        self.mainSizer.Add(delFiles, (4,0), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 10)
-
+        self.mainSizer.Add(delFiles, (4,0), flag=wx.LEFT, border = 5)
+        info = wx.StaticText(self, -1, label=wordwrap("All images in the list will be sent, if the checkbox is selected, all images that are currently on the player will be deleted first.", 400, wx.ClientDC(self)))
+        self.mainSizer.Add(info, (5,0), span=(1,2), flag=wx.ALL, border=5)
         # add buttons
-        send2All = wx.Button(self, -1, "Send to all players")
-        send2One = wx.Button(self, -1, "Send to specific player")
-        exitBtn = wx.Button(self, -1, "Exit")
+        send2All = wx.Button(self, -1, "Send to all players", size=(200,80))
+        send2One = wx.Button(self, -1, "Send to specific player", size=(200,80))
+        exitBtn = wx.Button(self, -1, "Exit", size=(200,80))
 
         self.Bind(wx.EVT_BUTTON, self.SendToAllPlayers, send2All)
         self.Bind(wx.EVT_BUTTON, self.SendToSpecificPlayer, send2One)
         self.Bind(wx.EVT_BUTTON, self.Close, exitBtn)
 
-        self.mainSizer.Add(send2All, (5,0), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
-        self.mainSizer.Add(send2One, (6,0), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
-        self.mainSizer.Add(exitBtn, (7,0), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
+        self.mainSizer.Add(send2All, (0,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
+        self.mainSizer.Add(send2One, (1,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
+        self.mainSizer.Add(exitBtn, (2,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
 
         self.SetSizerAndFit(self.mainSizer)
         self.Center()
+
+    def InitStatusUI(self):
+        # init status labels
+        numPlayers = len(self.hosts)
+        if numPlayers == 1:
+            players = "I found one player in your local network.\n"
+        else:
+            players = "I found %d players in your local network.\n" % numPlayers
+
+        #for host in self.hosts:
+        #    players += host['name'] + "\n"
+
+        status =  wordwrap("%s\nUSB stick was detected at drive %s with %d images available." % (players,self.usbPath,len(self.filesToCopy)), 200, wx.ClientDC(self))
+
+        statusLabel = wx.StaticText(self, -1, label=status)
+        
+        #usbList = wx.ListCtrl(self,-1,size=(200,170),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+        #usbList.Show(True)
+        #usbList.InsertColumn(0,"Filename", width = 170)
+        usbTxt = wx.TextCtrl(self, -1, size=(200,170), style = wx.ALL | wx.TE_READONLY | wx.TE_MULTILINE)
+
+        for file in self.filesToCopy:
+            usbTxt.AppendText(file + "\n")
+        #    usbList.InsertStringItem(usbList.GetItemCount(), file)
+
+        # add to main sizer
+        self.mainSizer.Add(statusLabel, (0,0), flag = wx.ALL, border = 5)
+        self.mainSizer.Add(usbTxt, (1,0), span=(2,1), flag = wx.ALL, border = 5)
 
     def DeleteFilesToggled(self, event):
         checkbox = event.GetEventObject()
@@ -272,24 +302,6 @@ class SimpleUIAppFrame(wx.Frame):
             print "SELECTED HOST: ", resultHost
 
         return resultHost
-
-    def InitStatusUI(self):
-        # init status labels
-        numPlayers = len(self.hosts)
-        if numPlayers == 1:
-            players = "%d player found in local network." % numPlayers
-        else:
-            players = "%d players found in local network." % numPlayers
-        playersLabel = wx.StaticText(self, -1, label=players)
-        usbInfo = "Detected USB drive %s" % self.usbPath
-        usbLabel = wx.StaticText(self, -1, label=usbInfo)
-        imgInfo = "Images found in USB root: %d" % len(self.filesToCopy)
-        imgLabel = wx.StaticText(self, -1, label=imgInfo)
-
-        # add to main sizer
-        self.mainSizer.Add(playersLabel, (0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.TOP | wx.LEFT | wx.RIGHT, border = 10)
-        self.mainSizer.Add(usbLabel, (1,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.TOP | wx.LEFT | wx.RIGHT, border = 10)
-        self.mainSizer.Add(imgLabel, (2,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border = 10)
 
     def ShowAbout(self, event):
         # message read from defined version info file in the future

@@ -1,10 +1,11 @@
 import win32api, win32con, win32gui
 from ctypes import *
-import threading
+import threading, sys
 import wx
 from wx.lib.pubsub import pub as Publisher
 
 bg_thread = None
+bg_tid = None
 w = None
 
 #
@@ -81,7 +82,7 @@ class Notification:
     wc.lpfnWndProc = message_map
     classAtom = win32gui.RegisterClass (wc)
     style = win32con.WS_OVERLAPPED | win32con.WS_SYSMENU
-    self.hwnd = win32gui.CreateWindow (
+    hwnd = win32gui.CreateWindow (
       classAtom,
       "Device Change",
       style,
@@ -122,12 +123,17 @@ class Notification:
 class BackgroundUSBDetection(threading.Thread):
   def __init__(self):
     self.run_event = threading.Event()
+    self.tid = win32api.GetCurrentThreadId()
+    global bg_tid
+    bg_tid = self.tid
+    print "Background thread ID: ", self.tid
     threading.Thread.__init__(self, name="UDP_ResponseListener_Thread")
 
   def run(self):
     global w
     w = Notification()
     win32gui.PumpMessages()
+
 
 if __name__=='__main__':
   w = Notification ()

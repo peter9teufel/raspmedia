@@ -1,4 +1,5 @@
 from packages.rmgui import AppFrame as rm_app
+from packages.rmgui import SimpleUIAppFrame as rm_simple_app
 from packages.rmnetwork.constants import *
 import os, platform
 try:
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     base_path = dname
     app = wx.App()
 
-    frame = rm_app.AppFrame(None, -1, 'RaspMedia Control', base_path)
+    # frame = rm_app.AppFrame(None, -1, 'RaspMedia Control', base_path)
+    frame = rm_simple_app.SimpleUIAppFrame(None, -1, 'RaspMedia Copy Tool', base_path)
 
     app.MainLoop()

@@ -1,1 +1,1 @@
-import ImageUtil
+import ImageUtil, Win32DeviceDetector

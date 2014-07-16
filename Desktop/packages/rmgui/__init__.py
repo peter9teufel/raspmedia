@@ -1,1 +1,1 @@
-import AppFrame, RaspMediaControlPanel, RemoteNotebook, SettingsFrame
+import SimpleUIAppFrame, AppFrame, RaspMediaControlPanel, RemoteNotebook, SettingsFrame

@@ -27,8 +27,6 @@ class SimpleUIAppFrame(wx.Frame):
         self.parent = parent
         self.base_path = base_path
         self.Bind(wx.EVT_CLOSE, self.Close)
-        self.SetupMenuBar()
-
         self.hostSearch = False
         self.udpListening = False
         self.deleteFiles = True
@@ -158,35 +156,6 @@ class SimpleUIAppFrame(wx.Frame):
             self.Raise()
             self.InitUI()
 
-
-
-    def SetupMenuBar(self):
-        strAbout = tr("about")
-        strFile = tr("file")
-
-        # menus
-        fileMenu = wx.Menu()
-        helpMenu = wx.Menu()
-
-        # File Menu
-        strSettings = tr("player_settings")
-        strExit = tr("exit")
-        menuSettings = fileMenu.Append(wx.ID_ANY, "&"+strSettings, strSettings)
-        menuExit = fileMenu.Append(wx.ID_EXIT, "&"+strExit, strExit)
-        self.Bind(wx.EVT_MENU, self.Close, menuExit)
-        self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, menuSettings)
-
-        # Help Menu
-        about = helpMenu.Append(wx.ID_ANY, "&"+strAbout)
-        self.Bind(wx.EVT_MENU, self.ShowAbout, about)
-
-        # Menubar
-        menuBar = wx.MenuBar()
-        menuBar.Append(fileMenu, "&"+strFile) # Adding the "filemenu" to the MenuBar
-
-        menuBar.Append(helpMenu, "&"+strAbout)
-        self.SetMenuBar(menuBar)
-
     def InitUI(self):
         self.mainSizer = wx.GridBagSizer()
         self.InitStatusUI()
@@ -212,6 +181,8 @@ class SimpleUIAppFrame(wx.Frame):
         self.mainSizer.Add(send2All, (0,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
         self.mainSizer.Add(send2One, (1,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
         self.mainSizer.Add(exitBtn, (2,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
+
+        self.SetupMenuBar()
 
         self.SetSizerAndFit(self.mainSizer)
         self.Center()
@@ -243,6 +214,43 @@ class SimpleUIAppFrame(wx.Frame):
         # add to main sizer
         self.mainSizer.Add(statusLabel, (0,0), flag = wx.ALL, border = 5)
         self.mainSizer.Add(usbTxt, (1,0), span=(2,1), flag = wx.ALL, border = 5)
+
+    def SetupMenuBar(self):
+        strAbout = tr("about")
+        strFile = tr("file")
+
+        # menus
+        fileMenu = wx.Menu()
+        helpMenu = wx.Menu()
+
+        # File Menu
+        strSettings = tr("player_settings")
+        strExit = tr("exit")
+
+        # create submenu to launch settings for specific player
+        settingsMenu = wx.Menu()
+
+        # append entry for each found player
+        for host in self.hosts:
+            menuHost = settingsMenu.Append(wx.ID_ANY, host['name'])
+            self.Bind(wx.EVT_MENU, lambda event, host=host: self.ShowPlayerSettings(event,host), menuHost)
+
+        # append items to file menu
+        fileMenu.AppendMenu(wx.ID_ANY, strSettings, settingsMenu)
+        menuExit = fileMenu.Append(wx.ID_EXIT, "&"+strExit, strExit)
+        
+        self.Bind(wx.EVT_MENU, self.Close, menuExit)
+        
+        # Help Menu
+        about = helpMenu.Append(wx.ID_ANY, "&"+strAbout)
+        self.Bind(wx.EVT_MENU, self.ShowAbout, about)
+
+        # Menubar
+        menuBar = wx.MenuBar()
+        menuBar.Append(fileMenu, "&"+strFile) # Adding the "filemenu" to the MenuBar
+
+        menuBar.Append(helpMenu, "&"+strAbout)
+        self.SetMenuBar(menuBar)
 
     def DeleteFilesToggled(self, event):
         checkbox = event.GetEventObject()
@@ -316,8 +324,8 @@ class SimpleUIAppFrame(wx.Frame):
         dlg = wx.MessageDialog(self, msg, "About", style=wx.OK)
         dlg.ShowModal()
 
-    def ShowPlayerSettings(self, event):
-        host = self.HostSelection()
+    def ShowPlayerSettings(self, event, host):
+        #host = self.HostSelection()
         if not host == None:
             self.configHost = host
             self.LoadRemoteConfig(host)

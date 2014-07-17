@@ -2,6 +2,7 @@ import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import *
 from packages.rmnetwork.constants import *
+from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
 
 import wx
@@ -32,20 +33,20 @@ class SettingsFrame(wx.Frame):
     def Initialize(self):
         self.configSizer = wx.GridBagSizer()
         # checkboxes
-        self.cbImgEnabled = wx.CheckBox(self, -1, "Enable Images")
-        self.cbVidEnabled = wx.CheckBox(self, -1, "Enable Videos")
-        self.cbAutoplay = wx.CheckBox(self, -1, "Autoplay")
-        self.cbRepeat = wx.CheckBox(self, -1, "Repeat")
+        self.cbImgEnabled = wx.CheckBox(self, -1, String("enable_images"))
+        self.cbVidEnabled = wx.CheckBox(self, -1, String("enable_videos"))
+        self.cbAutoplay = wx.CheckBox(self, -1, String("autoplay"))
+        self.cbRepeat = wx.CheckBox(self, -1, String("repeat"))
 
         # interval, player name and ip
-        intervalLabel = wx.StaticText(self,-1,label="Image interval:")
+        intervalLabel = wx.StaticText(self,-1,label=String("image_interval")+":")
         self.imgIntervalLabel = wx.StaticText(self,-1,label="")
-        nameLabel = wx.StaticText(self,-1,label="Player name:")
+        nameLabel = wx.StaticText(self,-1,label=String("player_name")+":")
         self.playerNameLabel = wx.StaticText(self,-1,label="")
-        addrLabel = wx.StaticText(self,-1,label="IP-Address:")
+        addrLabel = wx.StaticText(self,-1,label=String("ip_address")+":")
         playerAddr = wx.StaticText(self,-1,label=self.host)
 
-        updateBtn = wx.Button(self, -1, "Update player")
+        updateBtn = wx.Button(self, -1, String("update_player"))
 
         self.editInterval = wx.Button(self,-1,label="...",size=(27,25))
         self.editName = wx.Button(self,-1,label="...",size=(27,25))
@@ -119,7 +120,7 @@ class SettingsFrame(wx.Frame):
     def ButtonClicked(self, event):
         button = event.GetEventObject()
         if button.GetName() == 'btn_image_interval':
-            dlg = wx.TextEntryDialog(self, "New Interval:", "Image Interval", self.imgIntervalLabel.GetLabel())
+            dlg = wx.TextEntryDialog(self, String("new_interval")+":", String("image_interval"), self.imgIntervalLabel.GetLabel())
             if dlg.ShowModal() == wx.ID_OK:
                 try:
                     newInterval = int(dlg.GetValue())
@@ -129,12 +130,12 @@ class SettingsFrame(wx.Frame):
                     time.sleep(0.2)
                     self.LoadConfig()
                 except Exception, e:
-                    error = wx.MessageDialog(self, "Please enter a valid number!", "Invalid interval", wx.OK | wx.ICON_EXCLAMATION)
+                    error = wx.MessageDialog(self, String("enter_valid_number"), String("invalid_interval"), wx.OK | wx.ICON_EXCLAMATION)
                     error.ShowModal()
 
             dlg.Destroy()
         elif button.GetName() == 'btn_player_name':
-            dlg = wx.TextEntryDialog(self, "New name:", "Player Name", self.playerNameLabel.GetLabel())
+            dlg = wx.TextEntryDialog(self, String("new_name")+":", String("player_name"), self.playerNameLabel.GetLabel())
             if dlg.ShowModal() == wx.ID_OK:
                 newName = dlg.GetValue()
                 self.playerNameLabel.SetLabel(newName)
@@ -146,7 +147,7 @@ class SettingsFrame(wx.Frame):
         elif button.GetName() == 'btn_update':
             Publisher.subscribe(self.RebootComplete, 'boot_complete')
 
-            self.prgDialog = wx.ProgressDialog("Updating...", wordwrap("Player is trying to update and will automatically reboot. This can last up to 2 minutes, please stand by...", 350, wx.ClientDC(self)))
+            self.prgDialog = wx.ProgressDialog("Updating...", wordwrap(String("update_message"), 350, wx.ClientDC(self)))
             self.prgDialog.Pulse()
 
             msgData = network.messages.getMessage(PLAYER_UPDATE)

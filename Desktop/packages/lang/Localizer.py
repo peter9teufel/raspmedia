@@ -13,6 +13,8 @@ def __initialize(langCode=None):
 	else:
 		# if locale not supported use english version
 		import strings_en as strings
+	global initDone
+	initDone = True
 
 
 def String(key):
@@ -23,5 +25,5 @@ def String(key):
 		result = strings.strings[key]
 	except:
 		# in case invalid key is given
-		result = ""
+		result = key
 	return result

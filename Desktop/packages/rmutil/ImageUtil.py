@@ -1,4 +1,5 @@
 import wx, Image
+from packages.lang.Localizer import *
 
 SUPPORTED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
 OPT_CROP = 1
@@ -85,7 +86,7 @@ def _checkOrientation(img):
     return img
 
 def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_FIT):
-    prgDialog = wx.ProgressDialog("Optimizing images...", "Optimizing images for your player...", maximum=len(files), style=wx.PD_AUTO_HIDE)
+    prgDialog = wx.ProgressDialog(String("optimizing"), String("optimizing_images"), maximum=len(files), style=wx.PD_AUTO_HIDE)
     cnt = 0
     for filename in files:
         if style == OPT_CROP:

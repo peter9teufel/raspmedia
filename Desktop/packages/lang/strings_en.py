@@ -1,0 +1,5 @@
+strings = {
+	"test": "Hello World"
+
+
+}

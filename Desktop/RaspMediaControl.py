@@ -1,5 +1,4 @@
 from packages.rmgui import AppFrame as rm_app
-from packages.rmgui import SimpleUIAppFrame as rm_simple_app
 from packages.rmnetwork.constants import *
 import os, platform
 try:

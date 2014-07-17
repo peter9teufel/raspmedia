@@ -6,6 +6,7 @@ from packages.rmnetwork.constants import *
 import sys, os, platform, time, shutil, ast
 from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
+from packages.lang.Localizer import *
 
 playerCount = 0
 
@@ -68,7 +69,7 @@ class SimpleUIAppFrame(wx.Frame):
         Publisher.subscribe(self.HostFound, 'host_found')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         msgData = network.messages.getMessage(SERVER_REQUEST)
-        self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
+        self.prgDialog = wx.ProgressDialog(String("searching"), "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
         self.prgDialog.Pulse()
         network.udpconnector.sendMessage(msgData)
 
@@ -126,13 +127,13 @@ class SimpleUIAppFrame(wx.Frame):
         # add colon as path is only the drive letter of the connected USB drive
         self.usbPath = path + ':'
         self.ScanFolder(path + ':')
-        
+
     def ScanFolder(self, path):
         for file in os.listdir(path):
             if not file.startswith(".") and file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                 # image file found --> add to list of files to copy
                 self.filesToCopy.append(file)
-        
+
         self.prgDialog.Update(100)
         if HOST_SYS == HOST_WIN:
             self.prgDialog.Destroy()
@@ -155,7 +156,7 @@ class SimpleUIAppFrame(wx.Frame):
             print self.filesToCopy
             self.Raise()
             self.InitUI()
-            
+
 
 
     def SetupMenuBar(self):
@@ -223,7 +224,7 @@ class SimpleUIAppFrame(wx.Frame):
         status =  wordwrap("%s\nUSB stick was detected at drive %s with %d images available." % (players,self.usbPath,len(self.filesToCopy)), 200, wx.ClientDC(self))
 
         statusLabel = wx.StaticText(self, -1, label=status)
-        
+
         #usbList = wx.ListCtrl(self,-1,size=(200,170),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         #usbList.Show(True)
         #usbList.InsertColumn(0,"Filename", width = 170)
@@ -338,7 +339,7 @@ class SimpleUIAppFrame(wx.Frame):
             configDict = ast.literal_eval(config)
         print configDict
         self.config = configDict
-        
+
         # config loaded --> settings can be opened now
         settings = prefs.SettingsFrame(self,-1,"Player Settings",self.configHost, self.config)
         settings.Center()

@@ -7,6 +7,7 @@ import os, sys, platform, ast, time, threading, shutil
 import wx
 from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
+from packages.lang.Localizer import *
 
 playerCount = 0
 activePageNr = 0
@@ -80,7 +81,7 @@ class RemoteNotebook(wx.Notebook):
         Publisher.subscribe(self.HostFound, 'host_found')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         msgData = network.messages.getMessage(SERVER_REQUEST)
-        self.prgDialog = wx.ProgressDialog("Searching...", "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
+        self.prgDialog = wx.ProgressDialog(String("searching"), "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
         self.prgDialog.Pulse()
         network.udpconnector.sendMessage(msgData)
 

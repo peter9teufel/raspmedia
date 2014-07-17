@@ -1,5 +1,35 @@
 strings = {
-	"test": "Hello World"
-
-
+	# MENU ITEMS
+	"file": "File",
+	"about": "About",
+	"player_settings": "Player Settings",
+	"exit": "Exit",
+	# UI MESSAGES
+	"rasp_players": "RaspMedia Players",
+	"searching": "Searching...",
+	"search_players": "Searching available RaspMedia Players...",
+	"no_players_found": "No RaspMedia Players found, check if your players are running and connected to the local network.",
+	"rescan": "Rescan",
+	"waiting_for_usb": "Waiting for USB...",
+	"plug_usb": "Please plug in your USB drive now...",
+	"usb_found_scan": "USB drive found, scanning for images...",
+	"usb_no_images_found": "No images found on USB drive. Make sure the images are in the root path. Try again?",
+	"delete_current_files": "Delete current files from player",
+	"copy_deletion_info": "All images in the list will be sent, if the checkbox is selected, all images that are currently on the player will be deleted first.",
+	"send_to_all": "Send to all players",
+	"send_to_one": "Send to specific player",
+	"one_player_found": "I found one player in your local network.",
+	"muliple_players_one": "I found",
+	"muliple_players_two": "players in your local network.",
+	"usb_at_drive": "USB stick was detected at drive",
+	"images_available": "images available",
+	"saving": "Saving...",
+	"saving_files_player": "Saving files on player...",
+	"select_player": "Select a player:",
+	"preparing": "Preparing",
+	"preparing_data": "Preparing data for sending...",
+	"sending": "Sending...",
+	"sending_files": "Sending files to player...",
+	"optimizing": "Optimizing images...",
+	"optimizing_images": "Optimizing images for your player..."
 }

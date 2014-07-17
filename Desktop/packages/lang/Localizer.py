@@ -1,21 +1,27 @@
 import locale
 
 initDone = False
-def initialize(langCode=None):
-	loc = langCode
-	if loc == None:
-		loc = locale.getdefaultlocale()[0]
+def __initialize(langCode=None):
+	if langCode == None:
+		loc = locale.getdefaultlocale()
+		print "Default locale is ", loc
+		langCode = loc[0]
+		print "Language code: ", langCode
 	global strings
-	if loc.startswith("de"):
+	if langCode.lower().startswith("de"):
 		import strings_de as strings
 	else:
+		# if locale not supported use english version
 		import strings_en as strings
 
 
 def String(key):
-	return strings.strings[key]
-
-
-print "INIT DE"
-initialize()
-print String("test")
+	if not initDone:
+		print "Localizer not initialized..."
+		__initialize()
+	try:
+		result = strings.strings[key]
+	except:
+		# in case invalid key is given
+		result = ""
+	return result

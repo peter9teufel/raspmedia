@@ -86,19 +86,19 @@ class SimpleUIAppFrame(wx.Frame):
                 self.prgDialog.Update(100)
                 if HOST_SYS == HOST_WIN:
                     self.prgDialog.Destroy()
-                dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
+                #dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
+                dlg = wx.MessageDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), style=wx.YES_NO)
                 result = dlg.ShowModal()
-                selection = dlg.GetSelection()
+                #selection = dlg.GetSelection()
                 print "RESULT: ", result
-                if result == wx.ID_OK:
-                    print "OK clicked, checking selected index... ", selection
-                    if selection == 0: # RESCAN
-                        self.SearchHosts()
+                if result == wx.ID_YES:
+                    #if selection == 0: # RESCAN
+                    self.SearchHosts()
                     #elif selection == 1:
                     #   pass
-                    elif selection == 1: # EXIT
-                        self.Close()
-                elif result == wx.ID_CANCEL:
+                    #elif selection == 1: # EXIT
+                    #    self.Close()
+                elif result == wx.ID_NO:
                     print "Cancel clicked, terminating program, bye bye..."
                     self.Close()
             else:

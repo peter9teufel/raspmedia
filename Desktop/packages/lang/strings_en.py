@@ -9,7 +9,7 @@ strings = {
 	"searching": "Searching...",
 	"searching_players": "Searching available RaspMedia Players...",
 	"no_player": "No player found",
-	"no_players_found": "No RaspMedia Players found, check if your players are running and connected to the local network.",
+	"no_players_found": "No RaspMedia Players found, check if your players are running and connected to the local network. Retry?",
 	"rescan": "Rescan",
 	"waiting_for_usb": "Waiting for USB...",
 	"plug_usb": "Please plug in your USB drive now...",

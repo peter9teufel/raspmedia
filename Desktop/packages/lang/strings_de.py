@@ -10,7 +10,7 @@ strings = {
 	"searching": "Suche...",
 	"searching_players": "Suche RaspMedia Player...",
 	"no_player": "Keine Medienplayer gefunden",
-	"no_players_found": u"Keine Medienplayer gefunden. Bitte überprüfen Sie ob die Player gestartet und mit dem Netzwerk verbunden sind.",
+	"no_players_found": u"Keine Medienplayer gefunden. Bitte überprüfen Sie ob die Player gestartet und mit dem Netzwerk verbunden sind. Erneut versuchen?",
 	"rescan": "Erneut suchen",
 	"waiting_for_usb": "Warte auf USB Stick...",
 	"plug_usb": "Bitte USB Stick jetzt anstecken...",

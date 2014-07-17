@@ -35,7 +35,7 @@ def sendFile(filePath, host, parent, isWindows=False):
 		data.append(int(b))
 	# show progress dialog
 	#prgDialog = wx.ProgressDialog("Sending...", "Sending file to player: " + filename, maximum = filesize, parent = parent, style = dlgStyle)
-	prgDialog = wx.ProgressDialog(String("sending"), String("sending_files"), maximum = filesize, style = wx.PD_AUTO_HIDE)
+	prgDialog = wx.ProgressDialog(tr("sending"), tr("sending_files"), maximum = filesize, style = wx.PD_AUTO_HIDE)
 	s.send(data)
 	s.send(filenameEnc)
 
@@ -60,7 +60,7 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 
 	dlgMessageBuild = None
 	if len(files) > 5:
-		dlgMessageBuild = wx.ProgressDialog(String("preparing"), String("preparing_data"), style = wx.PD_AUTO_HIDE)
+		dlgMessageBuild = wx.ProgressDialog(tr("preparing"), tr("preparing_data"), style = wx.PD_AUTO_HIDE)
 		dlgMessageBuild.Pulse()
 	msgData = messages.getTcpFileMessage(files, basePath)
 	if dlgMessageBuild:
@@ -69,7 +69,7 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 			dlgMessageBuild.Destroy()
 	msgSize = len(msgData)
 	print "File message size: ", msgSize
-	prgDialog = wx.ProgressDialog(String("sending"), String("sending_files"), maximum = msgSize, style = wx.PD_AUTO_HIDE)
+	prgDialog = wx.ProgressDialog(tr("sending"), tr("sending_files"), maximum = msgSize, style = wx.PD_AUTO_HIDE)
 	bytesSent = 0;
 	index = 0
 	while bytesSent < msgSize:

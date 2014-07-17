@@ -17,7 +17,7 @@ def __initialize(langCode=None):
 	initDone = True
 
 
-def String(key):
+def tr(key):
 	if not initDone:
 		print "Localizer not initialized..."
 		__initialize()

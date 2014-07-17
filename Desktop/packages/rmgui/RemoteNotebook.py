@@ -81,7 +81,7 @@ class RemoteNotebook(wx.Notebook):
         Publisher.subscribe(self.HostFound, 'host_found')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         msgData = network.messages.getMessage(SERVER_REQUEST)
-        self.prgDialog = wx.ProgressDialog(String("searching"), "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
+        self.prgDialog = wx.ProgressDialog(tr("searching"), "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
         self.prgDialog.Pulse()
         network.udpconnector.sendMessage(msgData)
 

@@ -70,7 +70,7 @@ class SimpleUIAppFrame(wx.Frame):
         Publisher.subscribe(self.HostFound, 'host_found')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         msgData = network.messages.getMessage(SERVER_REQUEST)
-        self.prgDialog = wx.ProgressDialog(String("searching"), String("searching_players"), parent = self, style = wx.PD_AUTO_HIDE)
+        self.prgDialog = wx.ProgressDialog(tr("searching"), tr("searching_players"), parent = self, style = wx.PD_AUTO_HIDE)
         self.prgDialog.Pulse()
         network.udpconnector.sendMessage(msgData)
 
@@ -86,7 +86,7 @@ class SimpleUIAppFrame(wx.Frame):
                 self.prgDialog.Update(100)
                 if HOST_SYS == HOST_WIN:
                     self.prgDialog.Destroy()
-                dlg = wx.SingleChoiceDialog(self,wordwrap(String("no_players_found"), 300, wx.ClientDC(self)), String("no_player"), [String("rescan"), String("exit")])
+                dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
                 result = dlg.ShowModal()
                 selection = dlg.GetSelection()
                 print "RESULT: ", result
@@ -113,7 +113,7 @@ class SimpleUIAppFrame(wx.Frame):
         os._exit(0)
 
     def WaitForUSB(self):
-        self.prgDialog.UpdatePulse(String("plug_usb"))
+        self.prgDialog.UpdatePulse(tr("plug_usb"))
         print "Waiting for USB Drive..."
         Publisher.subscribe(self.USBConnected, 'usb_connected')
         util.Win32DeviceDetector.waitForUSBDrive()
@@ -123,7 +123,7 @@ class SimpleUIAppFrame(wx.Frame):
         # Publisher.unsubscribe(self.USBConnected, 'usb_connected')
         print "USB Drive connected and mounted in %s:" % path
         print "Scanning files in root directory of %s:" % path
-        self.prgDialog.UpdatePulse(String("usb_found_scan"))
+        self.prgDialog.UpdatePulse(tr("usb_found_scan"))
         time.sleep(2)
         # add colon as path is only the drive letter of the connected USB drive
         self.usbPath = path + ':'
@@ -140,10 +140,10 @@ class SimpleUIAppFrame(wx.Frame):
             self.prgDialog.Destroy()
         if len(self.filesToCopy) == 0:
             # no images found on USB drive root
-            msg = String("usb_no_images_found")
-            dlg = wx.MessageDialog(self, msg, String("no_files_found"), wx.YES_NO | wx.ICON_QUESTION)
+            msg = tr("usb_no_images_found")
+            dlg = wx.MessageDialog(self, msg, tr("no_files_found"), wx.YES_NO | wx.ICON_QUESTION)
             if dlg.ShowModal() == wx.ID_YES:
-                self.prgDialog = wx.ProgressDialog(String("waiting_for_usb"), String("plug_usb"), parent = self, style = wx.PD_AUTO_HIDE)
+                self.prgDialog = wx.ProgressDialog(tr("waiting_for_usb"), tr("plug_usb"), parent = self, style = wx.PD_AUTO_HIDE)
                 self.prgDialog.Pulse()
                 if HOST_SYS == HOST_WIN:
                     dlg.Destroy()
@@ -161,16 +161,16 @@ class SimpleUIAppFrame(wx.Frame):
 
 
     def SetupMenuBar(self):
-        strAbout = String("about")
-        strFile = String("file")
+        strAbout = tr("about")
+        strFile = tr("file")
 
         # menus
         fileMenu = wx.Menu()
         helpMenu = wx.Menu()
 
         # File Menu
-        strSettings = String("player_settings")
-        strExit = String("exit")
+        strSettings = tr("player_settings")
+        strExit = tr("exit")
         menuSettings = fileMenu.Append(wx.ID_ANY, "&"+strSettings, strSettings)
         menuExit = fileMenu.Append(wx.ID_EXIT, "&"+strExit, strExit)
         self.Bind(wx.EVT_MENU, self.Close, menuExit)
@@ -192,18 +192,18 @@ class SimpleUIAppFrame(wx.Frame):
         self.InitStatusUI()
 
         # add chkbox for file deletion
-        delFiles = wx.CheckBox(self, -1, String("delete_current_files"))
+        delFiles = wx.CheckBox(self, -1, tr("delete_current_files"))
         delFiles.SetValue(True)
 
         self.Bind(wx.EVT_CHECKBOX, self.DeleteFilesToggled, delFiles)
 
         self.mainSizer.Add(delFiles, (4,0), flag=wx.LEFT, border = 5)
-        info = wx.StaticText(self, -1, label=wordwrap(String("copy_deletion_info"), 400, wx.ClientDC(self)))
+        info = wx.StaticText(self, -1, label=wordwrap(tr("copy_deletion_info"), 400, wx.ClientDC(self)))
         self.mainSizer.Add(info, (5,0), span=(1,2), flag=wx.ALL, border=5)
         # add buttons
-        send2All = wx.Button(self, -1, String("send_to_all"), size=(200,80))
-        send2One = wx.Button(self, -1, String("send_to_one"), size=(200,80))
-        exitBtn = wx.Button(self, -1, String("exit"), size=(200,80))
+        send2All = wx.Button(self, -1, tr("send_to_all"), size=(200,80))
+        send2One = wx.Button(self, -1, tr("send_to_one"), size=(200,80))
+        exitBtn = wx.Button(self, -1, tr("exit"), size=(200,80))
 
         self.Bind(wx.EVT_BUTTON, self.SendToAllPlayers, send2All)
         self.Bind(wx.EVT_BUTTON, self.SendToSpecificPlayer, send2One)
@@ -220,14 +220,14 @@ class SimpleUIAppFrame(wx.Frame):
         # init status labels
         numPlayers = len(self.hosts)
         if numPlayers == 1:
-            players = String("one_player_found")
+            players = tr("one_player_found")
         else:
-            players = "%s %d %s" % (String("multiple_players_one"),numPlayers,String("multiple_players_two"))
+            players = "%s %d %s" % (tr("multiple_players_one"),numPlayers,tr("multiple_players_two"))
 
         #for host in self.hosts:
         #    players += host['name'] + "\n"
 
-        status =  wordwrap("%s\n\n%s %s\n%d %s" % (players,String("usb_at_drive"),self.usbPath,len(self.filesToCopy),String("images_available")), 200, wx.ClientDC(self))
+        status =  wordwrap("%s\n\n%s %s\n%d %s" % (players,tr("usb_at_drive"),self.usbPath,len(self.filesToCopy),tr("images_available")), 200, wx.ClientDC(self))
 
         statusLabel = wx.StaticText(self, -1, label=status)
 
@@ -271,7 +271,7 @@ class SimpleUIAppFrame(wx.Frame):
         network.tcpfileclient.sendFiles(files, tmpPath, host['addr'], self, HOST_SYS == HOST_WIN)
         print "Deleting temporary files..."
         shutil.rmtree(tmpPath)
-        dlg = wx.ProgressDialog(String("saving"), String("saving_files_player"), style = wx.PD_AUTO_HIDE)
+        dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)
         dlg.Pulse()
         numFiles = len(files)
         # give the player at least 0.2s per file to save
@@ -300,7 +300,7 @@ class SimpleUIAppFrame(wx.Frame):
         resultHost = None
         for host in self.hosts:
             items.append("%s | %s" % (host['name'], host['addr']))
-        dlg = wx.SingleChoiceDialog(self,wordwrap(String("select_player"), 300, wx.ClientDC(self)), String("rasp_players"), items)
+        dlg = wx.SingleChoiceDialog(self,wordwrap(tr("select_player"), 300, wx.ClientDC(self)), tr("rasp_players"), items)
         result = dlg.ShowModal()
         selection = dlg.GetSelection()
         print "RESULT: ", result
@@ -347,7 +347,7 @@ class SimpleUIAppFrame(wx.Frame):
         self.config = configDict
 
         # config loaded --> settings can be opened now
-        settings = prefs.SettingsFrame(self,-1,String("player_settings"),self.configHost, self.config)
+        settings = prefs.SettingsFrame(self,-1,tr("player_settings"),self.configHost, self.config)
         settings.Center()
         settings.SetBackgroundColour('WHITE')
         settings.Refresh()

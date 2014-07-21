@@ -231,10 +231,10 @@ class MediaPlayer(threading.Thread):
             fullPath = self.mediaPath + file
             print "Full Path:"
             print fullPath
-            if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
-                subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
-            else:
-                subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
+            #if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
+            #    subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
+            #else:
+            subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
 
 
     def processAllFilesOnce(self):

@@ -292,7 +292,7 @@ class MediaPlayer(threading.Thread):
     def allMediaFiles(self):
         files = []
         for file in os.listdir(self.mediaPath):
-            if file.endswith((SUSUPPORTED_VIDEO_EXTENSIONS)) or file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+            if file.endswith((SUPPORTED_VIDEO_EXTENSIONS)) or file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                 files.append(file)
         return files
 

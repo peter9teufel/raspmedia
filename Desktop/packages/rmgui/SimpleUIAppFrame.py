@@ -166,21 +166,24 @@ class SimpleUIAppFrame(wx.Frame):
 
         self.Bind(wx.EVT_CHECKBOX, self.DeleteFilesToggled, delFiles)
 
-        self.mainSizer.Add(delFiles, (4,0), flag=wx.LEFT, border = 5)
+        self.mainSizer.Add(delFiles, (2,1), span=(1,2), flag=wx.LEFT | wx.TOP, border = 5)
         info = wx.StaticText(self, -1, label=wordwrap(tr("copy_deletion_info"), 400, wx.ClientDC(self)))
-        self.mainSizer.Add(info, (5,0), span=(1,2), flag=wx.ALL, border=5)
+        self.mainSizer.Add(info, (3,1), span=(1,2), flag=wx.LEFT, border=5)
         # add buttons
-        send2All = wx.Button(self, -1, tr("send_to_all"), size=(200,80))
-        send2One = wx.Button(self, -1, tr("send_to_one"), size=(200,80))
-        exitBtn = wx.Button(self, -1, tr("exit"), size=(200,80))
+        send2All = wx.Button(self, -1, tr("send_to_all"), size=(200,100))
+        send2One = wx.Button(self, -1, tr("send_to_one"), size=(200,100))
+        restartAll = wx.Button(self, -1, tr("restart_all"), size=(200,100))
+        exitBtn = wx.Button(self, -1, tr("exit"), size=(200,100))
 
         self.Bind(wx.EVT_BUTTON, self.SendToAllPlayers, send2All)
         self.Bind(wx.EVT_BUTTON, self.SendToSpecificPlayer, send2One)
+        self.Bind(wx.EVT_BUTTON, self.RestartAllPlayers, restartAll)
         self.Bind(wx.EVT_BUTTON, self.Close, exitBtn)
 
-        self.mainSizer.Add(send2All, (0,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
-        self.mainSizer.Add(send2One, (1,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
-        self.mainSizer.Add(exitBtn, (2,1), flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border = 5)
+        self.mainSizer.Add(send2All, (0,1), flag=wx.ALL | wx.ALIGN_RIGHT, border = 2)
+        self.mainSizer.Add(send2One, (1,1), flag=wx.ALL | wx.ALIGN_RIGHT, border = 2)
+        self.mainSizer.Add(restartAll, (0,2), flag=wx.ALL | wx.ALIGN_LEFT, border = 2)
+        self.mainSizer.Add(exitBtn, (1,2), flag=wx.ALL | wx.ALIGN_LEFT, border = 2)
 
         self.SetupMenuBar()
 
@@ -198,22 +201,22 @@ class SimpleUIAppFrame(wx.Frame):
         #for host in self.hosts:
         #    players += host['name'] + "\n"
 
-        status =  wordwrap("%s\n\n%s %s\n%d %s" % (players,tr("usb_at_drive"),self.usbPath,len(self.filesToCopy),tr("images_available")), 200, wx.ClientDC(self))
+        status =  wordwrap("%s\n\n%s %s\n%d %s\n" % (players,tr("usb_at_drive"),self.usbPath,len(self.filesToCopy),tr("images_available")), 200, wx.ClientDC(self))
 
         statusLabel = wx.StaticText(self, -1, label=status)
 
         #usbList = wx.ListCtrl(self,-1,size=(200,170),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         #usbList.Show(True)
         #usbList.InsertColumn(0,"Filename", width = 170)
-        usbTxt = wx.TextCtrl(self, -1, size=(200,170), style = wx.ALL | wx.TE_READONLY | wx.TE_MULTILINE)
+        usbTxt = wx.TextCtrl(self, -1, size=(200,160), style = wx.TE_READONLY | wx.TE_MULTILINE)
 
         for file in self.filesToCopy:
             usbTxt.AppendText(file + "\n")
         #    usbList.InsertStringItem(usbList.GetItemCount(), file)
 
         # add to main sizer
-        self.mainSizer.Add(statusLabel, (0,0), flag = wx.ALL, border = 5)
-        self.mainSizer.Add(usbTxt, (1,0), span=(2,1), flag = wx.ALL, border = 5)
+        self.mainSizer.Add(statusLabel, (0,0), span=(1,1), flag = wx.ALL, border = 5)
+        self.mainSizer.Add(usbTxt, (1,0), span=(3,1), flag = wx.LEFT | wx.BOTTOM | wx.RIGHT, border = 5)
 
     def SetupMenuBar(self):
         strAbout = tr("about")
@@ -256,6 +259,12 @@ class SimpleUIAppFrame(wx.Frame):
         checkbox = event.GetEventObject()
         self.deleteFiles = checkbox.IsChecked()
         print "Delete files: ", self.deleteFiles
+
+    def RestartAllPlayers(self, event=None):
+        msgData = network.messages.getMessage(PLAYER_RESTART)
+        network.udpconnector.sendMessage(msgData)
+        dlg = wx.MessageDialog(self, tr("done"), tr("done"), style = wx.OK)
+        dlg.ShowModal()
 
     def SendToAllPlayers(self, event=None):
         for host in self.hosts:

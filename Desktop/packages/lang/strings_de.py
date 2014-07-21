@@ -6,6 +6,7 @@ strings = {
 	"player_settings": "Player Einstellungen",
 	"exit": "Beenden",
 	# UI MESSAGES
+	"done": "Fertig!",
 	"rasp_players": "RaspMedia Player",
 	"searching": "Suche...",
 	"searching_players": "Suche RaspMedia Player...",
@@ -21,6 +22,7 @@ strings = {
 	"copy_deletion_info": u"Alle Bilder in der Liste werden kopiert. Wenn dieser Haken gesetzt ist werden die Bilder die zur Zeit am Player sind vor dem Kopieren gelöscht.",
 	"send_to_all": "An alle Player senden",
 	"send_to_one": "An bestimmten Player senden",
+	"restart_all": "Player synchron starten",
 	"one_player_found": "Ich habe einen Player im Netzwerk gefunden.",
 	"multiple_players_one": "Ich habe",
 	"multiple_players_two": "Player im Netzwerk gefunden.",

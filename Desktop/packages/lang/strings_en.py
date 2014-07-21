@@ -5,6 +5,7 @@ strings = {
 	"player_settings": "Player Settings",
 	"exit": "Exit",
 	# SIMPLE UI APP STRINGS
+	"done": "Done!",
 	"rasp_players": "RaspMedia Players",
 	"searching": "Searching...",
 	"searching_players": "Searching available RaspMedia Players...",
@@ -20,6 +21,7 @@ strings = {
 	"copy_deletion_info": "All images in the list will be sent, if the checkbox is selected, all images that are currently on the player will be deleted first.",
 	"send_to_all": "Send to all players",
 	"send_to_one": "Send to specific player",
+	"restart_all": "Restart all players",
 	"one_player_found": "I found one player in your local network.",
 	"multiple_players_one": "I found",
 	"multiple_players_two": "players in your local network.",

@@ -34,6 +34,9 @@ sudo apt-get -y install python-pexpect;
 # install commandline framebuffer image viewer
 sudo apt-get -y install fbi;
 
+# install mplayer
+sudo apt-get -y install mplayer;
+
 echo "Installing PyOMXPlayer..."
 # fetch files for pyomxplayer
 cd /home/pi;

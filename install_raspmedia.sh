@@ -52,7 +52,7 @@ su -l pi -c 'git clone https://github.com/peter9teufel/raspmedia.git';
 
 echo "Setting up autostart of RaspMedia Player"
 # modify rc.local to start raspmedia at boot
-sudo head -n -2 /etc/rc.local > /home/pi/rc.local.tmp;
+sudo head -n -3 /etc/rc.local > /home/pi/rc.local.tmp;
 sudo cat /home/pi/rc.local.tmp > /etc/rc.local;
 sudo echo 'cd /home/pi/raspmedia/Raspberry' >> /etc/rc.local;
 sudo echo 'sudo python rasp-mediaplayer.py' >> /etc/rc.local;

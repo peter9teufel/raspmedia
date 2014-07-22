@@ -2,8 +2,14 @@
 # Sets gpu memory to 128 MB
 sudo echo "gpu_mem=128" >> /boot/config.txt;
 
-# Uncomment the following lines if a new password should be set
+# prompt for a new user password
 passwd pi;
+
+# download the raspmedia installation script and make it executable
+cd /home/pi;
+wget https://raw.githubusercontent.com/peter9teufel/raspmedia/master/install_raspmedia.sh;
+sudo chmod +x install_raspmedia.sh;
+
 #
 #
 # Resize the root filesystem of a newly flashed Raspbian image.
@@ -67,4 +73,19 @@ chmod +x /etc/init.d/resize2fs_once &&
 update-rc.d resize2fs_once defaults &&
   echo "Root partition has been resized. The filesystem will be enlarged after reboot"
 sudo raspi-config .
+
+echo "Setting automatic installation of RaspMedia on next reboot"
+# modify rc.local to start raspmedia installation script at boot
+sudo head -n -2 /etc/rc.local > /home/pi/rc.local.tmp;
+sudo cat /home/pi/rc.local.tmp > /etc/rc.local;
+sudo echo '' >> /etc/rc.local;
+sudo echo '' >> /etc/rc.local;
+sudo echo 'cd /home/pi/' >> /etc/rc.local;
+sudo echo 'sudo ./install_raspmedia.sh' >> /etc/rc.local;
+sudo echo 'exit 0' >> /etc/rc.local;
+sudo rm /home/pi/rc.local.tmp;
+
+echo "rc.local modified:";
+echo /etc/rc.local;
+echo "Rebooting now...";
 sudo reboot;

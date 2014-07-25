@@ -46,7 +46,6 @@ Also make sure that your firewall (if you use one) does not block the program. W
 #####Main Window#####
 RaspMedia Control allows you to fully configure and setup your RaspMedia Players. On startup the application searches for players in your local network and creates a tab for each player.
 ![RaspMedia Control Main Window](/Screenshots/rmc_main.png)
-Format: ![Alt Text](url)
 The main window offers information on the player (name, IP) and basic controls (Play, Stop, Reboot) at the top, by clicking identify the corresponding player will show a test image with the player name so you can identify each player and give it a appropriate name when setting up multiple players at one time.
 Right underneath you can find a simple file explorer to search for images on your hard drive which you'd like to send to the player. You can send a single image by double clicking it and approving the dialog or by selecting multiple images, right click and select "Send to player".
 The bottom list is the list of files you currently have on your RaspMedia Player. You can delete single files by double clicking them or again select multiple files, right click them and select "Delete from player".
@@ -54,12 +53,15 @@ If at any time you think the remote list is not up to date (which can occur due 
 #####Player Settings#####
 From the *File* menu you can access the *Player Settings* to configure some playback options.
 ![RaspMedia Player Settings](/Screenshots/rmc_player_settings.png)
-Format: ![Alt Text](url)
 The settings are self explanatory, you can enable image and video playback, select if the player should automatically start playback after booting, set the interval for image slideshows and give the player a name.
 The settings also enable you to update the player to the newest version (needs internet connection).
 As you can see in the screenshot the translation of the project is currently in progress to be able to easily provide multiple language support, german and english version should be done soon.
 ####RaspMedia Copy Tool####
-Explanation of Copy Tool
+The RaspMedia Copy Tool is currently only compatible with windows. The main purpose of this application is to provide an easy way to bring media files on a RaspMedia Player for *technophobic* users.
+When starting the application it searches all players in the local network. When done so it prompts to connect a USB Stick with the media files to copy to the PC. All media files (currently only images) on the root directory of the USB Stick will be copied, the order of the images used on the player depends on their filenames. When the USB stick is found the main window appears, listing the number of players found on the network, the drive letter of the USB stick (to be compared in Explorer if you like) and a list of the images to be copied to the player. A checkbox allows to decide whether the images that are currently on the player should be deleted or not. Images with identical names will be overwritten.
+The application allows you to send the images to all players or to a specific player. Additionally you have the possibility to start the players synchronously.
+
+In addition to the copy feature the RaspMedia Copy Tool provides the same *Player Settings* functionality as RaspMedia Control does via the *File* menu.
 
 ##License##
 Copyright 2014 Peter Neunteufel

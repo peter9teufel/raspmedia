@@ -104,7 +104,6 @@ class MediaPlayer(threading.Thread):
                 # check config every 10 seconds
                 self.reloadConfig()
                 wakes = 0
-        stop()
 
     def fbiImageLoop(self):
         global playerState
@@ -141,6 +140,7 @@ class MediaPlayer(threading.Thread):
             self.fbiImageLoop()
         else:
             self.processImagesOnce()
+            stop()
 
     def processVideosOnce(self):
         global playerState
@@ -274,6 +274,7 @@ class MediaPlayer(threading.Thread):
                 # check config for changes
                 self.reloadConfig()
                 self.processAllFilesOnce()
+        stop()
 
     def allImages(self):
         images = []

@@ -1,7 +1,13 @@
 #RaspMedia Player for Raspberry Pi#
 
 ##Introduction##
-RaspMedia is a standalone mediaplayer for the Raspberry Pi, intended to be used for digital signage. It provides image and video playback as a complete standalone solution is fully configurable over the network using the enclosed Desktop applications.
+RaspMedia is a standalone mediaplayer for the Raspberry Pi, intended to be used for digital signage. It provides image and video playback as a complete standalone solution and is fully configurable over the network using the enclosed Desktop applications.
+
+###Features###
+RaspMedia Player provides digital signage using image slideshows, videos or a combination of both. All media files can be easily copied to the player using the RaspMedia Control Desktop application. A second desktop application called *RaspMedia Copy Tool* (only available for Windows by now) allows an even more easy way to send mediafiles (currently only images with Copy Tool) to the RaspMedia Player, see description below.
+The RaspMedia Player is intended as a complete standalone digital signage player. All configuration and media copying can be done over the network without the need to directly access the player, which makes it suitable for screens with less accessibility (e.g. outdoor cabinets etc.).
+The RaspMedia Control Desktop Application needs no further configuration, it automatically detects all players in the local network within seconds.
+The RaspMedia Player currently has to be connected via Ethernet. Future steps will include WiFi settings that can be done in the Desktop Application while connected via Ethernet to allow further access, configuration and data manipulation on the player over WiFi.
 
 ##Installation##
 Setting up a RaspMedia player is easy, the complete installation on the raspberry pi is done using a installation script, the desktop software is written in python and can be simply compiled to an executable with pyinstaller using the provided *.spec file.

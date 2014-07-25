@@ -49,6 +49,35 @@ strings = {
 	"enter_valid_number": "Please enter a valid number.",
 	"invalid_interval": "Invalid interval",
 	"new_name": "New name",
-	"update_message": "Player is trying to update and will automatically reboot. This can last up to 2 minutes, please stand by..."
-
+	"update_message": "Player is trying to update and will automatically reboot. This can last up to 2 minutes, please stand by...",
+	# RASPMEDIA CONTROL
+	"loading": "Loading...",
+	"msg_loading_config_filelist": "Loading configuration and filelist from player...",
+	"remote_control": "Remote Control",
+	"play": "Play",
+	"stop": "Stop",
+	"identify": "Identify",
+	"reboot": "Reboot",
+	"select_dir": "Select directory",
+	"refresh_remote_filelist": "Refresh remote filelist",
+	"filename": "Filename",
+	"filesize": "Filesize",
+	"remote_files": "Remote files",
+	"mediafiles_selected": "Mediafiles selected",
+	"multiple_dir_selected": "Multiple directories selected",
+	"mixed_selected": "selected (Mediafiles and directories)",
+	"open": "Open",
+	"send_to_player": "Send to Player",
+	"delete": "Delete",
+	"dlg_msg_send_file_player": "Send selected file to the player? Stop and restart player when the process is complete.",
+	"dlg_title_send_file_player": "Send file to Player",
+	"dlg_msg_delete_files_player": "Delete the selected file(s) from the player (will stop and restart player)? This can not be undone!",
+	"dlg_title_delete_files_player": "Delete file(s) from player?"
+	"deleting": "Deleting...",
+	"deleting_files": "Deleting file(s) from player...",
+	"select_file_dir": "Select a directory that contains images or videos you would like to browse and upload to your media player.",
+	"dlg_msg_identify": "The current player will show a test image. Close this dialog to exit identifier mode.",
+	"dlg_title_identify": "Identifying player",
+	"dlg_msg_reboot": "Player rebooting, this can take up to 1 minute. This dialog will close when the reboot is complete, you may close it manually if you see your player up and running again.",
+	"dlg_title_reboot": "Rebooting"
 }

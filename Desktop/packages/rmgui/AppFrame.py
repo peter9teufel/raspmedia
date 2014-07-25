@@ -2,6 +2,7 @@ import wx
 import RemoteNotebook as remote
 import SettingsFrame as prefs
 import packages.rmnetwork as network
+from packages.lang.Localizer import *
 import sys
 from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
@@ -37,20 +38,20 @@ class AppFrame(wx.Frame):
         helpMenu = wx.Menu()
 
         # File Menu
-        menuSettings = fileMenu.Append(wx.ID_ANY, "&Player Settings", "Player Settings")
-        menuExit = fileMenu.Append(wx.ID_EXIT, "&Exit"," Terminate the program")
+        menuSettings = fileMenu.Append(wx.ID_ANY, "&"+tr("player_settings"), tr("player_settings"))
+        menuExit = fileMenu.Append(wx.ID_EXIT, "&"+tr("exit"),tr("exit"))
         self.Bind(wx.EVT_MENU, self.Close, menuExit)
         self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, menuSettings)
 
         # Help Menu
-        about = helpMenu.Append(wx.ID_ANY, "&About")
+        about = helpMenu.Append(wx.ID_ANY, "&"+tr("about"))
         self.Bind(wx.EVT_MENU, self.ShowAbout, about)
 
         # Menubar
         menuBar = wx.MenuBar()
-        menuBar.Append(fileMenu, "&File") # Adding the "filemenu" to the MenuBar
+        menuBar.Append(fileMenu, "&"+tr("file")) # Adding the "filemenu" to the MenuBar
 
-        menuBar.Append(helpMenu, "&About")
+        menuBar.Append(helpMenu, "&"+tr("about"))
         self.SetMenuBar(menuBar)
 
     def ShowAbout(self, event):
@@ -60,7 +61,7 @@ class AppFrame(wx.Frame):
         dlg.ShowModal()
 
     def ShowPlayerSettings(self, event):
-        settings = prefs.SettingsFrame(self,-1,"Player Settings",self.notebook.CurrentlyActiveHost(), self.notebook.CurrentConfig())
+        settings = prefs.SettingsFrame(self,-1,tr("player_settings"),self.notebook.CurrentlyActiveHost(), self.notebook.CurrentConfig())
         settings.Center()
         settings.SetBackgroundColour('WHITE')
         settings.Refresh()

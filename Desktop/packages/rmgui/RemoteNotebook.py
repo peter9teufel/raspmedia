@@ -2,6 +2,7 @@ import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import RaspMediaControlPanel as rmc
 from packages.rmnetwork.constants import *
+from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
 
 import wx
@@ -81,7 +82,7 @@ class RemoteNotebook(wx.Notebook):
         Publisher.subscribe(self.HostFound, 'host_found')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         msgData = network.messages.getMessage(SERVER_REQUEST)
-        self.prgDialog = wx.ProgressDialog(tr("searching"), "Searching available RaspMedia Players...", parent = self, style = wx.PD_AUTO_HIDE)
+        self.prgDialog = wx.ProgressDialog(tr("searching"), tr("searching_players"), parent = self, style = wx.PD_AUTO_HIDE)
         self.prgDialog.Pulse()
         network.udpconnector.sendMessage(msgData)
 
@@ -100,7 +101,7 @@ class RemoteNotebook(wx.Notebook):
                 self.prgDialog.Update(100)
                 if HOST_SYS == HOST_WIN:
                     self.prgDialog.Destroy()
-                dlg = wx.SingleChoiceDialog(self,wordwrap("No RaspMedia Players found, check if your players are running and connected to the local network.", 300, wx.ClientDC(self)), "No Player found", ['Rescan', 'Exit'])
+                dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
                 result = dlg.ShowModal()
                 selection = dlg.GetSelection()
                 print "RESULT: ", result

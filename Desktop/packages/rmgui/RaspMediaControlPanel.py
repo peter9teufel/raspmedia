@@ -2,6 +2,7 @@ import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import *
 from packages.rmnetwork.constants import *
+from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
 
 import wx
@@ -75,7 +76,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         Publisher.subscribe(self.InsertReceivedFileList, 'remote_files')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         # start loading data
-        self.prgDialog = wx.ProgressDialog("Loading...", "Loading configuration and filelist from player...")
+        self.prgDialog = wx.ProgressDialog(tr("loading"), tr("msg_loading_config_filelist"))
         self.prgDialog.Pulse()
         self.LoadRemoteConfig()
 
@@ -122,13 +123,13 @@ class RaspMediaCtrlPanel(wx.Panel):
 
     def SetupPlayerSection(self):
         # Text label
-        label = wx.StaticText(self,-1,label="Remote Control:")
+        label = wx.StaticText(self,-1,label=tr("remote_control")+": ")
         self.playerSizer.Add(label,(0,0),(1,2), flag = wx.TOP | wx.BOTTOM, border=5)
 
         # player name and address
-        nameLabel = wx.StaticText(self,-1,label="Player name: ")
+        nameLabel = wx.StaticText(self,-1,label=tr("player_name")+": ")
         self.playerNameLabel = wx.StaticText(self,-1,label="", size = (130,nameLabel.GetSize()[1]))
-        addrLabel = wx.StaticText(self,-1,label="IP-Address: ")
+        addrLabel = wx.StaticText(self,-1,label=tr("ip_address")+": ")
         playerAddr = wx.StaticText(self,-1,label=self.host)
         self.playerSizer.Add(nameLabel, (1,0), flag=wx.ALIGN_CENTER_VERTICAL)
         self.playerSizer.Add(self.playerNameLabel, (1,1), flag=wx.ALIGN_CENTER_VERTICAL)
@@ -136,20 +137,20 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.playerSizer.Add(playerAddr, (2,1), flag = wx.ALIGN_CENTER_VERTICAL)
 
         # Play and Stop Button
-        button = wx.Button(self,-1,label="Play")
+        button = wx.Button(self,-1,label=tr("play"))
         self.playerSizer.Add(button,(1,3))
         self.Bind(wx.EVT_BUTTON, self.PlayClicked, button)
 
-        button = wx.Button(self,-1,label="Stop")
+        button = wx.Button(self,-1,label=tr("stop"))
         self.playerSizer.Add(button,(2,3), flag=wx.TOP, border=5)
         self.Bind(wx.EVT_BUTTON, self.StopClicked, button)
 
-        button = wx.Button(self,-1,label="Identify")
+        button = wx.Button(self,-1,label=tr("identify"))
         button.SetName("btn_identify")
         self.playerSizer.Add(button,(1,5), flag = wx.BOTTOM, border = 5)
         self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
 
-        button = wx.Button(self,-1,label="Reboot")
+        button = wx.Button(self,-1,label=tr("reboot"))
         button.SetName("btn_reboot")
         self.playerSizer.Add(button,(2,5), flag=wx.TOP | wx.BOTTOM, border=5)
         self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
@@ -161,11 +162,11 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.AddImagePreview()
         self.AddRemoteList()
 
-        selectFolder = wx.Button(self,-1,label="Select directory...")
+        selectFolder = wx.Button(self,-1,label=tr("select_dir"))
         self.filesSizer.Add(selectFolder, (0,0), flag = wx.TOP | wx.BOTTOM, border = 5)
         self.Bind(wx.EVT_BUTTON, self.ChangeDir, selectFolder)
 
-        button = wx.Button(self,-1,label="Refresh remote filelist")
+        button = wx.Button(self,-1,label=tr("refresh_remote_filelist"))
         self.filesSizer.Add(button,(4,0))
         self.Bind(wx.EVT_BUTTON, self.LoadRemoteFileList, button)
         self.filesSizer.Fit(self)
@@ -175,8 +176,8 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.localList = wx.ListCtrl(self,-1,size=(400,220),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         print "Showing list..."
         self.localList.Show(True)
-        self.localList.InsertColumn(0,"Filename", width = 300)
-        self.localList.InsertColumn(1,"Filesize", width = 80, format = wx.LIST_FORMAT_RIGHT)
+        self.localList.InsertColumn(0,tr("filename"), width = 300)
+        self.localList.InsertColumn(1,tr("filesize"), width = 80, format = wx.LIST_FORMAT_RIGHT)
         self.filesSizer.Add(self.localList, (1,0), span=(2,1))
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.LocalFileDoubleClicked, self.localList)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.LocalFileSelected, self.localList)
@@ -201,7 +202,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         print "Initializing empty remote lists..."
         self.remoteList=wx.ListCtrl(self,-1,size=(600,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         self.remoteList.Show(True)
-        self.remoteList.InsertColumn(0,"Remote Files: ", width = 598)
+        self.remoteList.InsertColumn(0,tr("remote_files")+": ", width = 598)
         self.filesSizer.Add(self.remoteList, (3,0), span=(1,2), flag = wx.EXPAND | wx.TOP, border = 10)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.RemoteFileDoubleClicked, self.remoteList)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.RemoteFileRightClicked, self.remoteList)
@@ -327,11 +328,11 @@ class RaspMediaCtrlPanel(wx.Panel):
         selLabel = ""
         if sel['count'] > 1:
             if sel['type'] == 'media':
-                selLabel = "%d Mediafiles selected" % (len(files))
+                selLabel = "%d %s" % (len(files),tr("mediafiles_selected"))
             elif sel['type'] == 'dir':
-                selLabel = "Multiple directories selected"
+                selLabel = tr("multiple_dir_selected")
             else:
-                selLabel = "%d selected (Mediafiles and directories)" % (len(files))
+                selLabel = "%d %s" % (len(files),tr("mixed_selected"))
         return selLabel
 
     def LocalFileRightClicked(self, event):
@@ -339,10 +340,10 @@ class RaspMediaCtrlPanel(wx.Panel):
         file = event.GetText()
         menu = wx.Menu()
         if file == '..' or os.path.isdir(self.path + '/' + file):
-            item = menu.Append(wx.NewId(), "Open")
+            item = menu.Append(wx.NewId(), tr("open"))
             self.Bind(wx.EVT_MENU, self.ShowSelectedDirectory, item)
         else:
-            item = menu.Append(wx.NewId(), "Send to Player")
+            item = menu.Append(wx.NewId(), tr("send_to_player"))
             self.Bind(wx.EVT_MENU, self.SendSelectedFilesToPlayer, item)
         rect = self.localList.GetRect()
         point = event.GetPoint()
@@ -363,7 +364,7 @@ class RaspMediaCtrlPanel(wx.Panel):
     def RemoteFileRightClicked(self, event):
         file = event.GetText()
         menu = wx.Menu()
-        item = menu.Append(wx.NewId(), "Delete")
+        item = menu.Append(wx.NewId(), tr("delete"))
         self.Bind(wx.EVT_MENU, self.DeleteSelectedRemoteFile, item)
         rect = self.remoteList.GetRect()
         point = event.GetPoint()
@@ -402,7 +403,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
         print "Deleting temporary files..."
         shutil.rmtree(tmpPath)
-        dlg = wx.ProgressDialog("Saving", "Saving files on player...", style = wx.PD_AUTO_HIDE)
+        dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)
         dlg.Pulse()
         numFiles = len(files)
         # give the player at least 0.2s per file to save
@@ -449,8 +450,8 @@ class RaspMediaCtrlPanel(wx.Panel):
             self.ShowDirectory(filePath)
         else:
             # dialog to verify sending file to player
-            msg = "Send file '" + fileName + "' to the player? Stop and restart player when the process is complete!"
-            dlg = wx.MessageDialog(self, msg, "Send file to Player", wx.YES_NO | wx.ICON_QUESTION)
+            msg = tr("dlg_msg_send_file_player")
+            dlg = wx.MessageDialog(self, msg, tr("dlg_title_send_file_player"), wx.YES_NO | wx.ICON_QUESTION)
             if dlg.ShowModal() == wx.ID_YES:
                 self.SendSelectedFilesToPlayer()
             if HOST_SYS == HOST_WIN:
@@ -467,11 +468,11 @@ class RaspMediaCtrlPanel(wx.Panel):
 
     def DeleteRemoteFiles(self, files):
         # dialog to verify deleting file on player
-        msg = "Delete the selected file(s) from the player (will stop and restart player)? This can not be undone!"
-        dlg = wx.MessageDialog(self, msg, "Delete file(s) from player?", wx.YES_NO | wx.ICON_EXCLAMATION)
+        msg = tr("dlg_msg_delete_files_player")
+        dlg = wx.MessageDialog(self, msg, tr("dlg_title_delete_files_player"), wx.YES_NO | wx.ICON_EXCLAMATION)
         if dlg.ShowModal() == wx.ID_YES:
             dlgStyle =  wx.PD_SMOOTH
-            prgDialog = wx.ProgressDialog("Deleting file(s)...", "Deleting file(s) from player...", parent = self, style = dlgStyle)
+            prgDialog = wx.ProgressDialog(tr("deleting"), tr("deleting_files"), parent = self, style = dlgStyle)
             prgDialog.Pulse()
             args = ["-i", str(len(files))]
             for file in files:
@@ -492,7 +493,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         network.udpconnector.sendMessage(msgData, self.host)
 
     def ChangeDir(self, event):
-        dlg = wx.DirDialog(self, message="Select a directory that contains images or videos you would like to browse and upload to your media player.", defaultPath=self.path, style=wx.DD_CHANGE_DIR)
+        dlg = wx.DirDialog(self, message=tr("select_file_dir"), defaultPath=self.path, style=wx.DD_CHANGE_DIR)
 
         # Call the dialog as a model-dialog so we're required to choose Ok or Cancel
         if dlg.ShowModal() == wx.ID_OK:
@@ -572,8 +573,8 @@ class RaspMediaCtrlPanel(wx.Panel):
         if button.GetName() == 'btn_identify':
             msgData = network.messages.getMessage(PLAYER_IDENTIFY)
             network.udpconnector.sendMessage(msgData, self.host)
-            msg = "The current player will show a test image. Close this dialog to exit identifier mode."
-            dlg = wx.MessageDialog(self, msg, "Identifying player", wx.OK | wx.ICON_EXCLAMATION)
+            msg = tr("dlg_msg_identify")
+            dlg = wx.MessageDialog(self, msg, tr("dlg_title_identify"), wx.OK | wx.ICON_EXCLAMATION)
             if dlg.ShowModal() == wx.ID_OK:
                 msgData2 = network.messages.getMessage(PLAYER_IDENTIFY_DONE)
                 network.udpconnector.sendMessage(msgData2, self.host)
@@ -582,7 +583,7 @@ class RaspMediaCtrlPanel(wx.Panel):
             self.RebootPlayer()
 
     def RebootPlayer(self):
-        self.prgDialog = wx.ProgressDialog("Rebooting...", wordwrap("Player rebooting, this can take up to 1 minute. This dialog will close when the reboot is complete, you may close it manually if you see your player up and running again.", 350, wx.ClientDC(self)), parent = self)
+        self.prgDialog = wx.ProgressDialog(tr("dlg_title_reboot"), wordwrap(tr("dlg_msg_reboot"), 350, wx.ClientDC(self)), parent = self)
         Publisher.subscribe(self.RebootComplete, "boot_complete")
         #Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         self.prgDialog.Pulse()

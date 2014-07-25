@@ -7,10 +7,10 @@ RaspMedia is a standalone mediaplayer for the Raspberry Pi, intended to be used 
 Setting up a RaspMedia player is easy, the complete installation on the raspberry pi is done using a installation script, the desktop software is written in python and can be simply compiled to an executable with pyinstaller using the provided *.spec file.
 
 ###Installation Raspberry Pi###
-To prepare a fresh raspberry pi Raspian setup you can run prepare_raspian.sh which will prompt you for a new user password, set the gpu memory split and expand the filesystem.
+To prepare a fresh Raspberry Pi Raspbian setup you can run prepare_raspbian.sh which will prompt you for a new user password, set the gpu memory split and expand the filesystem.
   * Login on your Raspberry Pi locally or over SSH
   * Ensure that your Raspberry Pi is connected to the internet
-  * Download the preparation script by calling "wget https://raw.githubusercontent.com/peter9teufel/raspmedia/master/prepare_raspian.sh"
+  * Download the preparation script by calling "wget https://raw.githubusercontent.com/peter9teufel/raspmedia/master/prepare_raspbian.sh"
   * Make the preparation script executable with "sudo chmod +x ./prepare_raspian.sh"
   * Start installation with "sudo ./prepare_raspian.sh"
 

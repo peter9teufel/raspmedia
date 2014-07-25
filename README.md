@@ -1,4 +1,4 @@
-#RaspMedia Mediaplayer for Raspberry Pi#
+#RaspMedia Player for Raspberry Pi#
 
 ##Introduction##
 RaspMedia is a standalone mediaplayer for the Raspberry Pi, intended to be used for digital signage. It provides image and video playback as a complete standalone solution is fully configurable over the network using the enclosed Desktop applications.

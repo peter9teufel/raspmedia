@@ -177,10 +177,14 @@ class SimpleUIAppFrame(wx.Frame):
         self.mainSizer.Add(info, (3,1), span=(1,2), flag=wx.LEFT, border=5)
 
         #load bitmaps for buttons
-        ic_send2all = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_sendtoall.png", tr("send_to_all"))
-        ic_send2one = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_sendtoone.png", tr("send_to_one"))
-        ic_startSynced = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_startsynced.png", tr("restart_all"))
-        ic_exit = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_exit.png", tr("exit"))
+        path = resource_path("img/ic_sendtoall.png")
+        ic_send2all = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("send_to_all"))
+        path = resource_path("img/ic_sendtoone.png")
+        ic_send2one = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("send_to_one"))
+        path = resource_path("img/ic_startsynced.png")
+        ic_startSynced = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("restart_all"))
+        path = resource_path("img/ic_exit.png")
+        ic_exit = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("exit"))
 
         # add bitmap buttons
         send2All = wx.BitmapButton(self, -1, ic_send2all, size=(200,200))
@@ -382,3 +386,21 @@ class SimpleUIAppFrame(wx.Frame):
         settings.SetBackgroundColour('WHITE')
         settings.Refresh()
         settings.Show()
+
+
+# HELPER METHOD to get correct resource path for image file
+def resource_path(relative_path):
+    global BASE_PATH
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+        #print "BASE PATH FOUND: "+ base_path
+    except Exception:
+        #print "BASE PATH NOT FOUND!"
+        base_path = BASE_PATH
+    #print "JOINING " + base_path + " WITH " + relative_path
+    resPath = os.path.normcase(os.path.join(base_path, relative_path))
+    #resPath = base_path + relative_path
+    #print resPath
+    return resPath

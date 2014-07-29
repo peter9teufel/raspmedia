@@ -102,30 +102,32 @@ def DrawCaptionOntoBitmap( graphicFilename, captionTxt ) :
 
     # Create a dc "canvas" onto which the caption text will be drawn
     #  in order to get the text's extent (size).
-    trialBmap_size = (200, 200)     # any size larger than the expexted text extent.
+    trialBmap_size = (160, 160)     # any size larger than the expexted text extent.
     textTrial_bmap = wx.EmptyBitmap( *trialBmap_size )
     dc = wx.MemoryDC( textTrial_bmap )
 
     txtPos = (5, 5)                     # an offset so the text doesn't get clipped
     dc.DrawText( captionTxt, *txtPos )
     txtWid, txtHgt = dc.GetTextExtent( captionTxt )
-    print '\n----  textExtent = ', txtWid, txtHgt
+    print '--Caption text: ', captionTxt
+    print '--Text size = ', txtWid, txtHgt
     dc.SelectObject( wx.NullBitmap )        # done with this dc; not used again
-
+    
     #----------------------------------
 
     # Draw the caption on the file graphic bitmap.
 
     imgBmap = wx.Image( graphicFilename, wx.BITMAP_TYPE_ANY ).ConvertToBitmap()
     bmapSizeX, bmapSizeY = imgBmap.GetSize()
-    print '\n----  imgBmap Size = ', bmapSizeX, bmapSizeY
+    print '--imgBmap Size = ', bmapSizeX, bmapSizeY
 
     # Create a dc "canvas" onto which the caption text  will be drawn
     dc = wx.MemoryDC( imgBmap )
-    dc.SetBrush( wx.Brush( wx.Colour( 0, 0, 0 ), wx.SOLID ) )
+    dc.SetBrush(wx.Brush(wx.Colour(0,0,0),wx.SOLID))
+    dc.SetTextForeground(wx.WHITE)
 
     # Draw text at the bottom of the bitmap
-    txtPosX = (bmapSizeX - txtWid) / 2      # same as before
+    txtPosX = (bmapSizeX - txtWid) / 2
     txtPosY = bmapSizeY - txtHgt
     dc.DrawText( captionTxt, txtPosX, txtPosY )
 

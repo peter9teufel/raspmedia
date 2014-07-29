@@ -72,7 +72,7 @@ strings = {
 	"dlg_msg_send_file_player": "Send selected file to the player? Stop and restart player when the process is complete.",
 	"dlg_title_send_file_player": "Send file to Player",
 	"dlg_msg_delete_files_player": "Delete the selected file(s) from the player (will stop and restart player)? This can not be undone!",
-	"dlg_title_delete_files_player": "Delete file(s) from player?"
+	"dlg_title_delete_files_player": "Delete file(s) from player?",
 	"deleting": "Deleting...",
 	"deleting_files": "Deleting file(s) from player...",
 	"select_file_dir": "Select a directory that contains images or videos you would like to browse and upload to your media player.",

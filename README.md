@@ -1,7 +1,13 @@
 #RaspMedia Player for Raspberry Pi#
 
 ##Introduction##
-RaspMedia is a standalone mediaplayer for the Raspberry Pi, intended to be used for digital signage. It provides image and video playback as a complete standalone solution is fully configurable over the network using the enclosed Desktop applications.
+RaspMedia is a standalone mediaplayer for the Raspberry Pi, intended to be used for digital signage. It provides image and video playback as a complete standalone solution and is fully configurable over the network using the enclosed Desktop applications.
+
+###Features###
+RaspMedia Player provides digital signage using image slideshows, videos or a combination of both. All media files can be easily copied to the player using the RaspMedia Control Desktop application. A second desktop application called *RaspMedia Copy Tool* (only available for Windows by now) allows an even more easy way to send mediafiles (currently only images with Copy Tool) to the RaspMedia Player, see description below.
+The RaspMedia Player is intended as a complete standalone digital signage player. All configuration and media copying can be done over the network without the need to directly access the player, which makes it suitable for screens with less accessibility (e.g. outdoor cabinets etc.).
+The RaspMedia Control Desktop Application needs no further configuration, it automatically detects all players in the local network within seconds.
+The RaspMedia Player currently has to be connected via Ethernet. Future steps will include WiFi settings that can be done in the Desktop Application while connected via Ethernet to allow further access, configuration and data manipulation on the player over WiFi.
 
 ##Installation##
 Setting up a RaspMedia player is easy, the complete installation on the raspberry pi is done using a installation script, the desktop software is written in python and can be simply compiled to an executable with pyinstaller using the provided *.spec file.
@@ -10,9 +16,9 @@ Setting up a RaspMedia player is easy, the complete installation on the raspberr
 To prepare a fresh Raspberry Pi Raspbian setup you can run prepare_raspbian.sh which will prompt you for a new user password, set the gpu memory split and expand the filesystem.
   * Login on your Raspberry Pi locally or over SSH
   * Ensure that your Raspberry Pi is connected to the internet
-  * Download the preparation script by calling "wget https://raw.githubusercontent.com/peter9teufel/raspmedia/master/prepare_raspbian.sh"
-  * Make the preparation script executable with "sudo chmod +x ./prepare_raspian.sh"
-  * Start installation with "sudo ./prepare_raspian.sh"
+  * Download the preparation script by calling `wget https://raw.githubusercontent.com/peter9teufel/raspmedia/master/prepare_raspbian.sh`
+  * Make the preparation script executable with `sudo chmod +x ./prepare_raspian.sh`
+  * Start installation with `sudo ./prepare_raspian.sh`
 
 As the script has to modify system parts like memory split, filesystem extension etc. it has to be called with root rights using sudo.
 When done the script launches raspi-config in case you want to modify more (e.g. time zone), otherwise simply choose finish in raspi-config and let the raspberry reboot. The preparation script automatically downloads the installation script and launches it when the reboot is done.

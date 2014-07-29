@@ -4,8 +4,11 @@ initDone = False
 def __initialize(langCode=None):
 	if langCode == None:
 		loc = locale.getdefaultlocale()
-		print "Default locale is ", loc
-		langCode = loc[0]
+		if not loc == None:
+			print "Default locale is ", loc
+			langCode = loc[0]
+		else:
+			langCode = "EN"
 		print "Language code: ", langCode
 	global strings
 	if langCode.lower().startswith("de"):

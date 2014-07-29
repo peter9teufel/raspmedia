@@ -70,15 +70,15 @@ def _optimizeFit(fileName, basePath, destPath, maxW, maxH):
 
 def _checkOrientation(img):
     try :
-        for orientation in ExifTags.TAGS.keys() : 
-            if ExifTags.TAGS[orientation]=='Orientation' : break 
+        for orientation in ExifTags.TAGS.keys() :
+            if ExifTags.TAGS[orientation]=='Orientation' : break
         exif=dict(img._getexif().items())
 
-        if   exif[orientation] == 3 : 
+        if   exif[orientation] == 3 :
             img=img.rotate(180, expand=True)
-        elif exif[orientation] == 6 : 
+        elif exif[orientation] == 6 :
             img=img.rotate(270, expand=True)
-        elif exif[orientation] == 8 : 
+        elif exif[orientation] == 8 :
             img=img.rotate(90, expand=True)
     except:
         pass
@@ -97,3 +97,39 @@ def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=Tr
         prgDialog.Update(cnt)
     if isWindows:
         prgDialog.Destroy()
+
+def DrawCaptionOntoBitmap( graphicFilename, captionTxt ) :
+
+    # Create a dc "canvas" onto which the caption text will be drawn
+    #  in order to get the text's extent (size).
+    trialBmap_size = (200, 200)     # any size larger than the expexted text extent.
+    textTrial_bmap = wx.EmptyBitmap( *trialBmap_size )
+    dc = wx.MemoryDC( textTrial_bmap )
+
+    txtPos = (5, 5)                     # an offset so the text doesn't get clipped
+    dc.DrawText( captionTxt, *txtPos )
+    txtWid, txtHgt = dc.GetTextExtent( captionTxt )
+    print '\n----  textExtent = ', txtWid, txtHgt
+    dc.SelectObject( wx.NullBitmap )        # done with this dc; not used again
+
+    #----------------------------------
+
+    # Draw the caption on the file graphic bitmap.
+
+    imgBmap = wx.Image( graphicFilename, wx.BITMAP_TYPE_ANY ).ConvertToBitmap()
+    bmapSizeX, bmapSizeY = imgBmap.GetSize()
+    print '\n----  imgBmap Size = ', bmapSizeX, bmapSizeY
+
+    # Create a dc "canvas" onto which the caption text  will be drawn
+    dc = wx.MemoryDC( imgBmap )
+    dc.SetBrush( wx.Brush( wx.Colour( 0, 0, 0 ), wx.SOLID ) )
+
+    # Draw text at the bottom of the bitmap
+    txtPosX = (bmapSizeX - txtWid) / 2      # same as before
+    txtPosY = bmapSizeY - txtHgt
+    dc.DrawText( captionTxt, txtPosX, txtPosY )
+
+    # Done doing text drawingdrawing.
+    dc.SelectObject( wx.NullBitmap )        # Done with this dc
+
+    return imgBmap

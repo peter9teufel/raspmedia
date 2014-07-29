@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import wx, win32gui, win32con, win32api
+import wx
 import SettingsFrame as prefs
 import packages.rmnetwork as network
 import packages.rmutil as util
@@ -111,21 +111,27 @@ class SimpleUIAppFrame(wx.Frame):
         os._exit(0)
 
     def WaitForUSB(self):
+        if HOST_SYS == HOST_WIN:
+            util.Win32DeviceDetector.waitForUSBDrive()
+        elif HOST_SYS == HOST_MAC:
+            util.MacDriveDetector.waitForUSBDrive()
         self.prgDialog.UpdatePulse(tr("plug_usb"))
         print "Waiting for USB Drive..."
         Publisher.subscribe(self.USBConnected, 'usb_connected')
-        util.Win32DeviceDetector.waitForUSBDrive()
 
 
     def USBConnected(self, path):
         # Publisher.unsubscribe(self.USBConnected, 'usb_connected')
-        print "USB Drive connected and mounted in %s:" % path
-        print "Scanning files in root directory of %s:" % path
+        print "USB Drive connected and mounted in path %s" % path
+        print "Scanning files in root directory of path %s" % path
         self.prgDialog.UpdatePulse(tr("usb_found_scan"))
         time.sleep(2)
-        # add colon as path is only the drive letter of the connected USB drive
-        self.usbPath = path + ':'
-        self.ScanFolder(path + ':')
+        if HOST_SYS == HOST_WIN:
+            # add colon as path is only the drive letter of the connected USB drive
+            path += ":"
+
+        self.usbPath = path
+        self.ScanFolder(path)
 
     def ScanFolder(self, path):
         for file in os.listdir(path):
@@ -169,11 +175,18 @@ class SimpleUIAppFrame(wx.Frame):
         self.mainSizer.Add(delFiles, (2,1), span=(1,2), flag=wx.LEFT | wx.TOP, border = 5)
         info = wx.StaticText(self, -1, label=wordwrap(tr("copy_deletion_info"), 400, wx.ClientDC(self)))
         self.mainSizer.Add(info, (3,1), span=(1,2), flag=wx.LEFT, border=5)
-        # add buttons
-        send2All = wx.Button(self, -1, tr("send_to_all"), size=(200,100))
-        send2One = wx.Button(self, -1, tr("send_to_one"), size=(200,100))
-        restartAll = wx.Button(self, -1, tr("restart_all"), size=(200,100))
-        exitBtn = wx.Button(self, -1, tr("exit"), size=(200,100))
+
+        #load bitmaps for buttons
+        ic_send2all = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_sendtoall.png", tr("send_to_all"))
+        ic_send2one = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_sendtoone.png", tr("send_to_one"))
+        ic_startSynced = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_startsynced.png", tr("restart_all"))
+        ic_exit = util.ImageUtil.DrawCaptionOntoBitmap("img/ic_exit.png", tr("exit"))
+
+        # add bitmap buttons
+        send2All = wx.BitmapButton(self, -1, ic_send2all, size=(200,200))
+        send2One = wx.BitmapButton(self, -1, ic_send2one, size = (200,200))
+        restartAll = wx.BitmapButton(self, -1, ic_startSynced, size=(200,200))
+        exitBtn = wx.BitmapButton(self, -1, ic_exit, size=(200,200))
 
         self.Bind(wx.EVT_BUTTON, self.SendToAllPlayers, send2All)
         self.Bind(wx.EVT_BUTTON, self.SendToSpecificPlayer, send2One)
@@ -181,8 +194,8 @@ class SimpleUIAppFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.Close, exitBtn)
 
         self.mainSizer.Add(send2All, (0,1), flag=wx.ALL | wx.ALIGN_RIGHT, border = 2)
-        self.mainSizer.Add(send2One, (1,1), flag=wx.ALL | wx.ALIGN_RIGHT, border = 2)
-        self.mainSizer.Add(restartAll, (0,2), flag=wx.ALL | wx.ALIGN_LEFT, border = 2)
+        self.mainSizer.Add(send2One, (0,2), flag=wx.ALL | wx.ALIGN_RIGHT, border = 2)
+        self.mainSizer.Add(restartAll, (1,1), flag=wx.ALL | wx.ALIGN_LEFT, border = 2)
         self.mainSizer.Add(exitBtn, (1,2), flag=wx.ALL | wx.ALIGN_LEFT, border = 2)
 
         self.SetupMenuBar()
@@ -201,14 +214,14 @@ class SimpleUIAppFrame(wx.Frame):
         #for host in self.hosts:
         #    players += host['name'] + "\n"
 
-        status =  wordwrap("%s\n\n%s %s\n%d %s\n" % (players,tr("usb_at_drive"),self.usbPath,len(self.filesToCopy),tr("images_available")), 200, wx.ClientDC(self))
+        status =  wordwrap("%s\n\n%s %s\n%d %s\n" % (players,tr("usb_at_drive"),self.usbPath,len(self.filesToCopy),tr("images_available")), 300, wx.ClientDC(self))
 
         statusLabel = wx.StaticText(self, -1, label=status)
 
         #usbList = wx.ListCtrl(self,-1,size=(200,170),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         #usbList.Show(True)
         #usbList.InsertColumn(0,"Filename", width = 170)
-        usbTxt = wx.TextCtrl(self, -1, size=(200,160), style = wx.TE_READONLY | wx.TE_MULTILINE)
+        usbTxt = wx.TextCtrl(self, -1, size=(300,280), style = wx.TE_READONLY | wx.TE_MULTILINE)
 
         for file in self.filesToCopy:
             usbTxt.AppendText(file + "\n")
@@ -241,9 +254,9 @@ class SimpleUIAppFrame(wx.Frame):
         # append items to file menu
         fileMenu.AppendMenu(wx.ID_ANY, strSettings, settingsMenu)
         menuExit = fileMenu.Append(wx.ID_EXIT, "&"+strExit, strExit)
-        
+
         self.Bind(wx.EVT_MENU, self.Close, menuExit)
-        
+
         # Help Menu
         about = helpMenu.Append(wx.ID_ANY, "&"+strAbout)
         self.Bind(wx.EVT_MENU, self.ShowAbout, about)

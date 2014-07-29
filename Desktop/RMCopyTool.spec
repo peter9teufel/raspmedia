@@ -1,6 +1,6 @@
 # -*- mode: python -*-
 a = Analysis(['RaspMediaCopyTool.py'],
-             pathex=['/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/raspberry-mediaplayer/Desktop'],
+             pathex=['/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/raspmedia/Desktop'],
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None)
@@ -9,12 +9,12 @@ exe = EXE(pyz,
           a.scripts,
           a.binaries,
           a.zipfiles,
-          a.datas,
+          a.datas + Tree('img', 'img'),
           name='RaspMedia Copy Tool' + ('.exe' if sys.platform == 'win32' else ''),
           debug=False,
           strip=None,
           upx=True,
-          console=False,
+          console=True,
           icon='img/ic_main.ico')
 if sys.platform == 'darwin':
     app = BUNDLE(exe,

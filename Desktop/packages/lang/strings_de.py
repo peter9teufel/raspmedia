@@ -21,7 +21,7 @@ strings = {
 	"delete_current_files": u"Aktuelle Dateien am Player löschen",
 	"copy_deletion_info": u"Alle Bilder in der Liste werden kopiert. Wenn dieser Haken gesetzt ist werden die Bilder die zur Zeit am Player sind vor dem Kopieren gelöscht.",
 	"send_to_all": "An alle Player senden",
-	"send_to_one": "An bestimmten Player senden",
+	"send_to_one": "An einen Player senden",
 	"restart_all": "Player synchron starten",
 	"one_player_found": "Ich habe einen Player im Netzwerk gefunden.",
 	"multiple_players_one": "Ich habe",

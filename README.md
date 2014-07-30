@@ -63,16 +63,21 @@ From the *File* menu you can access the *Player Settings* to configure some play
 
 The settings are self explanatory, you can enable image and video playback, select if the player should automatically start playback after booting, set the interval for image slideshows and give the player a name.
 The settings also enable you to update the player to the newest version (needs internet connection).
-As you can see in the screenshot the translation of the project is currently in progress to be able to easily provide multiple language support, german and english version should be done soon.
 ####RaspMedia Copy Tool####
 The RaspMedia Copy Tool is currently compatible with Microsoft Windows and Mac OS X. The main purpose of this application is to provide an easy way to bring media files on a RaspMedia Player for *technophobic* users.
 When starting the application it searches all players in the local network. When done so it prompts to connect a USB Stick with the media files to copy to the PC.
 ![RaspMedia Copy Tool USB Prompt](/Screenshots/rmcopy_usb.png)
+
 All media files (currently only images) on the root directory of the USB Stick will be copied, the order of the images used on the player depends on their filenames. When the USB stick is found the main window appears, listing the number of players found on the network, the drive letter of the USB stick (to be compared in Explorer if you like) and a scrollable preview of all images found on the USB drive that will be copied to the player(s). A checkbox allows to decide whether the images that are currently on the player should be deleted or not. Images with identical names will be overwritten.
 ![RaspMedia Copy Tool Main Window](/Screenshots/rmcopy_main.png)
+
 The application allows you to send the images to all players or to a specific player. Additionally you have the possibility to start the players synchronously.
 
 In addition to the copy feature the RaspMedia Copy Tool provides the same *Player Settings* functionality as RaspMedia Control does via the *File* menu.
+
+###Language support###
+The desktop applications *RaspMedia Control* and *RaspMedia Copy Tool* are currently available in english and german using the string files in the *lang* package (strings_de.py, strings_en.py). The language is selected according to the default locale of the system the application is started. If the language code of the default locale is unknown, english is selected as the default language.
+Additional languages can be added by translating the strings file for the new language and add the appropriate language code in the part where the *Localizer* (see package *lang*) checks the code of the default locale.
 
 ##License##
 Copyright 2014 Peter Neunteufel

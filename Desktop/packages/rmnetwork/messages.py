@@ -20,7 +20,7 @@ def appendShort(data, num, LE=True):
 	return appendBytes(data, sizeBytes, LE)
 
 def appendString(data, str, sizeLE=True):
-	strBytes = bytearray(str)
+	strBytes = bytearray(str, 'utf8')
 	data = appendInt(data, len(strBytes), sizeLE)
 	return appendBytes(data, strBytes)
 

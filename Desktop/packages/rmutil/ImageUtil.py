@@ -1,4 +1,5 @@
-import wx, Image
+import os, platform
+import wx, Image, ImageDraw, ImageFont
 from packages.lang.Localizer import *
 
 SUPPORTED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
@@ -98,7 +99,7 @@ def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=Tr
     if isWindows:
         prgDialog.Destroy()
 
-def DrawCaptionOntoBitmap( graphicFilename, captionTxt ) :
+def __DrawCaptionWithDC(graphicFilename, captionTxt, txtForeground=wx.BLACK) :
 
     # Create a dc "canvas" onto which the caption text will be drawn
     #  in order to get the text's extent (size).
@@ -124,7 +125,7 @@ def DrawCaptionOntoBitmap( graphicFilename, captionTxt ) :
     # Create a dc "canvas" onto which the caption text  will be drawn
     dc = wx.MemoryDC( imgBmap )
     dc.SetBrush(wx.Brush(wx.Colour(0,0,0),wx.SOLID))
-    dc.SetTextForeground(wx.WHITE)
+    dc.SetTextForeground(txtForeground)
 
     # Draw text at the bottom of the bitmap
     txtPosX = (bmapSizeX - txtWid) / 2
@@ -135,3 +136,40 @@ def DrawCaptionOntoBitmap( graphicFilename, captionTxt ) :
     dc.SelectObject( wx.NullBitmap )        # Done with this dc
 
     return imgBmap
+
+def __DrawCaptionWithPIL(imgPath, captionTxt):
+    img = Image.open(imgPath)
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.load_default()
+    
+    imgW = img.size[0]
+    imgH = img.size[1]
+    print "IMG SIZE: %d x %d" % (imgW,imgH)
+    txtSize = draw.textsize(captionTxt, font=font)
+    print "NAMESIZE: ",txtSize
+    txtX = imgW/2 - (txtSize[0] / 2)
+    txtY = imgH - (txtSize[1])
+    
+    draw.text((txtX,txtY), captionTxt, (0,0,0), font=font)
+
+    # img.save('raspidentified.jpg')
+    
+    image = wx.EmptyImage(img.size[0],img.size[1])
+    image.SetData(img.convert("RGB").tostring())
+    image.SetAlphaData(img.convert("RGBA").tostring()[3::4])
+
+    ## use the wx.Image or convert it to wx.Bitmap
+    imgBmap = wx.BitmapFromImage(image)
+
+    return imgBmap
+
+def DrawCaption(imgPath, captionTxt):
+    img = None
+    if platform.system() == 'Windows':
+        # text color on windows is not working properly with DC --> draw caption with PIL
+        img = __DrawCaptionWithPIL(imgPath, captionTxt)
+    else:
+        # draw caption with DC
+        img = __DrawCaptionWithDC(imgPath, captionTxt)
+
+    return img

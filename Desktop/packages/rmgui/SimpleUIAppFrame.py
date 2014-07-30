@@ -178,13 +178,13 @@ class SimpleUIAppFrame(wx.Frame):
 
         #load bitmaps for buttons
         path = resource_path("img/ic_sendtoall.png")
-        ic_send2all = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("send_to_all"))
+        ic_send2all = util.ImageUtil.DrawCaption(path, tr("send_to_all"))
         path = resource_path("img/ic_sendtoone.png")
-        ic_send2one = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("send_to_one"))
+        ic_send2one = util.ImageUtil.DrawCaption(path, tr("send_to_one"))
         path = resource_path("img/ic_startsynced.png")
-        ic_startSynced = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("restart_all"))
+        ic_startSynced = util.ImageUtil.DrawCaption(path, tr("restart_all"))
         path = resource_path("img/ic_exit.png")
-        ic_exit = util.ImageUtil.DrawCaptionOntoBitmap(path, tr("exit"))
+        ic_exit = util.ImageUtil.DrawCaption(path, tr("exit"))
 
         # add bitmap buttons
         send2All = wx.BitmapButton(self, -1, ic_send2all, size=(200,200))

@@ -1,6 +1,7 @@
 import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import *
+import WifiDialog as wifi
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
@@ -47,6 +48,7 @@ class SettingsFrame(wx.Frame):
         playerAddr = wx.StaticText(self,-1,label=self.host)
 
         updateBtn = wx.Button(self, -1, tr("update_player"))
+        setupWifi = wx.Button(self, -1, tr("setup_wifi"), size = updateBtn.GetSize())
 
         self.editInterval = wx.Button(self,-1,label="...",size=(27,25))
         self.editName = wx.Button(self,-1,label="...",size=(27,25))
@@ -62,6 +64,7 @@ class SettingsFrame(wx.Frame):
         self.editInterval.SetName('btn_image_interval')
         self.editName.SetName('btn_player_name')
         updateBtn.SetName('btn_update')
+        setupWifi.SetName('btn_setup_wifi')
 
         # bind UI element events
         self.Bind(wx.EVT_CHECKBOX, self.CheckboxToggled, self.cbImgEnabled)
@@ -71,6 +74,7 @@ class SettingsFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editInterval)
         self.Bind(wx.EVT_BUTTON, self.ButtonClicked, self.editName)
         self.Bind(wx.EVT_BUTTON, self.ButtonClicked, updateBtn)
+        self.Bind(wx.EVT_BUTTON, self.ButtonClicked, setupWifi)
 
         self.configSizer.Add(self.cbImgEnabled, (0,0), flag=wx.TOP | wx.LEFT, border = 5)
         self.configSizer.Add(self.cbVidEnabled, (1,0), flag=wx.LEFT, border = 5)
@@ -84,7 +88,8 @@ class SettingsFrame(wx.Frame):
         self.configSizer.Add(self.editName, (4,3))
         self.configSizer.Add(addrLabel, (5,0), flag = wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.BOTTOM, border = 5)
         self.configSizer.Add(playerAddr, (5,1), flag = wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, border = 5)
-        self.configSizer.Add(updateBtn, (0,4), flag = wx.ALL, border = 5)
+        self.configSizer.Add(setupWifi, (0,4), flag = wx.ALL, border = 5)
+        self.configSizer.Add(updateBtn, (1,4), flag = wx.ALL, border = 5)
         self.configSizer.Add(line, (2,0), span=(1,5), flag=wx.TOP | wx.BOTTOM, border=5)
 
 
@@ -152,6 +157,10 @@ class SettingsFrame(wx.Frame):
 
             msgData = network.messages.getMessage(PLAYER_UPDATE)
             network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
+        elif button.GetName() == 'btn_setup_wifi':
+            wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), self.host)
+            wifiDlg.ShowModal()
+
     def RebootComplete(self):
         print "SETTING FRAME - BOOT COMPLETE RECEIVED"
         self.prgDialog.Update(100)

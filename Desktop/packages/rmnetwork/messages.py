@@ -87,6 +87,20 @@ def getMessage(flag, args=None):
 	print "Message size: ", size
 	return data
 
+def getWifiConfigMessage(arg1, arg2):
+	usgData = bytearray()
+	appendString(usgData, arg1)
+	appendString(usgData, arg2)
+
+	data = bytearray()
+	size = 6 + len(usgData)
+	appendInt(data, size)
+	appendShort(data, WIFI_CONFIG)
+	appendBytes(data, usgData)
+
+	print "WifiConfig size: ", size
+	return data
+
 def getTcpFileMessage(files, basePath):
 	numFiles = len(files)
 

@@ -1,4 +1,5 @@
 import netifaces
+import platform, subprocess
 
 def ip4_addresses():
     ips = _ip_addresses(False)
@@ -34,3 +35,45 @@ def _ip_addresses(v6):
 
 def check_ip6_address(ip6):
     return True
+
+
+def wifi_ssids():
+    WiFiSSIDs = []
+
+    if platform.system() == 'Windows':
+        output = subprocess.Popen(["netsh","wlan","show","network"], stdout=subprocess.PIPE).communicate()[0]
+        lines = output.split('\n')
+
+        for line in lines:
+            words = line.split()
+            if len(words) > 3 and words[0] == 'SSID':
+                ssid = words[3:]
+                curSSID = ''
+                for word in ssid:
+                    if len(curSSID) > 0:
+                        curSSID += " "
+                    curSSID += word
+                WiFiSSIDs.append(curSSID)
+    elif platform.system() == 'Darwin':
+        # scan for available WiFi APs
+        output = subprocess.Popen(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-s"], stdout=subprocess.PIPE).communicate()[0]
+
+        lines = output.split('\n')
+        for i in range(1,len(lines)-1):
+            # each line represents one available WiFi AP
+            line = lines[i]
+            apData = line.split()
+            curSSID = ''
+            ssidDone = False
+            for word in apData:
+                if not ssidDone:
+                    if word[2] == ':':
+                        # BSSID --> ssid done
+                        ssidDone = True
+                        WiFiSSIDs.append(curSSID)
+                    else:
+                        if len(curSSID) > 0:
+                            curSSID += " "
+                        curSSID += word
+
+    return WiFiSSIDs

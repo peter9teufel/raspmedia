@@ -150,7 +150,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.playerSizer.Add(button,(1,5), flag = wx.BOTTOM, border = 5)
         self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
 
-        button = wx.Button(self,-1,label=tr("reboot"))
+        button = wx.Button(self,-1,label=tr("reboot"), size = button.GetSize())
         button.SetName("btn_reboot")
         self.playerSizer.Add(button,(2,5), flag=wx.TOP | wx.BOTTOM, border=5)
         self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)

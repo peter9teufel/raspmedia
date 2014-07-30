@@ -72,10 +72,19 @@ def interpret(msg_data):
 		else:
 			result = PLAYER_UPDATE_ERROR
 			msg = "Player is not connected to the internet."
+	elif flag == WIFI_CONFIG:
+		setupWifi(data)
 
 	#print "Remaining data: " + data.decode("utf-8")
 
 	return result, msg
+
+def setupWifi(data):
+	ssid, data = readString(data)
+	key, data = readString(data)
+	print "RECEIVED WiFi CONFIG:"
+	print "SSID: ", ssid
+	print "KEY: ", key
 
 def readFileList(data):
 	numFiles, data = readInt(data)

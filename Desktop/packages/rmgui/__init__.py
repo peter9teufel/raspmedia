@@ -1,4 +1,4 @@
-import AppFrame, RaspMediaControlPanel, RemoteNotebook, SettingsFrame, ScrollableImageView
+import AppFrame, RaspMediaControlPanel, RemoteNotebook, SettingsFrame, ScrollableImageView, WifiDialog
 import platform
 
 if platform.system() == "Windows":

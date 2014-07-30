@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import SettingsFrame as prefs
+import ScrollableImageView as scrollable
 import packages.rmnetwork as network
 import packages.rmutil as util
 from packages.rmnetwork.constants import *
@@ -32,6 +33,7 @@ class SimpleUIAppFrame(wx.Frame):
         self.deleteFiles = True
         self.hosts = []
         self.filesToCopy = []
+        self.filePaths = []
         self.activePageNr = 0
         global HOST_SYS, BASE_PATH
         BASE_PATH = base_path
@@ -138,6 +140,7 @@ class SimpleUIAppFrame(wx.Frame):
             if not file.startswith(".") and file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                 # image file found --> add to list of files to copy
                 self.filesToCopy.append(file)
+                self.filePaths.append(path + '/' + file)
 
         self.prgDialog.Update(100)
         if HOST_SYS == HOST_WIN:
@@ -208,6 +211,8 @@ class SimpleUIAppFrame(wx.Frame):
         self.Center()
 
     def InitStatusUI(self):
+        statusBox = wx.BoxSizer(orient=wx.VERTICAL)
+
         # init status labels
         numPlayers = len(self.hosts)
         if numPlayers == 1:
@@ -222,18 +227,23 @@ class SimpleUIAppFrame(wx.Frame):
 
         statusLabel = wx.StaticText(self, -1, label=status)
 
-        #usbList = wx.ListCtrl(self,-1,size=(200,170),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
-        #usbList.Show(True)
-        #usbList.InsertColumn(0,"Filename", width = 170)
-        usbTxt = wx.TextCtrl(self, -1, size=(300,280), style = wx.TE_READONLY | wx.TE_MULTILINE)
+        #usbTxt = wx.TextCtrl(self, -1, size=(300,280), style = wx.TE_READONLY | wx.TE_MULTILINE)
 
-        for file in self.filesToCopy:
-            usbTxt.AppendText(file + "\n")
-        #    usbList.InsertStringItem(usbList.GetItemCount(), file)
+        #for file in self.filesToCopy:
+        #    usbTxt.AppendText(file + "\n")
+
+        imgPrevH = 480 - statusLabel.GetSize()[1]
+
+        imageView = scrollable.ScrollableImageView(self, -1, (300,imgPrevH), self.filePaths)
+
+        # add to status view sizer
+        statusBox.Add(statusLabel, flag = wx.LEFT | wx.TOP | wx.RIGHT, border=5)
+        statusBox.Add(imageView, flag = wx.LEFT | wx.BOTTOM | wx.RIGHT, border=5)
 
         # add to main sizer
-        self.mainSizer.Add(statusLabel, (0,0), span=(1,1), flag = wx.ALL, border = 5)
-        self.mainSizer.Add(usbTxt, (1,0), span=(3,1), flag = wx.LEFT | wx.BOTTOM | wx.RIGHT, border = 5)
+        self.mainSizer.Add(statusBox, (0,0), span=(4,1))
+        #self.mainSizer.Add(statusLabel, (0,0), span=(1,1), flag = wx.ALL, border = 5)
+        #self.mainSizer.Add(imageView, (1,0), span=(3,1), flag = wx.LEFT | wx.BOTTOM | wx.RIGHT, border = 5)
 
     def SetupMenuBar(self):
         strAbout = tr("about")

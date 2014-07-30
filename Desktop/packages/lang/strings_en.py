@@ -79,5 +79,11 @@ strings = {
 	"dlg_msg_identify": "The current player will show a test image. Close this dialog to exit identifier mode.",
 	"dlg_title_identify": "Identifying player",
 	"dlg_msg_reboot": "Player rebooting, this can take up to 1 minute. This dialog will close when the reboot is complete, you may close it manually if you see your player up and running again.",
-	"dlg_title_reboot": "Rebooting"
+	"dlg_title_reboot": "Rebooting",
+	# WIFI DIALOG
+	"setup_wifi": "Setup WiFi",
+	"wifi_ssid": "WiFi SSID",
+	"wifi_key": "WiFi Key",
+	"ok": "OK",
+	"cancel": "Cancel"
 }

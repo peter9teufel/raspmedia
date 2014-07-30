@@ -80,5 +80,11 @@ strings = {
 	"dlg_msg_identify": u"Der Player zeigt ein Testbild zum Identifizieren. Schließen Sie diesen Dialog um zum normalen Modus zurückzukehren.",
 	"dlg_title_identify": "Identifizierung",
 	"dlg_msg_reboot": u"Der Player startet neu, dies kann bis zu einer Minute dauern. Dieser Dialog sollte sich automatisch schließen sobald der Neustart abgeschlossen ist.",
-	"dlg_title_reboot": "Neustart"
+	"dlg_title_reboot": "Neustart",
+	# WIFI DIALOG
+	"setup_wifi": "WLAN Setup",
+	"wifi_ssid": "WLAN SSID",
+	"wifi_key": u"WLAN Schlüssel",
+	"ok": "OK",
+	"cancel": "Abbrechen"
 }

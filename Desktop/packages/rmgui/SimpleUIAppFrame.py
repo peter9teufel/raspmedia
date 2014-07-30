@@ -234,7 +234,7 @@ class SimpleUIAppFrame(wx.Frame):
 
         imgPrevH = 480 - statusLabel.GetSize()[1]
 
-        imageView = scrollable.ScrollableImageView(self, -1, (300,imgPrevH), self.filePaths)
+        imageView = scrollable.ScrollableImageView(self, -1, (300,imgPrevH), sorted(self.filePaths))
 
         # add to status view sizer
         statusBox.Add(statusLabel, flag = wx.LEFT | wx.TOP | wx.RIGHT, border=5)

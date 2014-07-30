@@ -82,9 +82,6 @@ def interpret(msg_data):
 def setupWifi(data):
 	ssid, data = readString(data)
 	key, data = readString(data)
-	print "RECEIVED WiFi CONFIG:"
-	print "SSID: ", ssid
-	print "KEY: ", key
 
 	os.system("sudo mv /etc/network/interfaces /etc/network/interfaces.old")
 	os.system("sudo touch /etc/network/interfaces")
@@ -95,13 +92,12 @@ def setupWifi(data):
 	__echoLine('iface lo inet loopback',file)
 	__echoLine('iface eth0 inet dhcp',file)
 	__echoLine('allow-hotplug wlan0',file)
-	__echoLine('auto wlan0',file)
-	__echoLine('iface wlan0 inet dhcp',file)
-	__echoLine('    wpa-ssid "' + ssid + '"',file)
-	__echoLine('    wpa-psk "' + key + '"',file)
+	if len(ssid) > 0 and len(key) > 0:
+		__echoLine('auto wlan0',file)
+		__echoLine('iface wlan0 inet dhcp',file)
+		__echoLine('    wpa-ssid "' + ssid + '"',file)
+		__echoLine('    wpa-psk "' + key + '"',file)
 
-	print "New interfaces configuration file:"
-	os.system("sudo cat /etc/network/interfaces")
 
 def __echoLine(line,dest):
 	os.system("sudo echo '" + line + "' >> " + dest)

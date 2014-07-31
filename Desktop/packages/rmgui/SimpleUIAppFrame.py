@@ -4,6 +4,7 @@ import SettingsFrame as prefs
 import ScrollableImageView as scrollable
 import packages.rmnetwork as network
 import packages.rmutil as util
+import WifiDialog as wifi
 from packages.rmnetwork.constants import *
 import sys, os, platform, time, shutil, ast
 from wx.lib.pubsub import pub as Publisher
@@ -44,12 +45,29 @@ class SimpleUIAppFrame(wx.Frame):
             HOST_SYS = HOST_MAC
         elif platform.system() == 'Linux':
             HOST_SYS = HOST_LINUX
+
+
+        # Create an accelerator table
+        sc_wifi_id = wx.NewId()
+        sc_settings_id = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, id=sc_settings_id)
+        self.Bind(wx.EVT_MENU, self.ShowWifiSettings, id=sc_wifi_id)
+
+        self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord(','), sc_settings_id),
+                                              (wx.ACCEL_SHIFT, ord('W'), sc_wifi_id)
+                                             ])
+        self.SetAcceleratorTable(self.accel_tbl)
+
         self.SetBackgroundColour('WHITE')
         self.Center()
         self.Show()
         print "Starting host search..."
         self.SearchHosts()
 
+    def ShowWifiSettings(self, event):
+        host = self.HostSelection()
+        wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), host["addr"])
+        wifiDlg.ShowModal()
 
     def HostFound(self, host, playerName):
         global playerCount
@@ -360,8 +378,10 @@ class SimpleUIAppFrame(wx.Frame):
         dlg = wx.MessageDialog(self, msg, "About", style=wx.OK)
         dlg.ShowModal()
 
-    def ShowPlayerSettings(self, event, host):
+    def ShowPlayerSettings(self, event, host=None):
         #host = self.HostSelection()
+        if host == None:
+            host = self.HostSelection()
         if not host == None:
             self.configHost = host
             self.LoadRemoteConfig(host)

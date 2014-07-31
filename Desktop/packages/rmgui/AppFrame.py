@@ -21,7 +21,7 @@ class AppFrame(wx.Frame):
         print "Initializing Notebook..."
         self.notebook = remote.RemoteNotebook(self,-1,None)
 
-         # Create an accelerator table
+        # Create an accelerator table
         sc_wifi_id = wx.NewId()
         sc_settings_id = wx.NewId()
         self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, id=sc_settings_id)

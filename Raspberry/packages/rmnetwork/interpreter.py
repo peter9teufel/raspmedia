@@ -80,6 +80,7 @@ def interpret(msg_data):
 	return result, msg
 
 def setupWifi(data):
+	auth, data = readShort(data)
 	ssid, data = readString(data)
 	key, data = readString(data)
 
@@ -91,12 +92,19 @@ def setupWifi(data):
 	__echoLine('auto lo',file)
 	__echoLine('iface lo inet loopback',file)
 	__echoLine('iface eth0 inet dhcp',file)
-	__echoLine('allow-hotplug wlan0',file)
+
 	if len(ssid) > 0 and len(key) > 0:
+		__echoLine('allow-hotplug wlan0',file)
 		__echoLine('auto wlan0',file)
 		__echoLine('iface wlan0 inet dhcp',file)
-		__echoLine('    wpa-ssid "' + ssid + '"',file)
-		__echoLine('    wpa-psk "' + key + '"',file)
+		if auth == WIFI_AUTH_WPA:
+			__echoLine('    wpa-ssid "' + ssid + '"',file)
+			__echoLine('    wpa-psk "' + key + '"',file)
+		elif auth == WIFI_AUTH_WEP:
+			__echoLine('    wireless-essid ' + ssid,file)
+			__echoLine('    wireless-key ' + key,file)
+		elif auth == WIFI_AUTH_NONE:
+			__echoLine('    wireless-essid ' + ssid,file)
 
 
 def __echoLine(line,dest):

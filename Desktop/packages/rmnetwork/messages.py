@@ -89,7 +89,8 @@ def getMessage(flag, args=None):
 
 def getWifiConfigMessage(arg1, arg2):
 	usgData = bytearray()
-	appendString(usgData, arg1)
+	appendShort(usgData, arg1["AUTHTYPE"])
+	appendString(usgData, arg1["SSID"])
 	appendString(usgData, arg2)
 
 	data = bytearray()

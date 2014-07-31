@@ -1,5 +1,6 @@
 import netifaces
 import platform, subprocess
+from packages.rmnetwork.constants import *
 
 def ip4_addresses():
     ips = _ip_addresses(False)
@@ -45,15 +46,25 @@ def wifi_ssids():
         lines = output.split('\n')
 
         for line in lines:
+            curSSID = ''
+            keyType = None
             words = line.split()
             if len(words) > 3 and words[0] == 'SSID':
                 ssid = words[3:]
-                curSSID = ''
                 for word in ssid:
                     if len(curSSID) > 0:
                         curSSID += " "
                     curSSID += word
-                WiFiSSIDs.append(curSSID)
+            else:
+                # look for auth type in other words
+                for word in words:
+                    if "WPA" in word:
+                        keyType = WIFI_AUTH_WPA
+                    elif "WEP" in word:
+                        keyType = WIFI_AUTH_WEP
+            if keyType == None:
+                keyType = WIFI_AUTH_NONE
+            WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
     elif platform.system() == 'Darwin':
         # scan for available WiFi APs
         output = subprocess.Popen(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-s"], stdout=subprocess.PIPE).communicate()[0]
@@ -65,15 +76,25 @@ def wifi_ssids():
             apData = line.split()
             curSSID = ''
             ssidDone = False
+            keyType = None
             for word in apData:
                 if not ssidDone:
                     if word[2] == ':':
                         # BSSID --> ssid done
                         ssidDone = True
-                        WiFiSSIDs.append(curSSID)
                     else:
                         if len(curSSID) > 0:
                             curSSID += " "
                         curSSID += word
+                else:
+                    # look for auth type in other words
+                    if "WPA" in word:
+                        keyType = WIFI_AUTH_WPA
+                    elif "WEP" in word:
+                        keyType = WIFI_AUTH_WEP
+            if keyType == None:
+                keyType = WIFI_AUTH_NONE
+
+            WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
 
     return WiFiSSIDs

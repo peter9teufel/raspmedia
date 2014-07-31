@@ -82,8 +82,13 @@ strings = {
 	"dlg_title_reboot": "Rebooting",
 	# WIFI DIALOG
 	"setup_wifi": "Setup WiFi",
+	"wifi_settings": "WiFi Settings",
 	"wifi_ssid": "WiFi SSID",
 	"wifi_key": "WiFi Key",
 	"ok": "OK",
-	"cancel": "Cancel"
+	"cancel": "Cancel",
+	"scanning": "Scanning...",
+	"scanning_wifis": "Scanning for available WiFi networks...",
+	"auth_type": "Authentification type:",
+	"unsecured": "Unsecured"
 }

@@ -1,6 +1,7 @@
 import wx
 import RemoteNotebook as remote
 import SettingsFrame as prefs
+import WifiDialog as wifi
 import packages.rmnetwork as network
 from packages.lang.Localizer import *
 import sys
@@ -19,6 +20,18 @@ class AppFrame(wx.Frame):
         self.SetupMenuBar()
         print "Initializing Notebook..."
         self.notebook = remote.RemoteNotebook(self,-1,None)
+
+         # Create an accelerator table
+        sc_wifi_id = wx.NewId()
+        sc_settings_id = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, id=sc_settings_id)
+        self.Bind(wx.EVT_MENU, self.ShowWifiSettings, id=sc_wifi_id)
+
+        self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord(','), sc_settings_id),
+                                              (wx.ACCEL_SHIFT, ord('W'), sc_wifi_id)
+                                             ])
+        self.SetAcceleratorTable(self.accel_tbl)
+
         print "Showing window..."
         self.Center()
         self.Show()
@@ -38,7 +51,8 @@ class AppFrame(wx.Frame):
         helpMenu = wx.Menu()
 
         # File Menu
-        menuSettings = fileMenu.Append(wx.ID_ANY, "&"+tr("player_settings"), tr("player_settings"))
+        menuSettings = fileMenu.Append(wx.ID_ANY, "&"+tr("player_settings") + "\tCTRL+,", tr("player_settings"))
+        menuSettings.SetBitmap(wx.Bitmap('img/tools.png'))
         menuExit = fileMenu.Append(wx.ID_EXIT, "&"+tr("exit"),tr("exit"))
         self.Bind(wx.EVT_MENU, self.Close, menuExit)
         self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, menuSettings)
@@ -66,6 +80,11 @@ class AppFrame(wx.Frame):
         settings.SetBackgroundColour('WHITE')
         settings.Refresh()
         settings.Show()
+
+    def ShowWifiSettings(self, event):
+        host = self.notebook.CurrentlyActiveHost()
+        wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), host["addr"])
+        wifiDlg.ShowModal()
 
     def SettingsClosedWithConfig(self, config):
         self.notebook.UpdateCurrentPlayerUI(config)

@@ -23,6 +23,18 @@ class SettingsFrame(wx.Frame):
         self.prgDialog = None
         self.Initialize()
         self.SetSizerAndFit(self.configSizer)
+
+        # Create an accelerator table
+        sc_wifi_id = wx.NewId()
+        sc_close_id = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.Close, id=sc_close_id)
+        self.Bind(wx.EVT_MENU, self.ShowWifiSettings, id=sc_wifi_id)
+
+        self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('W'), sc_close_id),
+                                             (wx.ACCEL_SHIFT, ord('W'), sc_wifi_id)
+                                            ])
+        self.SetAcceleratorTable(self.accel_tbl)
+
         self.Show()
         self.UpdateUI(config, True)
 
@@ -158,8 +170,11 @@ class SettingsFrame(wx.Frame):
             msgData = network.messages.getMessage(PLAYER_UPDATE)
             network.udpconnector.sendMessage(msgData, self.host, UDP_UPDATE_TIMEOUT)
         elif button.GetName() == 'btn_setup_wifi':
-            wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), self.host)
-            wifiDlg.ShowModal()
+            self.ShowWifiSettings()
+
+    def ShowWifiSettings(self, event=None):
+        wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), self.host)
+        wifiDlg.ShowModal()
 
     def RebootComplete(self):
         print "SETTING FRAME - BOOT COMPLETE RECEIVED"

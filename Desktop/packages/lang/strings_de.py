@@ -83,8 +83,13 @@ strings = {
 	"dlg_title_reboot": "Neustart",
 	# WIFI DIALOG
 	"setup_wifi": "WLAN Setup",
+	"wifi_settings": "WLAN Einstellungen",
 	"wifi_ssid": "WLAN SSID",
 	"wifi_key": u"WLAN Schlüssel",
 	"ok": "OK",
-	"cancel": "Abbrechen"
+	"cancel": "Abbrechen",
+	"scanning": "Suche...",
+	"scanning_wifis": u"Suche nach verfügbaren WLAN Netzwerken...",
+	"auth_type": u"WLAN Sicherheitstyp:",
+	"unsecured": "Ungesichert"
 }

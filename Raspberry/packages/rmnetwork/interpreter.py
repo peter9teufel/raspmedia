@@ -93,7 +93,7 @@ def setupWifi(data):
 	__echoLine('iface lo inet loopback',file)
 	__echoLine('iface eth0 inet dhcp',file)
 
-	if len(ssid) > 0 and len(key) > 0:
+	if len(ssid) > 0 and (len(key) > 0 or auth == WIFI_AUTH_NONE):
 		__echoLine('allow-hotplug wlan0',file)
 		__echoLine('auto wlan0',file)
 		__echoLine('iface wlan0 inet dhcp',file)

@@ -4,9 +4,11 @@ import SettingsFrame as prefs
 import WifiDialog as wifi
 import packages.rmnetwork as network
 from packages.lang.Localizer import *
-import sys
+import sys, os
 from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
+
+BASE_PATH = None
 
 ################################################################################
 # MAIN FRAME OF APPLICATION ####################################################
@@ -16,6 +18,8 @@ class AppFrame(wx.Frame):
         wx.Frame.__init__(self,parent,id,title,size=(600,600))
         self.parent = parent
         self.base_path = base_path
+        global BASE_PATH
+        BASE_PATH = base_path
         self.Bind(wx.EVT_CLOSE, self.Close)
         self.SetupMenuBar()
         print "Initializing Notebook..."
@@ -52,7 +56,8 @@ class AppFrame(wx.Frame):
 
         # File Menu
         menuSettings = fileMenu.Append(wx.ID_ANY, "&"+tr("player_settings") + "\tCTRL+,", tr("player_settings"))
-        menuSettings.SetBitmap(wx.Bitmap('img/tools.png'))
+        path = resource_path("img/tools.png")
+        menuSettings.SetBitmap(wx.Bitmap(path))
         menuExit = fileMenu.Append(wx.ID_EXIT, "&"+tr("exit"),tr("exit"))
         self.Bind(wx.EVT_MENU, self.Close, menuExit)
         self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, menuSettings)
@@ -88,3 +93,21 @@ class AppFrame(wx.Frame):
 
     def SettingsClosedWithConfig(self, config):
         self.notebook.UpdateCurrentPlayerUI(config)
+
+
+# HELPER METHOD to get correct resource path for image file
+def resource_path(relative_path):
+    global BASE_PATH
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+        #print "BASE PATH FOUND: "+ base_path
+    except Exception:
+        #print "BASE PATH NOT FOUND!"
+        base_path = BASE_PATH
+    #print "JOINING " + base_path + " WITH " + relative_path
+    resPath = os.path.normcase(os.path.join(base_path, relative_path))
+    #resPath = base_path + relative_path
+    #print resPath
+    return resPath

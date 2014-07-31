@@ -44,12 +44,18 @@ def wifi_ssids():
     if platform.system() == 'Windows':
         output = subprocess.Popen(["netsh","wlan","show","network"], stdout=subprocess.PIPE).communicate()[0]
         lines = output.split('\n')
-
+        curSSID = ''
+        keyType = None
         for line in lines:
-            curSSID = ''
-            keyType = None
+            
             words = line.split()
             if len(words) > 3 and words[0] == 'SSID':
+                # next SSID found --> add info from previously read network to list of WIFIs
+                if len(curSSID) > 0:
+                    WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
+                # reset variables for ssid and keytype
+                curSSID = ''
+                keyType = None
                 ssid = words[3:]
                 for word in ssid:
                     if len(curSSID) > 0:
@@ -64,7 +70,7 @@ def wifi_ssids():
                         keyType = WIFI_AUTH_WEP
             if keyType == None:
                 keyType = WIFI_AUTH_NONE
-            WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
+            # WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
     elif platform.system() == 'Darwin':
         # scan for available WiFi APs
         output = subprocess.Popen(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-s"], stdout=subprocess.PIPE).communicate()[0]

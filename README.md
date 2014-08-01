@@ -16,7 +16,8 @@ Setting up a RaspMedia player is easy, the complete installation on the raspberr
 To prepare a fresh Raspberry Pi Raspbian setup you can run prepare_raspbian.sh which will prompt you for a new user password, set the gpu memory split and expand the filesystem.
   * Login on your Raspberry Pi locally or over SSH
   * Ensure that your Raspberry Pi is connected to the internet
-  * Download the preparation script by calling `wget https://raw.githubusercontent.com/peter9teufel/raspmedia/master/prepare_raspbian.sh`
+  * Download the preparation script by calling:
+  * `wget https://raw.githubusercontent.com/peter9teufel/raspmedia/master/prepare_raspbian.sh`
   * Make the preparation script executable with `sudo chmod +x ./prepare_raspian.sh`
   * Start installation with `sudo ./prepare_raspian.sh`
 

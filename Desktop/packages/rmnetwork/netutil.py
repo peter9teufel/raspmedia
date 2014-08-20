@@ -2,6 +2,19 @@ import netifaces
 import platform, subprocess
 from packages.rmnetwork.constants import *
 
+def num_connected_interfaces():
+    count = 0
+    for interface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(interface)
+        try:
+                inetAddrs = addrs[netifaces.AF_INET]
+                for inetA in inetAddrs:
+                        if 'broadcast' in inetA and not inetA['broadcast'] == '' and 'addr' in inetA and not inetA['addr'] == '':
+                            count += 1
+        except:
+            pass
+    return count
+
 def ip4_addresses():
     ips = _ip_addresses(False)
     return ips
@@ -47,7 +60,7 @@ def wifi_ssids():
         curSSID = ''
         keyType = None
         for line in lines:
-            
+
             words = line.split()
             if len(words) > 3 and words[0] == 'SSID':
                 # next SSID found --> add info from previously read network to list of WIFIs

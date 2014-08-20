@@ -68,7 +68,7 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 		if isWindows:
 			dlgMessageBuild.Destroy()
 	msgSize = len(msgData)
-	print "File message size: ", msgSize
+	# print "File message size: ", msgSize
 	prgDialog = wx.ProgressDialog(tr("sending"), tr("sending_files"), maximum = msgSize, style = wx.PD_AUTO_HIDE)
 	bytesSent = 0;
 	index = 0

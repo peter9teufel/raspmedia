@@ -66,7 +66,7 @@ class RemoteNotebook(wx.Notebook):
 
     def HostFound(self, host, playerName):
         global playerCount
-        print "Adding host to list..."
+        # print "Adding host to list..."
         if not self.HostInList(host[0], playerName):
             self.hosts.append({"addr": host[0], "name": playerName})
             playerCount += 1
@@ -87,14 +87,14 @@ class RemoteNotebook(wx.Notebook):
         network.udpconnector.sendMessage(msgData)
 
     def LoadPageData(self, pageNumber):
-        print "Loading config and remote list for page ", pageNumber
+        # print "Loading config and remote list for page ", pageNumber
         self.GetPage(pageNumber).LoadData()
 
     def UdpListenerStopped(self):
         global playerCount
         Publisher.unsubscribe(self.UdpListenerStopped, 'listener_stop')
         Publisher.unsubscribe(self.HostFound, 'host_found')
-        print "Number of players found: ", playerCount
+        # print "Number of players found: ", playerCount
         if self.hostSearch:
             self.hostSearch = False
             if playerCount == 0:
@@ -104,9 +104,9 @@ class RemoteNotebook(wx.Notebook):
                 dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
                 result = dlg.ShowModal()
                 selection = dlg.GetSelection()
-                print "RESULT: ", result
+                # print "RESULT: ", result
                 if result == wx.ID_OK:
-                    print "OK clicked, checking selected index... ", selection
+                    # print "OK clicked, checking selected index... ", selection
                     if selection == 0: # RESCAN
                         self.SearchHosts()
                     #elif selection == 1:
@@ -114,14 +114,14 @@ class RemoteNotebook(wx.Notebook):
                     elif selection == 1: # EXIT
                         self.parent.Close()
                 elif result == wx.ID_CANCEL:
-                    print "Cancel clicked, terminating program, bye bye..."
+                    # print "Cancel clicked, terminating program, bye bye..."
                     self.parent.Close()
             else:
                 #self.prgDialog.Destroy()
                 ind = 0
                 for host in self.hosts:
-                    print "Preparing page for " + host['name']
-                    print "Player address: " + host['addr']
+                    # print "Preparing page for " + host['name']
+                    # print "Player address: " + host['addr']
                     curPage = rmc.RaspMediaCtrlPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
                     self.pages.append(curPage)
                     self.AddPage(curPage, host['name'])
@@ -137,7 +137,7 @@ class RemoteNotebook(wx.Notebook):
 
     def OnPageChanged(self, event):
         global HOST_SYS
-        print "ON PAGE CHANGED TRIGGER"
+        # print "ON PAGE CHANGED TRIGGER"
         self.activePageNr = event.GetSelection()
         if HOST_SYS == HOST_LINUX and event.GetOldSelection() == -1:
             pass

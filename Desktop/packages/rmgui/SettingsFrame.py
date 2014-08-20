@@ -121,7 +121,7 @@ class SettingsFrame(wx.Frame):
     def LoadConfig(self):
         Publisher.subscribe(self.UpdateUI, 'config')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
-        print "Observers registered..."
+        # print "Observers registered..."
         msgData = network.messages.getMessage(CONFIG_REQUEST)
         dlgStyle =  wx.PD_AUTO_HIDE
         #self.prgDialog = wx.ProgressDialog("Loading...", "Loading configuration from player...", maximum = 0, parent = self, style = dlgStyle)
@@ -177,7 +177,7 @@ class SettingsFrame(wx.Frame):
         wifiDlg.ShowModal()
 
     def RebootComplete(self):
-        print "SETTING FRAME - BOOT COMPLETE RECEIVED"
+        # print "SETTING FRAME - BOOT COMPLETE RECEIVED"
         self.prgDialog.Update(100)
         if platform.system() == "Windows":
             self.prgDialog.Destroy()
@@ -188,7 +188,7 @@ class SettingsFrame(wx.Frame):
 
     def CheckboxToggled(self, event):
         checkbox = event.GetEventObject()
-        print checkbox.GetName()
+        # print checkbox.GetName()
         msgData = network.messages.getConfigUpdateMessage(checkbox.GetName(), checkbox.IsChecked())
         network.udpconnector.sendMessage(msgData, self.host)
         self.LoadConfig()

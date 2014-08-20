@@ -19,7 +19,7 @@ class UDPResponseListener(threading.Thread):
 		while run:
 			self.run_event.wait()
 			global observers
-			print "UDP Broadcast Listener starting listening routine..."
+			# print "UDP Broadcast Listener starting listening routine..."
 			global sock, wait
 			if not sock:
 				sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -28,52 +28,53 @@ class UDPResponseListener(threading.Thread):
 			# reset variables
 			rec = None
 			address = None
-			print "INSIDE BROADCASTLISTENER:"
-			print "Waiting for incoming data..."
+			# print "INSIDE BROADCASTLISTENER:"
+			# print "Waiting for incoming data..."
 			try:
 				rec, address = sock.recvfrom(4048)
 			except:
-				print "Timeout catched..."
+				# print "Timeout catched..."
+				pass
 
 			if rec and address:
-				print "Incoming data from ", str(address)
+				# print "Incoming data from ", str(address)
 				if not address[0] in netutil.ip4_addresses():
-					print "Incoming data not from own broadcast --> processing..."
+					# print "Incoming data not from own broadcast --> processing..."
 					result, response = interpreter.interpret(rec)
 					if result == INTERPRETER_SERVER_REQUEST:
 						print "Server request response - length: ", len(rec)
-						print ":".join("{:02x}".format(ord(c)) for c in rec)
+						# print ":".join("{:02x}".format(ord(c)) for c in rec)
 						print "Server address: ", str(address)
 						print ""
 						if response[1] == TYPE_RASPMEDIA_PLAYER:
 							wx.CallAfter(Publisher.sendMessage, 'host_found', host=address, playerName=str(response[0]))
 					elif result == INTERPRETER_FILELIST_REQUEST:
-						print "File list received!"
-						print response
+						# print "File list received!"
+						# print response
 						wx.CallAfter(Publisher.sendMessage, 'remote_files', serverAddr=address, files=response)
 					elif result == CONFIG_REQUEST:
-						print "Config data received:"
+						# print "Config data received:"
 						wx.CallAfter(Publisher.sendMessage, 'config', config=response)
-						print response
+						# print response
 					elif result == PLAYER_UPDATE_ERROR:
-						print "Player update failed: " + response
+						# print "Player update failed: " + response
 						wx.CallAfter(Publisher.sendMessage, 'update_failed')
 					elif result == PLAYER_BOOT_COMPLETE:
-						print "Player BOOT_COMPLETE"
+						# print "Player BOOT_COMPLETE"
 						wx.CallAfter(Publisher.sendMessage, 'boot_complete')
 						stopListening()
 
 
 def stopListening():
 	global listener, observers
-	print "Stopping UDP Broadcast Listening routine..."
+	# print "Stopping UDP Broadcast Listening routine..."
 	global sock, wait
 
 	wx.CallAfter(Publisher.sendMessage, 'listener_stop')
 
 	if listener:
 		listener.run_event.clear()
-	print "Done!"
+	# print "Done!"
 
 def startListening():
 	global listener

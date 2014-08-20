@@ -85,17 +85,17 @@ class RaspMediaCtrlPanel(wx.Panel):
         new = event.GetSelection()
         sel = self.parent.GetSelection()
         self.notebook_event = event
-        print "OnPageChanged, old:%d, new:%d, sel:%d" % (old, new, sel)
+        # print "OnPageChanged, old:%d, new:%d, sel:%d" % (old, new, sel)
         newPage = self.parent.GetPage(new)
         if self.index == newPage.index:
-            print "PAGE CHANGED TO INDEX %d - PROCESSING AND LOADING DATA..." % (self.index)
+            # print "PAGE CHANGED TO INDEX %d - PROCESSING AND LOADING DATA..." % (self.index)
             self.pageDataLoading = True
             self.LoadData()
 
     def Initialize(self):
-        print "Setting up player section..."
+        # print "Setting up player section..."
         self.SetupPlayerSection()
-        print "Setting up file lists..."
+        # print "Setting up file lists..."
         self.SetupFileLists()
 
         self.mainSizer.Add(self.playerSizer,(0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.LEFT | wx.RIGHT, border=10)
@@ -113,7 +113,7 @@ class RaspMediaCtrlPanel(wx.Panel):
 
         self.Fit()
         psHeight = self.playerSizer.GetSize()[1]
-        print "PlayerSizer height: ",psHeight
+        # print "PlayerSizer height: ",psHeight
         line = wx.StaticLine(self,-1,size=(2,psHeight),style=wx.LI_VERTICAL)
         self.playerSizer.Add(line,(0,2), span=(3,1), flag=wx.LEFT | wx.RIGHT, border=5)
 
@@ -172,9 +172,9 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.filesSizer.Fit(self)
 
     def AddLocalList(self):
-        print "Initializing empty local lists..."
+        # print "Initializing empty local lists..."
         self.localList = wx.ListCtrl(self,-1,size=(400,220),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
-        print "Showing list..."
+        # print "Showing list..."
         self.localList.Show(True)
         self.localList.InsertColumn(0,tr("filename"), width = 300)
         self.localList.InsertColumn(1,tr("filesize"), width = 80, format = wx.LIST_FORMAT_RIGHT)
@@ -199,7 +199,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.filesSizer.Add(self.selectionLabel, (2,1), flag = wx.LEFT, border = 15)
 
     def AddRemoteList(self):
-        print "Initializing empty remote lists..."
+        # print "Initializing empty remote lists..."
         self.remoteList=wx.ListCtrl(self,-1,size=(600,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         self.remoteList.Show(True)
         self.remoteList.InsertColumn(0,tr("remote_files")+": ", width = 598)
@@ -238,7 +238,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         #self.localList.SetColumn(0, col)
 
     def InsertReceivedFileList(self, serverAddr, files):
-        print "UPDATING REMOTE FILELIST UI..."
+        # print "UPDATING REMOTE FILELIST UI..."
         self.remoteList.DeleteAllItems()
         files.sort()
         for file in reversed(files):
@@ -251,7 +251,7 @@ class RaspMediaCtrlPanel(wx.Panel):
             configDict = config
         else:
             configDict = ast.literal_eval(config)
-        print configDict
+        # print configDict
         self.config = configDict
         self.playerNameLabel.SetLabel(configDict['player_name'])
         #if self.notebook_event:
@@ -382,7 +382,7 @@ class RaspMediaCtrlPanel(wx.Panel):
             fileName = item.GetText()
             files.append(str(fileName))
             index = self.remoteList.GetNextSelected(index)
-        print "Files to delete: ", files
+        # print "Files to delete: ", files
         self.DeleteRemoteFiles(files)
 
 
@@ -390,7 +390,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         index = self.localList.GetFirstSelected()
         localSelection = self.GetLocalSelectionInfo()
         files = localSelection['files']
-        print "Files to send: ", files
+        # print "Files to send: ", files
 
         # optimize the files before sending them
         # create temp directory
@@ -401,7 +401,7 @@ class RaspMediaCtrlPanel(wx.Panel):
             print "Exception in creating DIR: ",exception
         rmutil.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
         network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
-        print "Deleting temporary files..."
+        # print "Deleting temporary files..."
         shutil.rmtree(tmpPath)
         dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)
         dlg.Pulse()
@@ -418,7 +418,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         self._SetPreview(imagePath)
 
     def _SetPreview(self, imagePath):
-        #print "PREVIEW IMAGE PATH: " + imagePath
+        ## print "PREVIEW IMAGE PATH: " + imagePath
         path = resource_path(imagePath)
         #print "RESOURCE PATH: " + path
         img = wx.Image(path)
@@ -482,13 +482,13 @@ class RaspMediaCtrlPanel(wx.Panel):
             network.udpconnector.sendMessage(msgData, self.host)
             time.sleep(2)
             wx.CallAfter(prgDialog.Destroy)
-            print "Delete timeout passed, initiating data load..."
+            # print "Delete timeout passed, initiating data load..."
             self.LoadData()
             #self.LoadRemoteFileList()
 
     def CheckboxToggled(self, event):
         checkbox = event.GetEventObject()
-        print checkbox.GetName()
+        # print checkbox.GetName()
         msgData = network.messages.getConfigUpdateMessage(checkbox.GetName(), checkbox.IsChecked())
         network.udpconnector.sendMessage(msgData, self.host)
 
@@ -499,7 +499,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         if dlg.ShowModal() == wx.ID_OK:
             # User has selected something, get the path
             filename = dlg.GetPath()
-            print "Changing local list to new path: " + filename
+            # print "Changing local list to new path: " + filename
             self.ShowDirectory(filename)
         dlg.Destroy()
 
@@ -528,13 +528,13 @@ class RaspMediaCtrlPanel(wx.Panel):
         network.udpconnector.sendMessage(msgData, self.host)
 
     def LoadRemoteConfig(self, event=None):
-        print "Entering LoadRemoteConfig routine...."
+        # print "Entering LoadRemoteConfig routine...."
         if not self.pageDataLoading:
             Publisher.subscribe(self.UpdateConfigUI, 'config')
             Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         #network.udpresponselistener.registerObserver([OBS_CONFIG, self.UpdateConfigUI])
         #network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
-        print "Observers registered..."
+        # print "Observers registered..."
         msgData = network.messages.getMessage(CONFIG_REQUEST)
         dlgStyle =  wx.PD_AUTO_HIDE
         #self.prgDialog = wx.ProgressDialog("Loading...", "Loading configuration from player...", maximum = 0, parent = self, style = dlgStyle)
@@ -544,19 +544,19 @@ class RaspMediaCtrlPanel(wx.Panel):
         network.udpconnector.sendMessage(msgData, self.host)
 
     def UdpListenerStopped(self):
-        print "UDP LISTENER STOPPED IN PANEL %d" % self.index
+        # print "UDP LISTENER STOPPED IN PANEL %d" % self.index
         global HOST_SYS
         if self.pageDataLoading:
             if self.remoteListLoading:
                 self.pageDataLoading = False
                 Publisher.unsubAll()
                 if self.parent.prgDialog:
-                    print "CLOSING PRG DIALOG IN PARENT..."
+                    # print "CLOSING PRG DIALOG IN PARENT..."
                     self.parent.prgDialog.Update(100)
                     if HOST_SYS == HOST_WIN:
                         self.parent.prgDialog.Destroy()
                 if self.prgDialog:
-                    print "CLOSING PRG DIALOG IN PANEL..."
+                    # print "CLOSING PRG DIALOG IN PANEL..."
                     self.prgDialog.Update(100)
                     if HOST_SYS == HOST_WIN:
                         self.prgDialog.Destroy()
@@ -592,7 +592,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         network.udpconnector.sendMessage(msgData, self.host, UDP_REBOOT_TIMEOUT)
 
     def RebootComplete(self):
-        print "REBOOT COMPLETE CALLBACK"
+        # print "REBOOT COMPLETE CALLBACK"
         self.prgDialog.Update(100)
         if HOST_SYS == HOST_WIN:
             self.prgDialog.Destroy()

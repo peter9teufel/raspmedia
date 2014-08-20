@@ -22,7 +22,7 @@ def sendMessage(data,host='<broadcast>',response_timeout=None):
 	if host == '<broadcast>':
 		ips = netutil.ip4_addresses()
 		for ip in ips:
-			print "Broadcasting over IP ",ip
+			# print "Broadcasting over IP ",ip
 			_sendMessage(data,host,ip,response_timeout)
 	else:
 		_sendMessage(data,host,None,response_timeout)
@@ -37,21 +37,21 @@ def _sendMessage(data,host,local_bind=None,response_timeout=None):
 	port = UDP_PORT
 	# if valid message data present --> send it
 	if data:
-		print "Creating socket..."
+		# print "Creating socket..."
 		# SOCK_DGRAM is the socket type to use for UDP sockets
 
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 		if local_bind:
 			sock.bind((local_bind, 29885))
 
-		print "Starting response listener in background thread..."
+		# print "Starting response listener in background thread..."
 		# wait a given timeout for a network response
 		timeout = UDP_RESPONSE_TIMEOUT
 		if response_timeout:
 			timeout = response_timeout
 		else:
 			if host == '<broadcast>' or local_bind:
-				print "Using longer Broadcast Timeout..."
+				# print "Using longer Broadcast Timeout..."
 				timeout = UDP_BROADCAST_RESPONSE_TIMEOUT
 				#time.sleep(UDP_BROADCAST_RESPONSE_TIMEOUT)
 			else:
@@ -64,24 +64,24 @@ def _sendMessage(data,host,local_bind=None,response_timeout=None):
 		udpresponselistener.setTimeout(timeout)
 		udpresponselistener.startListening()
 
-		print "Sending message..."
+		# print "Sending message..."
 		sent = False
 		while not sent:
-			print "Trying to send..."
+			# print "Trying to send..."
 			sent = sock.sendto(data + "\n", (host, port))
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,0)
-		print "Message sent!"
+		# print "Message sent!"
 		#data, addr = sock.recvfrom(6)
 		#print "Response from ", addr
 		sock.close()
 
 def cleanExit():
 	if sock:
-		print "Closing socket before quitting..."
+		# print "Closing socket before quitting..."
 		if sock:
 			sock.close()
 	#udpresponselistener.stopListening()
-	print "Done! Bye bye..."
+	# print "Done! Bye bye..."
 
 # global socket variable
 sock = None

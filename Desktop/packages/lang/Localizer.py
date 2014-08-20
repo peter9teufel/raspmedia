@@ -5,11 +5,11 @@ def __initialize(langCode=None):
 	if langCode == None:
 		loc = locale.getdefaultlocale()
 		if not loc == None:
-			print "Default locale is ", loc
+			# print "Default locale is ", loc
 			langCode = loc[0]
 		else:
 			langCode = "EN"
-		print "Language code: ", langCode
+		# print "Language code: ", langCode
 	global strings
 	if langCode.lower().startswith("de"):
 		import strings_de as strings
@@ -22,7 +22,7 @@ def __initialize(langCode=None):
 
 def tr(key):
 	if not initDone:
-		print "Localizer not initialized..."
+		# print "Localizer not initialized..."
 		__initialize()
 	try:
 		result = strings.strings[key]

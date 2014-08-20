@@ -29,14 +29,14 @@ def _optimizeCrop(fileName, basePath, destPath, maxW, maxH):
         #print "Saving optimized image..."
         #print "W: ", width
         #print "H: ", height
-        print "Imagesize %d x %d" % (width, height)
+        # print "Imagesize %d x %d" % (width, height)
         if width == 1920:
-            print "Cropping height"
+            # print "Cropping height"
             # crop upper and lower part
             diff = height - 1080
             img = img.crop((0,diff/2,width,height-diff/2))
         else:
-            print "Cropping width"
+           # print "Cropping width"
             # crop left and right part
             diff = width - 1920
             img = img.crop((diff/2,0,width-diff/2,height))
@@ -110,8 +110,8 @@ def __DrawCaptionWithDC(graphicFilename, captionTxt, txtForeground=wx.BLACK) :
     txtPos = (5, 5)                     # an offset so the text doesn't get clipped
     dc.DrawText( captionTxt, *txtPos )
     txtWid, txtHgt = dc.GetTextExtent( captionTxt )
-    print '--Caption text: ', captionTxt
-    print '--Text size = ', txtWid, txtHgt
+    # print '--Caption text: ', captionTxt
+    # print '--Text size = ', txtWid, txtHgt
     dc.SelectObject( wx.NullBitmap )        # done with this dc; not used again
     
     #----------------------------------
@@ -120,7 +120,7 @@ def __DrawCaptionWithDC(graphicFilename, captionTxt, txtForeground=wx.BLACK) :
 
     imgBmap = wx.Image( graphicFilename, wx.BITMAP_TYPE_ANY ).ConvertToBitmap()
     bmapSizeX, bmapSizeY = imgBmap.GetSize()
-    print '--imgBmap Size = ', bmapSizeX, bmapSizeY
+    # print '--imgBmap Size = ', bmapSizeX, bmapSizeY
 
     # Create a dc "canvas" onto which the caption text  will be drawn
     dc = wx.MemoryDC( imgBmap )
@@ -144,9 +144,9 @@ def __DrawCaptionWithPIL(imgPath, captionTxt):
     
     imgW = img.size[0]
     imgH = img.size[1]
-    print "IMG SIZE: %d x %d" % (imgW,imgH)
+    # print "IMG SIZE: %d x %d" % (imgW,imgH)
     txtSize = draw.textsize(captionTxt, font=font)
-    print "NAMESIZE: ",txtSize
+    # print "NAMESIZE: ",txtSize
     txtX = imgW/2 - (txtSize[0] / 2)
     txtY = imgH - (txtSize[1])
     

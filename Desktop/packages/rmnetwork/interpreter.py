@@ -3,25 +3,25 @@ from constants import *
 
 
 def interpret(msg_data):
-	print "Interpreting incoming data..."
+	# print "Interpreting incoming data..."
 
 	# initialize with error state
 	result = INTERPRETER_ERROR
 
 	data = bytearray(msg_data)
 	size, data = readInt(data)
-	print "Size: " + str(size)
+	# print "Size: " + str(size)
 
 	flag, data = readShort(data)
 	returnData = None
-	print "Flag: " + str(flag)
+	# print "Flag: " + str(flag)
 	if flag == SERVER_REQUEST_ACKNOWLEDGE:
 		result = INTERPRETER_SERVER_REQUEST
 		devType, data = readInt(data)
 		devFlag, data = readInt(data)
 		devName, data = readString(data)
-		print "DEVICE FOUND: ", devName
-		print "Type: %d - Flag: %d" % (devType, devFlag)
+		# print "DEVICE FOUND: ", devName
+		# print "Type: %d - Flag: %d" % (devType, devFlag)
 		returnData = (devName, devType, devFlag)
 	elif flag == FILELIST_REQUEST:
 		result = INTERPRETER_FILELIST_REQUEST
@@ -47,13 +47,13 @@ def readConfigData(data):
 
 def readFileList(data):
 	numFiles, data = readInt(data)
-	print "Reading received file list of size ", numFiles
+	# print "Reading received file list of size ", numFiles
 	files = []
 	for i in range(numFiles):
 		file, data = readString(data)
 		if file:
 			files.append(file.decode('utf-8'))
-	print "Filelist read: ", files
+	# print "Filelist read: ", files
 	return files
 
 def readInt(data):

@@ -27,17 +27,17 @@ def appendString(data, str, sizeLE=True):
 
 def appendArg(data, type, arg):
 	if type == '-f':
-		print "Saving FLAG"
+		# print "Saving FLAG"
 		global flag
 		flag = int(arg)
 	elif type == '-w':
-		print "Appending SHORT"
+		# print "Appending SHORT"
 		appendShort(data, int(arg))
 	elif type == '-s':
-		print "Appending STRING"
+		# print "Appending STRING"
 		appendString(data, arg)
 	elif type == '-i':
-		print "Appending INT"
+		# print "Appending INT"
 		appendInt(data, int(arg))
 
 def getConfigUpdateMessage(key, value):
@@ -45,9 +45,9 @@ def getConfigUpdateMessage(key, value):
 	usgData = bytearray()
 
 	appendString(usgData, str(key))
-	print "KEY APPENDED!"
+	# print "KEY APPENDED!"
 	if isinstance(value, (int)):
-		print "New config value is appended as INT!"
+		# print "New config value is appended as INT!"
 		appendInt(usgData, value)
 	else:
 		appendString(usgData, value)
@@ -58,7 +58,7 @@ def getConfigUpdateMessage(key, value):
 	appendShort(data, CONFIG_UPDATE)
 	appendBytes(data, usgData)
 
-	print "Config message size: ", size
+	# print "Config message size: ", size
 	return data
 
 def getMessage(flag, args=None):
@@ -66,10 +66,10 @@ def getMessage(flag, args=None):
 	usgData = None
 	if args:
 		usgData = bytearray()
-		print args
+		# print args
 		for i in range(0,len(args)):
 			arg = args[i]
-			print "Current arg: ", arg
+			# print "Current arg: ", arg
 			if arg.startswith('-'):
 				if i < len(args) - 1:
 					appendArg(usgData, arg, args[i+1])
@@ -84,7 +84,7 @@ def getMessage(flag, args=None):
 	if usgData:
 		appendBytes(data, usgData)
 
-	print "Message size: ", size
+	# print "Message size: ", size
 	return data
 
 def getWifiConfigMessage(arg1, arg2):
@@ -99,7 +99,7 @@ def getWifiConfigMessage(arg1, arg2):
 	appendShort(data, WIFI_CONFIG)
 	appendBytes(data, usgData)
 
-	print "WifiConfig size: ", size
+	# print "WifiConfig size: ", size
 	return data
 
 def getTcpFileMessage(files, basePath):

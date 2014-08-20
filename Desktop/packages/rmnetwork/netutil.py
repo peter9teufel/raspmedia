@@ -42,16 +42,19 @@ def wifi_ssids():
     WiFiSSIDs = []
 
     if platform.system() == 'Windows':
+        print "WIFI CHECK on platform Windows:"
         output = subprocess.Popen(["netsh","wlan","show","network"], stdout=subprocess.PIPE).communicate()[0]
+        # print output
         lines = output.split('\n')
         curSSID = ''
         keyType = None
         for line in lines:
-            
+            "Checking line..."
             words = line.split()
             if len(words) > 3 and words[0] == 'SSID':
                 # next SSID found --> add info from previously read network to list of WIFIs
                 if len(curSSID) > 0:
+                    # print "Appending SSID %s with auth type %s" % (curSSID,keyType)
                     WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
                 # reset variables for ssid and keytype
                 curSSID = ''
@@ -73,7 +76,7 @@ def wifi_ssids():
             # WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
     elif platform.system() == 'Darwin':
         # scan for available WiFi APs
-        output = subprocess.Popen(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-s"], stdout=subprocess.PIPE).communicate()[0]
+        output = subprocess.Popen(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-s"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
 
         lines = output.split('\n')
         for i in range(1,len(lines)-1):
@@ -102,5 +105,5 @@ def wifi_ssids():
                 keyType = WIFI_AUTH_NONE
 
             WiFiSSIDs.append({"SSID": curSSID, "AUTHTYPE": keyType})
-
+    # print WiFiSSIDs
     return WiFiSSIDs

@@ -37,7 +37,7 @@ sudo apt-get -y install fbi;
 # install mplayer
 sudo apt-get -y install mplayer;
 
-echo "Installing PyOMXPlayer..."
+echo "Installing PyOMXPlayer...";
 # fetch files for pyomxplayer
 cd /home/pi;
 su -l pi -c 'git clone https://github.com/peter9teufel/working_py_omx.git';
@@ -45,12 +45,18 @@ su -l pi -c 'git clone https://github.com/peter9teufel/working_py_omx.git';
 cd /home/pi/working_py_omx;
 sudo python setup.py install;
 
-echo "Cloning RaspMedia Player source from github"
+echo "";
+echo "Cloning RaspMedia Player source from github";
 # clone raspmedia sourcefiles to /home/pi/raspmedia
 cd /home/pi;
 su -l pi -c 'git clone https://github.com/peter9teufel/raspmedia.git';
 
-echo "Setting up autostart of RaspMedia Player"
+echo "";
+echo "Writing boot config...";
+sudo cat /home/pi/raspmedia/raspmedia_boot_config.txt > /boot/config.txt;
+echo "";
+
+echo "Setting up autostart of RaspMedia Player";
 # modify rc.local to start raspmedia at boot
 sudo head -n -3 /etc/rc.local > /home/pi/rc.local.tmp;
 sudo cat /home/pi/rc.local.tmp > /etc/rc.local;

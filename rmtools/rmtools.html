@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Kiosk</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/fonts.css">
+        <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    </head>
+
+    <body>
+
+        <img id="bg_img" src="img/bg.jpg" />
+
+        <!-- HEADLINE of page -->
+        <div class="headline">RaspMedia Tools | Downloads</div>
+
+        <!-- CONTENT -->
+        <div class="dl1";>
+            <p id="txt_h">RaspMedia Control</p>
+            <p id="txt">Windows Vista/7/8 (32/64bit)</p>
+            <p id="txt">v1.0 (c)2014</p>
+            <a href="./downloads/RM_Control_Windows.zip"></a>
+        </div>
+
+        <div class="dl2">
+            <p id="txt_h">RaspMedia Copy Tool</p>
+            <p id="txt">Windows Vista/7/8 (32/64bit)</p>
+            <p id="txt">v1.0 (c)2014</p>
+            <a href="./downloads/RM_CopyTool_Windows.zip"></a>
+        </div>
+
+        <script>
+            $(".dl1").click(function(){
+                 window.location=$(this).find("a").attr("href");
+                 return false;
+            });
+            $(".dl2").click(function(){
+                 window.location=$(this).find("a").attr("href");
+                 return false;
+            });
+        </script>
+
+    </body>
+</html>

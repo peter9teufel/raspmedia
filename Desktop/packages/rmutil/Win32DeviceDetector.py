@@ -111,6 +111,7 @@ class Notification:
         dev_broadcast_volume = DEV_BROADCAST_VOLUME.from_address (lparam)
         if dev_broadcast_volume.dbcv_flags == DBTF_MEDIA:
           # print "Media Drive"
+          pass
 
         drive_letter = drive_from_mask (dev_broadcast_volume.dbcv_unitmask)
         drive_path =  chr (ord ("A") + drive_letter)

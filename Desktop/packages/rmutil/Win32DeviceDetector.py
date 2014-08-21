@@ -65,7 +65,7 @@ def waitForUSBDrive():
     bg_thread = BackgroundUSBDetection()
     bg_thread.daemon = True
     bg_thread.start()
-  
+
 class Notification:
 
   def __init__(self):
@@ -110,7 +110,7 @@ class Notification:
 
         dev_broadcast_volume = DEV_BROADCAST_VOLUME.from_address (lparam)
         if dev_broadcast_volume.dbcv_flags == DBTF_MEDIA:
-          print "Media Drive"
+          # print "Media Drive"
 
         drive_letter = drive_from_mask (dev_broadcast_volume.dbcv_unitmask)
         drive_path =  chr (ord ("A") + drive_letter)
@@ -126,7 +126,7 @@ class BackgroundUSBDetection(threading.Thread):
     self.tid = win32api.GetCurrentThreadId()
     global bg_tid
     bg_tid = self.tid
-    print "Background thread ID: ", self.tid
+    # print "Background thread ID: ", self.tid
     threading.Thread.__init__(self, name="UDP_ResponseListener_Thread")
 
   def run(self):

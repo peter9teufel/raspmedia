@@ -45,7 +45,7 @@ class BackgroundUSBDetection(threading.Thread):
         for volume in curVolumes:
             if not volume in oldVolumes:
                 newVol.append(volume)
-        print "Found new volumes: ", newVol
+        # print "Found new volumes: ", newVol
         return newVol
 
 

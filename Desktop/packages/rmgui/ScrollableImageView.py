@@ -33,7 +33,7 @@ class ScrollableImageView(scrolled.ScrolledPanel):
             # get resized version of current image and save it temporary
             curImg = self.__ScaleImage(imgPath, imgWidth)
             curImgCtrl = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(curImg))
-            print "Adding image in scrollable view at position (%d,%d)" % (row,col)
+            # print "Adding image in scrollable view at position (%d,%d)" % (row,col)
             self.mainSizer.Add(curImgCtrl,(row,col), flag=wx.ALL, border=2)
 
             # position for next image

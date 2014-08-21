@@ -9,6 +9,7 @@ from packages.rmnetwork.constants import *
 import sys, os, platform, time, shutil, ast
 from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
+from operator import itemgetter
 from packages.lang.Localizer import *
 
 playerCount = 0
@@ -71,7 +72,7 @@ class SimpleUIAppFrame(wx.Frame):
 
     def HostFound(self, host, playerName):
         global playerCount
-        print "Adding host to list..."
+        # print "Adding host to list..."
         if not self.HostInList(host[0], playerName):
             self.hosts.append({"addr": host[0], "name": playerName})
             playerCount += 1
@@ -81,6 +82,12 @@ class SimpleUIAppFrame(wx.Frame):
             if h['addr'] == addr and h['name'] == playerName:
                 return True
         return False
+
+    def SortHostList(self):
+        # print "Sorting host list ", self.hosts
+        sortedList = sorted(self.hosts, key=itemgetter('name'))
+        self.hosts = sortedList
+        # print "Done: ", self.hosts
 
     def SearchHosts(self):
         self.hostSearch = True
@@ -108,7 +115,7 @@ class SimpleUIAppFrame(wx.Frame):
                 dlg = wx.MessageDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), style=wx.YES_NO)
                 result = dlg.ShowModal()
                 #selection = dlg.GetSelection()
-                print "RESULT: ", result
+                # print "RESULT: ", result
                 if result == wx.ID_YES:
                     #if selection == 0: # RESCAN
                     self.SearchHosts()
@@ -117,15 +124,17 @@ class SimpleUIAppFrame(wx.Frame):
                     #elif selection == 1: # EXIT
                     #    self.Close()
                 elif result == wx.ID_NO:
-                    print "Cancel clicked, terminating program, bye bye..."
+                    # print "Cancel clicked, terminating program, bye bye..."
                     self.Close()
             else:
+                # sort hosts by hostname
+                self.SortHostList()
                 self.WaitForUSB()
 
     def Close(self, event=None):
         Publisher.unsubAll()
         if self.udpListening:
-            print "Destroying UDP Response Listener..."
+            # print "Destroying UDP Response Listener..."
             network.udpresponselistener.destroy()
         self.Destroy()
         os._exit(0)
@@ -143,7 +152,7 @@ class SimpleUIAppFrame(wx.Frame):
     def USBConnected(self, path):
         # Publisher.unsubscribe(self.USBConnected, 'usb_connected')
         print "USB Drive connected and mounted in path %s" % path
-        print "Scanning files in root directory of path %s" % path
+        # print "Scanning files in root directory of path %s" % path
         self.prgDialog.UpdatePulse(tr("usb_found_scan"))
         time.sleep(2)
         if HOST_SYS == HOST_WIN:
@@ -178,8 +187,8 @@ class SimpleUIAppFrame(wx.Frame):
                 self.Close()
         else:
             # image files found --> proceed
-            print "Image files found in %s" % path
-            print self.filesToCopy
+            # print "Image files found in %s" % path
+            # print self.filesToCopy
             self.Raise()
             self.InitUI()
 
@@ -303,7 +312,7 @@ class SimpleUIAppFrame(wx.Frame):
     def DeleteFilesToggled(self, event):
         checkbox = event.GetEventObject()
         self.deleteFiles = checkbox.IsChecked()
-        print "Delete files: ", self.deleteFiles
+        # print "Delete files: ", self.deleteFiles
 
     def RestartAllPlayers(self, event=None):
         msgData = network.messages.getMessage(PLAYER_RESTART)
@@ -323,15 +332,16 @@ class SimpleUIAppFrame(wx.Frame):
         # create temp directory
         tmpPath = BASE_PATH + '/' + 'tmp'
         if os.path.isdir(tmpPath):
-            print "Removing old temp directory..."
+            # print "Removing old temp directory..."
             shutil.rmtree(tmpPath)
         try:
             os.makedirs(tmpPath)
         except OSError as exception:
-            print "Exception in creating DIR: ",exception
+            # print "Exception in creating DIR: ",exception
+            pass
         util.ImageUtil.OptimizeImages(files, self.usbPath, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
         network.tcpfileclient.sendFiles(files, tmpPath, host['addr'], self, HOST_SYS == HOST_WIN)
-        print "Deleting temporary files..."
+        # print "Deleting temporary files..."
         shutil.rmtree(tmpPath)
         dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)
         dlg.Pulse()
@@ -343,7 +353,7 @@ class SimpleUIAppFrame(wx.Frame):
             dlg.Destroy()
 
         # restart player
-        print "Restarting player..."
+        # print "Restarting player..."
         msgData = network.messages.getMessage(PLAYER_RESTART)
         network.udpconnector.sendMessage(msgData, host['addr'])
 
@@ -365,10 +375,10 @@ class SimpleUIAppFrame(wx.Frame):
         dlg = wx.SingleChoiceDialog(self,wordwrap(tr("select_player"), 300, wx.ClientDC(self)), tr("rasp_players"), items)
         result = dlg.ShowModal()
         selection = dlg.GetSelection()
-        print "RESULT: ", result
+        # print "RESULT: ", result
         if result == wx.ID_OK:
             resultHost = self.hosts[selection]
-            print "SELECTED HOST: ", resultHost
+            # print "SELECTED HOST: ", resultHost
 
         return resultHost
 
@@ -393,9 +403,9 @@ class SimpleUIAppFrame(wx.Frame):
                 host['name'] = self.config['player_name']
 
     def LoadRemoteConfig(self, host):
-        print "Entering LoadRemoteConfig routine...."
+        # print "Entering LoadRemoteConfig routine...."
         Publisher.subscribe(self.ConfigLoaded, 'config')
-        print "Observers registered..."
+        # print "Observers registered..."
 
         msgData = network.messages.getMessage(CONFIG_REQUEST)
         network.udpconnector.sendMessage(msgData, host['addr'])
@@ -407,7 +417,7 @@ class SimpleUIAppFrame(wx.Frame):
             configDict = config
         else:
             configDict = ast.literal_eval(config)
-        print configDict
+        # print configDict
         self.config = configDict
 
         # config loaded --> settings can be opened now

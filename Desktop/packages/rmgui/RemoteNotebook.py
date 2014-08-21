@@ -8,6 +8,7 @@ import os, sys, platform, ast, time, threading, shutil
 import wx
 from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
+from operator import itemgetter
 from packages.lang.Localizer import *
 
 playerCount = 0
@@ -71,6 +72,12 @@ class RemoteNotebook(wx.Notebook):
             self.hosts.append({"addr": host[0], "name": playerName})
             playerCount += 1
 
+    def SortHostList(self):
+        print "Sorting host list ", self.hosts
+        sortedList = sorted(self.hosts, key=itemgetter('name'))
+        self.hosts = sortedList
+        print "Done: ", self.hosts
+
     def HostInList(self, addr, playerName):
         for h in self.hosts:
             if h['addr'] == addr and h['name'] == playerName:
@@ -119,6 +126,8 @@ class RemoteNotebook(wx.Notebook):
             else:
                 #self.prgDialog.Destroy()
                 ind = 0
+                # sort hosts by hostname
+                self.SortHostList()
                 for host in self.hosts:
                     # print "Preparing page for " + host['name']
                     # print "Player address: " + host['addr']

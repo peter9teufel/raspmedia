@@ -1,4 +1,4 @@
-import locale
+import locale, platform
 
 initDone = False
 def __initialize(langCode=None):
@@ -22,8 +22,12 @@ def __initialize(langCode=None):
 
 def tr(key):
 	if not initDone:
-		# print "Localizer not initialized..."
-		__initialize()
+		if platform.system() == "Darwin":
+			# initialize with specific language as default locale
+			# blocks app from being started
+			__initialize("de")
+		else:
+			__initialize()
 	try:
 		result = strings.strings[key]
 	except:

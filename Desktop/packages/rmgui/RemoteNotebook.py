@@ -108,6 +108,10 @@ class RemoteNotebook(wx.Notebook):
                 self.prgDialog.Update(100)
                 if HOST_SYS == HOST_WIN:
                     self.prgDialog.Destroy()
+                    if platform.release() == "XP":
+                        dlgWin = wx.MessageDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), style=wx.OK)
+                        result = dlgWin.ShowModal()
+                        self.parent.Close()
                 dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
                 result = dlg.ShowModal()
                 selection = dlg.GetSelection()

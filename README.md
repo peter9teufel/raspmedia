@@ -40,6 +40,7 @@ The repository also holds two desktop applications to be used with RaspMedia Pla
 
 To use the desktop applications you have several ways:
   * Execute the main python script (needs all required packages to be installed locally)
+  * Mac OSX versions of both applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* from there. This will compile both applications, modify the Info.plist of both to not be background apps, put the two executable *.app* files in a *Release* directory and clean up the *build* and *dist* directories. A build script for Windows will follow.
   * Compile the application using pyinstaller and the provided *.spec files (needs all required packages to be installed locally)
   * Get a compiled executable for Mac (*.app) or Windows (32bit or 64bit) by requesting it directly from me. A site with up to date executables for free download will follow in the future.
 

@@ -51,6 +51,5 @@ class BackgroundUSBDetection(threading.Thread):
 
 if __name__=='__main__':
     # load current list of volumes
-    global volumes
     volumes = os.listdir(VOLUMES_PATH)
     CheckForVolumes()

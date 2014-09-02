@@ -5,7 +5,7 @@ import os, sys, subprocess, time, threading
 
 # own modules and packages
 from packages import rmconfig, rmmedia, rmutil, rmnetwork
-from packages.rmnetwork import udpserver, tcpfilesocket, udpbroadcaster, messages
+from packages.rmnetwork import udpserver, tcpfilesocket, udpbroadcaster, messages, GroupManager
 from constants import *
 
 def shellquote(s):
@@ -27,6 +27,7 @@ def startMediaPlayer():
 
 def startUdpServer():
 	udpserver.start()
+
 
 def openFileSocket():
     tcpfilesocket.openFileSocket()

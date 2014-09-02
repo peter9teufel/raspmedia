@@ -1,6 +1,7 @@
 import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import RaspMediaControlPanel as rmc
+from packages.rmgui import RaspMediaAllPlayersPanel as rmap
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
@@ -63,6 +64,7 @@ class RemoteNotebook(wx.Notebook):
         return self.GetPage(self.activePageNr).config
 
     def UpdateCurrentPlayerUI(self, config):
+        self.hosts[self.activePageNr]['name'] = config['player_name']
         self.GetPage(self.activePageNr).UpdateConfigUI(config, True)
 
     def HostFound(self, host, playerName):
@@ -139,6 +141,12 @@ class RemoteNotebook(wx.Notebook):
                     self.pages.append(curPage)
                     self.AddPage(curPage, host['name'])
                     ind += 1
+
+
+                allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
+                self.pages.append(allPlayers)
+                self.AddPage(allPlayers, "All Players")
+                
                 self.LoadPageData(0)
                 self.Fit()
                 self.parent.Fit()

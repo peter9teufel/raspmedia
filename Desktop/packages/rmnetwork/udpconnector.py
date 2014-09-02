@@ -26,10 +26,6 @@ def sendMessage(data,host='<broadcast>',response_timeout=None):
 			_sendMessage(data,host,ip,response_timeout)
 	else:
 		_sendMessage(data,host,None,response_timeout)
-	# ensure a clean exit when data is sent and response processed
-	#cleanExit()
-	#if not response_timeout:
-	#	cleanExit()
 
 def _sendMessage(data,host,local_bind=None,response_timeout=None):
 	global sock

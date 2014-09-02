@@ -1,6 +1,6 @@
 import threading, time
 import SocketServer
-import interpreter, messages
+import interpreter, messages, GroupManager
 
 from packages.rmmedia import mediaplayer
 from constants import *

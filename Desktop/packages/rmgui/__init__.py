@@ -1,1 +1,1 @@
-import AppFrame, RaspMediaControlPanel, RemoteNotebook, SettingsFrame, ScrollableImageView, WifiDialog
+import AppFrame, RaspMediaControlPanel, RemoteNotebook, SettingsFrame, ScrollableImageView, WifiDialog, RaspMediaAllPlayersPanel

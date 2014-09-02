@@ -71,19 +71,18 @@ def _optimizeFit(fileName, basePath, destPath, maxW, maxH):
 
 def _checkOrientation(img):
     try :
-        for orientation in ExifTags.TAGS.keys() :
-            if ExifTags.TAGS[orientation]=='Orientation' : break
-        exif=dict(img._getexif().items())
-
-        if   exif[orientation] == 3 :
-            img=img.rotate(180, expand=True)
-        elif exif[orientation] == 6 :
-            img=img.rotate(270, expand=True)
-        elif exif[orientation] == 8 :
-            img=img.rotate(90, expand=True)
+        exif_data = img._getexif()
+        if 274 in exif_data:
+            orientation = exif_data[274]
+            if   orientation == 3 :
+                img=img.rotate(180, expand=True)
+            elif orientation == 6 :
+                img=img.rotate(270, expand=True)
+            elif orientation == 8 :
+                img=img.rotate(90, expand=True)
     except:
         pass
-        # print "Exif data not present or can not be processed, returning unmodified image..."
+        print "Exif data not present or can not be processed, returning unmodified image..."
     return img
 
 def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_FIT):
@@ -113,7 +112,7 @@ def __DrawCaptionWithDC(graphicFilename, captionTxt, txtForeground=wx.BLACK) :
     # print '--Caption text: ', captionTxt
     # print '--Text size = ', txtWid, txtHgt
     dc.SelectObject( wx.NullBitmap )        # done with this dc; not used again
-    
+
     #----------------------------------
 
     # Draw the caption on the file graphic bitmap.
@@ -141,7 +140,7 @@ def __DrawCaptionWithPIL(imgPath, captionTxt):
     img = Image.open(imgPath)
     draw = ImageDraw.Draw(img)
     font = ImageFont.load_default()
-    
+
     imgW = img.size[0]
     imgH = img.size[1]
     # print "IMG SIZE: %d x %d" % (imgW,imgH)
@@ -149,11 +148,11 @@ def __DrawCaptionWithPIL(imgPath, captionTxt):
     # print "NAMESIZE: ",txtSize
     txtX = imgW/2 - (txtSize[0] / 2)
     txtY = imgH - (txtSize[1])
-    
+
     draw.text((txtX,txtY), captionTxt, (0,0,0), font=font)
 
     # img.save('raspidentified.jpg')
-    
+
     image = wx.EmptyImage(img.size[0],img.size[1])
     image.SetData(img.convert("RGB").tostring())
     image.SetAlphaData(img.convert("RGBA").tostring()[3::4])

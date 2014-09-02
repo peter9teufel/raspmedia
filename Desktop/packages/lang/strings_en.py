@@ -90,5 +90,9 @@ strings = {
 	"scanning": "Scanning...",
 	"scanning_wifis": "Scanning for available WiFi networks...",
 	"auth_type": "Authentification type:",
-	"unsecured": "Unsecured"
+	"unsecured": "Unsecured",
+	"stop_all": "Stop all",
+	"identify_all": "Identify Players",
+	"reboot_all": "Reboot all",
+	"reboot_all_info": "All players will reboot. RaspMedia control will exit and has to be restarted when the players are running again to reconnect. Reboot now?"
 }

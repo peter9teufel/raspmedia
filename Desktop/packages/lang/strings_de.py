@@ -91,5 +91,9 @@ strings = {
 	"scanning": "Suche...",
 	"scanning_wifis": u"Suche nach verfügbaren WLAN Netzwerken...",
 	"auth_type": u"WLAN Sicherheitstyp:",
-	"unsecured": "Ungesichert"
+	"unsecured": "Ungesichert",
+	"stop_all": "Alle stoppen",
+	"identify_all": "Player identifizieren",
+	"reboot_all": "Alle Player neu starten",
+	"reboot_all_info": "Alle Player werden neu gestartet. RaspMedia Control wird dadurch beendet und muss neu gestartet werden sobald die Player wieder gestartet sind um sich wieder zu verbinden. Neustart durchführen?"
 }

@@ -5,7 +5,7 @@ from packages.rmconfig import configtool
 import GroupManager
 
 
-def interpret(msg_dat, sender_ip=None):
+def interpret(msg_data, sender_ip=None):
 	print "Interpreting incoming data..."
 
 	# initialize with error state

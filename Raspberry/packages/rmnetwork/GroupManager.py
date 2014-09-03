@@ -1,5 +1,5 @@
 import threading, time
-from packages.rmnetwork import udpserver, tcpfilesocket, udpbroadcaster, messages
+import udpserver, tcpfilesocket, udpbroadcaster, messages
 from constants import *
 
 groupManager = None

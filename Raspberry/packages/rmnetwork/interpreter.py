@@ -2,9 +2,10 @@ import os, threading, socket, time
 from constants import *
 from packages.rmmedia import mediaplayer
 from packages.rmconfig import configtool
+import GroupManager
 
 
-def interpret(msg_data):
+def interpret(msg_dat, sender_ip=None):
 	print "Interpreting incoming data..."
 
 	# initialize with error state
@@ -74,6 +75,13 @@ def interpret(msg_data):
 			msg = "Player is not connected to the internet."
 	elif flag == WIFI_CONFIG:
 		setupWifi(data)
+	### GROUP AND ACTION MESSAGE FLAGS ###
+	elif flag == GROUP_MEMBER_REQUEST:
+		group, data = readString(data)
+		GroupManager.MemberRequest(group, sender_ip)
+	elif flag == GROUP_MEMBER_ACKNOWLEDGE:
+		group, data = readString(data)
+		GroupManager.MemberAcknowledge(group, sender_ip)
 
 	#print "Remaining data: " + data.decode("utf-8")
 

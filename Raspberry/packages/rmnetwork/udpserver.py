@@ -22,16 +22,13 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         inData = self.request[0].strip()
         cSocket = self.request[1]
         curThread = threading.current_thread()
-        result, msg = interpreter.interpret(data)
+        result, msg = interpreter.interpret(data, self.client_address[0])
+
 
         if result == SERVER_REQUEST:
-            print "{} on {} wrote:".format(self.client_address[0], curThread.name)
-            print "\nServer request received - sending response...\n"
             responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name'])])
             addr = (self.client_address[0], UDP_PORT)
-            #print "Response delay..."
-            #time.sleep(1)
-            print "Sending response to:"
+            print "Sending response to client:"
             print (addr)
             if cSocket.sendto(responseData, addr):
                 print "Response sent!"

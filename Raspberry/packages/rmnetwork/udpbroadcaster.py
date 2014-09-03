@@ -39,6 +39,9 @@ def _sendMessage(data,local_bind=None):
 		print "Message sent: ",sent
 		sock.close()
 
+def sendMessage(data, host):
+	sendMessageToHosts(data, [host])
+
 def sendMessageToHosts(data, hosts):
 	global sock
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

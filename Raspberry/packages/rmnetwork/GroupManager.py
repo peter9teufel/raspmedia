@@ -2,13 +2,18 @@ import threading, time
 from packages.rmnetwork import udpserver, tcpfilesocket, udpbroadcaster, messages
 from constants import *
 
+groupManager = None
+
 class GroupManager():
     def __init__(self, config):
         self.groupName = config["group"]
-        self.memberCount = config["group_member_count"]
+        self.memberCount = 0
         self.groupMasterName = config["group_master_name"]
         self.groupMaster = config["group_master"]
         self.actions = config["actions"]
+        self.memberHosts = []
+
+        self.masterHost = ""
 
         if self.groupMaster:
             # init action handler thread
@@ -20,8 +25,22 @@ class GroupManager():
 
     def GroupMasterRoutine(self):
         # send member request broadcast
-        msgData = messages.getMessage(GROUP_MEMBER_REQUEST)
+        msgData = messages.getMessage(GROUP_MEMBER_REQUEST, ["-s", self.groupName])
         udpbroadcaster.sendBroadcast(msgData, True)
+
+    def HandleGroupMemberRequest(self, reqGroupName, masterIP):
+        if reqGroupName == self.groupName:
+            self.masterHost = masterIP
+            # member of requested group --> send acknowledge
+            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", self.groupName])
+            udpbroadcaster.sendMessage(msgData, self.masterHost)
+
+    def HandleGroupMemberAcknowledge(self, ackGroupName, memberIP):
+        if ackGroupName == self.groupName:
+            if not memberIP in self.memberHosts:
+                self.memberHosts.append(memberIP)
+                memberCount += 1
+            self.actionHandler.AddHost(memberIP)
 
     def ScheduleActions(self):
         if self.groupMaster:
@@ -36,10 +55,6 @@ class GroupManager():
             self.actionHandler.runevent.clear()
             # set update event --> causes handler to proceed and exit loop
             self.actionHandler.updateevent.set()
-
-    def AddGroupMember(self, host):
-        if self.groupMaster:
-            self.actionHandler.AddHost(host)
 
 
 
@@ -57,7 +72,8 @@ class GroupActionHandler(threading.Thread):
         threading.Thread.__init__(self, name="GroupActionHandler_Thread")
 
     def AddHost(self, host):
-        self.hosts.append(host)
+        if not host in self.hosts:
+            self.hosts.append(host)
 
     def run(self):
         # wait to get started
@@ -146,3 +162,25 @@ class GroupActionHandler(threading.Thread):
         cmd = action["command"]
         msgData = messages.getMessage(int(cmd))
         udpbroadcaster.sendMessageToHosts(msgData, self.hosts)
+
+
+#### ACCESS METHODS FOR CREATION AND MODIFICATION ####
+def InitGroupManager(groupConfig):
+    global groupManager
+    groupManager = GroupManager(groupConfig)
+
+def Schedule():
+    global groupManager
+    groupManager.ScheduleActions()
+
+def MemberRequest(groupName, masterIP):
+    global groupManager
+    groupManager.HandleGroupMemberRequest(groupName, masterIP)
+
+def MemberAcknowledge(groupName, memberIP):
+    global groupManager
+    groupManager.HandleGroupMemberAcknowledge(groupName, memberIP)
+
+def UpdateActions():
+    global groupManager
+    groupManager.actionHandler.updateevent.set()

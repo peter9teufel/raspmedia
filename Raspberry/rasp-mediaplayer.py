@@ -33,7 +33,7 @@ def openFileSocket():
     tcpfilesocket.openFileSocket()
 
 def main():
-    global config, mediaPath
+    global config, groupConfig, mediaPath
     config = rmconfig.configtool.initConfig()
     reloadConfig()
 
@@ -54,6 +54,12 @@ def main():
     # send boot complete broadcast
     msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
     udpbroadcaster.sendBroadcast(msgData, True)
+
+    # initialize group manager with group configuration
+    groupConfig = rmconfig.configtool.readGroupConfig()
+    GroupManager.InitGroupManager(groupConfig)
+    time.sleep(5)
+    GroupManager.Schedule()
 
 
     # simple CLI to modify and quit program when debugging

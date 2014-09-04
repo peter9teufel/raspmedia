@@ -21,7 +21,7 @@ class GroupManager():
             self.actionHandler.daemon = True
             self.actionHandler.start()
             time.sleep(2)
-            GroupMasterRoutine()
+            self.GroupMasterRoutine()
 
 
     def GroupMasterRoutine(self):

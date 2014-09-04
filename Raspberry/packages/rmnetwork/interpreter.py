@@ -95,7 +95,8 @@ def readGroupConfig(data):
 	mInt, data = readInt(data)
 	master = mInt == 1
 	print "Updating Group Configuration:"
-	print "Name: %s - Master: %b" % (name, master)
+	print "Name: %s" % (name)
+	print "Master: ", master
 	configtool.setGroupConfigValue("group", name)
 	configtool.setGroupConfigValue("group_master", mInt)
 

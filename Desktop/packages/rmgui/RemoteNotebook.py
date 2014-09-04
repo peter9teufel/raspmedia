@@ -58,7 +58,12 @@ class RemoteNotebook(wx.Notebook):
         self.Destroy()
 
     def CurrentlyActiveHost(self):
-        return self.hosts[self.activePageNr]
+        if self.activePageNr < len(self.hosts):
+            # page of single player host is active, return host
+            return self.hosts[self.activePageNr]
+        else:
+            # all players tab or group tab is opened, no host to return
+            return -1
 
     def CurrentConfig(self):
         return self.GetPage(self.activePageNr).config
@@ -146,7 +151,7 @@ class RemoteNotebook(wx.Notebook):
                 allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
                 self.pages.append(allPlayers)
                 self.AddPage(allPlayers, "All Players")
-                
+
                 self.LoadPageData(0)
                 self.Fit()
                 self.parent.Fit()

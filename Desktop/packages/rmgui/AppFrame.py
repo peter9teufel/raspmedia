@@ -80,16 +80,19 @@ class AppFrame(wx.Frame):
         dlg.ShowModal()
 
     def ShowPlayerSettings(self, event):
-        settings = prefs.SettingsFrame(self,-1,tr("player_settings"),self.notebook.CurrentlyActiveHost(), self.notebook.CurrentConfig())
-        settings.Center()
-        settings.SetBackgroundColour('WHITE')
-        settings.Refresh()
-        settings.Show()
+        actHost = self.notebook.CurrentlyActiveHost()
+        if not actHost == -1:
+            settings = prefs.SettingsFrame(self,-1,tr("player_settings"),actHost, self.notebook.CurrentConfig())
+            settings.Center()
+            settings.SetBackgroundColour('WHITE')
+            settings.Refresh()
+            settings.Show()
 
     def ShowWifiSettings(self, event):
-        host = self.notebook.CurrentlyActiveHost()
-        wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), host["addr"])
-        wifiDlg.ShowModal()
+        actHost = self.notebook.CurrentlyActiveHost()
+        if not actHost == -1:
+            wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), actHost["addr"])
+            wifiDlg.ShowModal()
 
     def SettingsClosedWithConfig(self, config):
         self.notebook.UpdateCurrentPlayerUI(config)

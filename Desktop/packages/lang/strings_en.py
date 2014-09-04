@@ -94,5 +94,12 @@ strings = {
 	"stop_all": "Stop all",
 	"identify_all": "Identify Players",
 	"reboot_all": "Reboot all",
-	"reboot_all_info": "All players will reboot. RaspMedia control will exit and has to be restarted when the players are running again to reconnect. Reboot now?"
+	"reboot_all_info": "All players will reboot. RaspMedia control will exit and has to be restarted when the players are running again to reconnect. Reboot now?",
+	# GROUP SECTION
+	"groups": "Groups",
+	"new_group": "New Group",
+	"name": "Name",
+	"members": "Members",
+	"master": "Select Master,
+	"msg_select_members": "Select the players for your group:"
 }

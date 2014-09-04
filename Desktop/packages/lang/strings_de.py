@@ -95,5 +95,12 @@ strings = {
 	"stop_all": "Alle stoppen",
 	"identify_all": "Player identifizieren",
 	"reboot_all": "Alle Player neu starten",
-	"reboot_all_info": "Alle Player werden neu gestartet. RaspMedia Control wird dadurch beendet und muss neu gestartet werden sobald die Player wieder gestartet sind um sich wieder zu verbinden. Neustart durchführen?"
+	"reboot_all_info": "Alle Player werden neu gestartet. RaspMedia Control wird dadurch beendet und muss neu gestartet werden sobald die Player wieder gestartet sind um sich wieder zu verbinden. Neustart durchführen?",
+	# GROUP SECTION
+	"groups": "Gruppen",
+	"new_group": "Neue Gruppe",
+	"name": "Name",
+	"members": "Members",
+	"master": "Master auswählen",
+	"msg_select_members": "Player der Gruppe auswählen:"
 }

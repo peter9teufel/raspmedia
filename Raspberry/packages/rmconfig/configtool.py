@@ -34,7 +34,6 @@ def initConfig():
 def initGroupConfig():
     global groupConfig
     groupConfig["group"] = None
-    groupConfig["group_member_count"] = 0
     groupConfig["group_master"] = False
     groupConfig["group_master_name"] = None
     groupConfig["actions"] = []

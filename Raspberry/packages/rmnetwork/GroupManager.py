@@ -20,6 +20,7 @@ class GroupManager():
             self.actionHandler = GroupActionHandler(self.actions)
             self.actionHandler.daemon = True
             self.actionHandler.start()
+            time.sleep(2)
             GroupMasterRoutine()
 
 

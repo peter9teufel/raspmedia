@@ -82,10 +82,22 @@ def interpret(msg_data, sender_ip=None):
 	elif flag == GROUP_MEMBER_ACKNOWLEDGE:
 		group, data = readString(data)
 		GroupManager.MemberAcknowledge(group, sender_ip)
+	elif flag == GROUP_CONFIG:
+		result = flag
+		readGroupConfig(data)
 
 	#print "Remaining data: " + data.decode("utf-8")
 
 	return result, msg
+
+def readGroupConfig(data):
+	name, data = readString(data)
+	mInt, data = readInt(data)
+	master = mInt == 1
+	print "Updating Group Configuration:"
+	print "Name: %s - Master: %b" % (name, master)
+	configtool.setGroupConfigValue("group", name)
+	configtool.setGroupConfigValue("group_master", mInt)
 
 def setupWifi(data):
 	auth, data = readShort(data)

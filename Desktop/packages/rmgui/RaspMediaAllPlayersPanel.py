@@ -1,6 +1,7 @@
 import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import *
+import GroupEditDialog as groupDlg
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
@@ -41,6 +42,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.mainSizer = wx.GridBagSizer()
         self.leftSizer = wx.GridBagSizer()
         self.rightSizer = wx.GridBagSizer()
+        self.groupSizer = wx.GridBagSizer()
         self.notebook_event = None
         self.prgDialog = None
         self.Initialize()
@@ -72,10 +74,12 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         # setup UI in sizers
         self.SetupPlayerSection()
         self.SetupControlSection()
+        self.SetupGroupSection()
 
         # add sizers to main sizer
-        self.mainSizer.Add(self.scroll ,(0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.LEFT | wx.RIGHT, border=10)
-        self.mainSizer.Add(self.rightSizer, (0,2), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.TOP |wx.RIGHT | wx.BOTTOM, border=5)
+        self.mainSizer.Add(self.scroll ,(0,0), span=(2,1), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.LEFT | wx.RIGHT, border=10)
+        self.mainSizer.Add(self.rightSizer, (0,2), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.TOP | wx.RIGHT | wx.BOTTOM, border=5)
+        self.mainSizer.Add(self.groupScroll, (1,2), flag = wx.TOP | wx.RIGHT | wx.LEFT, border=10)
 
         self.SetSizerAndFit(self.mainSizer)
 
@@ -86,14 +90,14 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         #self.mainSizer.Add(line,(0,1), flag = wx.LEFT, border = 10)
 
         #self.Fit()
-        line = wx.StaticLine(self,-1,size=(2,570),style=wx.LI_VERTICAL)
-        self.mainSizer.Add(line,(0,1), span=(1,1), flag=wx.LEFT | wx.RIGHT, border=5)
+        line = wx.StaticLine(self,-1,size=(2,565),style=wx.LI_VERTICAL)
+        self.mainSizer.Add(line,(0,1), span=(2,1), flag=wx.LEFT | wx.RIGHT, border=5)
 
         self.Show(True)
 
     def SetupPlayerSection(self):
         # scrolled panel to show player status list
-        self.scroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(300,570))
+        self.scroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(300,565))
         self.scroll.SetAutoLayout(1)
         self.scroll.SetupScrolling(scroll_x=False, scroll_y=True)
         self.scroll.SetSizer(self.leftSizer)
@@ -143,10 +147,32 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.rightSizer.Add(rebootAll,(3,1), flag=wx.ALL, border=5)
         self.rightSizer.Add(line, (4,1), flag=wx.ALL, border=5)
 
+    def SetupGroupSection(self):
+        # scrolled panel to show player groups
+        self.groupScroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(180,370))
+        self.groupScroll.SetAutoLayout(1)
+        self.groupScroll.SetupScrolling(scroll_x=False, scroll_y=True)
+        self.groupSizer.SetMinSize((180,250))
+        self.groupScroll.SetSizer(self.groupSizer)
+
+        #gLabel = wx.StaticText(self.groupScroll,-1,label=tr("groups"))
+        gNew = wx.Button(self.groupScroll,-1,label=tr("new_group"))
+        self.Bind(wx.EVT_BUTTON, self.NewGroupClicked, gNew)
+
+        #self.groupSizer.Add(gLabel, (0,0))
+        self.groupSizer.Add(gNew, (0,0), flag = wx.LEFT, border = 5)
+
+
+    def NewGroupClicked(self, event=None):
+        dlg = groupDlg.GroupEditDialog(self,-1,tr("new_group"),self.hosts)
+        dlg.ShowModal()
+
+
     def UpdatePlayerName(self, event, host):
         dlg = wx.TextEntryDialog(self, tr("new_name")+":", tr("player_name"), host['name'])
         if dlg.ShowModal() == wx.ID_OK:
             newName = dlg.GetValue()
+            host['name'] = newName
             host['name_label'].SetLabel(newName)
             msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
             network.udpconnector.sendMessage(msgData, host['addr'])

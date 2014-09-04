@@ -26,7 +26,7 @@ class GroupManager():
 
     def GroupMasterRoutine(self):
         # send member request broadcast
-        msgData = messages.getMessage(GROUP_MEMBER_REQUEST, ["-s", self.groupName])
+	msgData = messages.getMessage(GROUP_MEMBER_REQUEST, ["-s", str(self.groupName)])
         udpbroadcaster.sendBroadcast(msgData, True)
 
     def HandleGroupMemberRequest(self, reqGroupName, masterIP):
@@ -88,7 +88,7 @@ class GroupActionHandler(threading.Thread):
                 # --> check for removed actions and stop them
                 pass
 
-            for action in actions:
+            for action in self.actions:
                 if "type" in action:
                     # only process actions with defined type
                     type = action["type"]

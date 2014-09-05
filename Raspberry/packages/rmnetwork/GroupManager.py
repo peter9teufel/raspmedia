@@ -33,11 +33,12 @@ class GroupManager():
         if not self.groupMaster and reqGroupName == self.groupName:
             self.masterHost = masterIP
             # member of requested group --> send acknowledge
-            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", self.groupName])
+            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName)])
             udpbroadcaster.sendMessage(msgData, self.masterHost)
 
     def HandleGroupMemberAcknowledge(self, ackGroupName, memberIP):
         if self.groupMaster and ackGroupName == self.groupName:
+	    print "MEMBER ACKNOWLEDGED: ", memberIP
             if not memberIP in self.memberHosts:
                 self.memberHosts.append(memberIP)
                 memberCount += 1

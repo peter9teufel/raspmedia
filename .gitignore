@@ -11,7 +11,7 @@
 *.mpg
 *.m4v
 *.mp4
-group.conf
+*.conf
 build
 dist
 Release

@@ -22,11 +22,15 @@ class GroupManager():
             self.actionHandler.start()
             time.sleep(2)
             self.GroupMasterRoutine()
+        else:
+            # player is a group member --> broadcast acknowledge in case master is already online
+            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName)])
+            udpbroadcaster.sendMessage(msgData)
 
 
     def GroupMasterRoutine(self):
         # send member request broadcast
-	msgData = messages.getMessage(GROUP_MEMBER_REQUEST, ["-s", str(self.groupName)])
+        msgData = messages.getMessage(GROUP_MEMBER_REQUEST, ["-s", str(self.groupName)])
         udpbroadcaster.sendBroadcast(msgData, True)
 
     def HandleGroupMemberRequest(self, reqGroupName, masterIP):

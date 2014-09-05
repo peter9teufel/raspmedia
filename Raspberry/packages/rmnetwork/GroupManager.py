@@ -41,7 +41,7 @@ class GroupManager():
 	    print "MEMBER ACKNOWLEDGED: ", memberIP
             if not memberIP in self.memberHosts:
                 self.memberHosts.append(memberIP)
-                memberCount += 1
+                self.memberCount += 1
             self.actionHandler.AddHost(memberIP)
 
     def ScheduleActions(self):

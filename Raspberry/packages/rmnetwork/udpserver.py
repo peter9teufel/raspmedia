@@ -1,6 +1,6 @@
 import threading, time
 import SocketServer
-import interpreter, messages, GroupManager
+import interpreter, messages, netutil
 
 from packages.rmmedia import mediaplayer
 from constants import *
@@ -22,35 +22,38 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         inData = self.request[0].strip()
         cSocket = self.request[1]
         curThread = threading.current_thread()
-        result, msg = interpreter.interpret(data, self.client_address[0])
+        if not self.client_address[0] in netutil.ip4_addresses():
+            result, msg = interpreter.interpret(data, self.client_address[0])
 
 
-        if result == SERVER_REQUEST:
-            responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name'])])
-            addr = (self.client_address[0], UDP_PORT)
-            print "Sending response to client:"
-            print (addr)
-            if cSocket.sendto(responseData, addr):
-                print "Response sent!"
-            else:
-                print "Sending response failed!"
-        elif result == FILELIST_REQUEST:
-            files = mediaplayer.getMediaFileList()
-            print files
-            args = ['-i', str(len(files))]
-            for file in files:
-                args.append('-s')
-                args.append(file)
-            responseData = messages.getMessage(FILELIST_RESPONSE,args)
-            if cSocket.sendto(responseData, (self.client_address[0], UDP_PORT)):
-                print "Filelist sent!"
-        elif result == CONFIG_REQUEST:
-            responseData = messages.getConfigMessage()
-            if cSocket.sendto(responseData, (self.client_address[0], UDP_PORT)):
-                print "Config sent!"
-        elif result == PLAYER_UPDATE_ERROR:
-            responseData = messages.getMessage(PLAYER_UPDATE_ERROR, ["-s", str(msg)])
-            cSocket.sendto(responseData, (self.client_address[0], UDP_PORT))
+            if result == SERVER_REQUEST:
+                responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name'])])
+                addr = (self.client_address[0], UDP_PORT)
+                print "Sending response to client:"
+                print (addr)
+                if cSocket.sendto(responseData, addr):
+                    print "Response sent!"
+                else:
+                    print "Sending response failed!"
+            elif result == FILELIST_REQUEST:
+                files = mediaplayer.getMediaFileList()
+                print files
+                args = ['-i', str(len(files))]
+                for file in files:
+                    args.append('-s')
+                    args.append(file)
+                responseData = messages.getMessage(FILELIST_RESPONSE,args)
+                if cSocket.sendto(responseData, (self.client_address[0], UDP_PORT)):
+                    print "Filelist sent!"
+            elif result == CONFIG_REQUEST:
+                responseData = messages.getConfigMessage()
+                if cSocket.sendto(responseData, (self.client_address[0], UDP_PORT)):
+                    print "Config sent!"
+            elif result == PLAYER_UPDATE_ERROR:
+                responseData = messages.getMessage(PLAYER_UPDATE_ERROR, ["-s", str(msg)])
+                cSocket.sendto(responseData, (self.client_address[0], UDP_PORT))
+        else:
+            print "Received own broadcast... ignored."
 
 
         # DEBUG CODE to echo the received message

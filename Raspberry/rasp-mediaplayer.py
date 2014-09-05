@@ -58,7 +58,6 @@ def main():
     # initialize group manager with group configuration
     groupConfig = rmconfig.configtool.readGroupConfig()
     GroupManager.InitGroupManager(groupConfig)
-    time.sleep(5)
     GroupManager.Schedule()
 
 

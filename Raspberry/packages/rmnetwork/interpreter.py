@@ -87,6 +87,13 @@ def interpret(msg_data, sender_ip=None):
 	elif flag == GROUP_CONFIG:
 		result = flag
 		readGroupConfig(data)
+	elif flag == GROUP_DELETE:
+		result = flag
+		groupName, data = readString(data)
+		if configtool.readGroupConfig['group'] == groupName:
+			configtool.resetGroupConfig()
+			gConf = configtool.readGroupConfig()
+			GroupManager.ReInitGroupManager(gConf)
 
 	#print "Remaining data: " + data.decode("utf-8")
 
@@ -101,6 +108,8 @@ def readGroupConfig(data):
 	print "Master: ", master
 	configtool.setGroupConfigValue("group", name)
 	configtool.setGroupConfigValue("group_master", mInt)
+	gConf = configtool.readGroupConfig()
+	GroupManager.ReInitGroupManager(gConf)
 
 def setupWifi(data):
 	auth, data = readShort(data)

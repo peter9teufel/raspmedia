@@ -16,6 +16,10 @@ class GroupManager():
         self.masterHost = ""
 
         if self.groupMaster:
+            # in case of re-initializing stop running action handling
+            if self.actionHandler and self.actionHandler.isAlive()
+                self.StopActionHandling()
+
             # init action handler thread
             self.actionHandler = GroupActionHandler(self.actions)
             self.actionHandler.daemon = True
@@ -48,11 +52,12 @@ class GroupManager():
                 self.memberCount += 1
             self.actionHandler.AddHost(memberIP)
 
-    def ScheduleActions(self):
+    def ScheduleActions(self, startUp):
         if self.groupMaster:
             # start thread if not already alive
             if not self.actionHandler.isAlive():
                 self.actionHandler.start()
+            self.actionHandler.startUp = startUp
             # set runevent to trigger action scheduling
             self.actionHandler.runevent.set()
 
@@ -175,9 +180,14 @@ def InitGroupManager(groupConfig):
     global groupManager
     groupManager = GroupManager(groupConfig)
 
-def Schedule():
+def Schedule(startUp=True):
     global groupManager
-    groupManager.ScheduleActions()
+    groupManager.ScheduleActions(startUp)
+
+def ReInitGroupManager(groupConfig):
+    InitGroupManager(groupConfig)
+    time.sleep(2)
+    Schedule(False)
 
 def MemberRequest(groupName, masterIP):
     global groupManager

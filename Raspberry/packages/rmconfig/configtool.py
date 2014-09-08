@@ -38,6 +38,10 @@ def initGroupConfig():
     groupConfig["group_master_name"] = None
     groupConfig["actions"] = []
 
+def resetGroupConfig():
+    initGroupConfig()
+    writeGroupConfigFile()
+
 def setConfigValue(key, value):
 	global config
 	if is_number(value):

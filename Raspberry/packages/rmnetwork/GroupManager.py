@@ -16,10 +16,6 @@ class GroupManager():
         self.masterHost = ""
 
         if self.groupMaster:
-            # in case of re-initializing stop running action handling
-            if self.actionHandler and self.actionHandler.isAlive()
-                self.StopActionHandling()
-
             # init action handler thread
             self.actionHandler = GroupActionHandler(self.actions)
             self.actionHandler.daemon = True

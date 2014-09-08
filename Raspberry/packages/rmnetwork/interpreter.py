@@ -76,6 +76,8 @@ def interpret(msg_data, sender_ip=None):
 	elif flag == WIFI_CONFIG:
 		setupWifi(data)
 	### GROUP AND ACTION MESSAGE FLAGS ###
+	elif flag == GROUP_CONFIG_REQUEST:
+		result = flag
 	elif flag == GROUP_MEMBER_REQUEST:
 		group, data = readString(data)
 		GroupManager.MemberRequest(group, sender_ip)

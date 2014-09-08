@@ -57,6 +57,20 @@ def getConfigMessage():
 	#print "Message size: ", size
 	return data
 
+def getGroupConfigMessage():
+	config = configtool.readGroupConfig()
+	configStr = str(config)
+	confBytes = bytearray(configStr)
+
+	data = bytearray()
+	size = 10 + len(confBytes)
+	appendInt(data, size)
+	appendShort(data, GROUP_CONFIG_REQUEST)
+	appendInt(data, len(confBytes))
+	appendBytes(data, confBytes)
+
+	return data
+
 
 def getMessage(flag, args=None):
 	# append all arguments given as cmd args to usgData

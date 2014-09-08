@@ -90,7 +90,7 @@ def interpret(msg_data, sender_ip=None):
 	elif flag == GROUP_DELETE:
 		result = flag
 		groupName, data = readString(data)
-		if configtool.readGroupConfig['group'] == groupName:
+		if configtool.readGroupConfig()['group'] == groupName:
 			configtool.resetGroupConfig()
 			gConf = configtool.readGroupConfig()
 			GroupManager.ReInitGroupManager(gConf)

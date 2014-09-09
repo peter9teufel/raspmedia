@@ -96,10 +96,7 @@ def interpret(msg_data, sender_ip=None):
 			GroupManager.ReInitGroupManager(gConf)
 	elif flag == GROUP_CONFIG_ADD_ACTION:
 		result = flag
-		action, data = readString(data)
-		configtool.addGroupAction(action)
-		gConf = configtool.readGroupConfig()
-		GroupManager.ReInitGroupManager(gConf)
+		msg, data = readString(data)
 
 	#print "Remaining data: " + data.decode("utf-8")
 

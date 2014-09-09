@@ -95,6 +95,8 @@ class GroupActionHandler(threading.Thread):
                 pass
 
             for action in self.actions:
+                print action
+                '''
                 if "type" in action:
                     # only process actions with defined type
                     type = action["type"]
@@ -114,6 +116,7 @@ class GroupActionHandler(threading.Thread):
                 else:
                     # no type defined, action ignored
                     pass
+                '''
 
             # periodic actions are started in threads, check if startup actions have to be handled
             if self.startUp:

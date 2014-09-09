@@ -2,6 +2,8 @@ import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import *
 import GroupEditDialog as groupDlg
+import PlayerInfoDialog as playerDlg
+import ActionEditDialog as actDlg
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
@@ -28,17 +30,13 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         BASE_PATH = parent.parent.base_path
         self.parent = parent
         self.index = index
-        self.hosts = hosts
+        self.hosts = sorted(hosts)
+        self.groupConfigs = []
+        self.groups = {}
 
-        '''
-        # DEBUG HOST LIST
-        self.hosts = []
-        for i in range(10):
-            host = {}
-            host['addr'] = "10.0.0.%d" % i
-            host['name'] = "Player %d" % i
-            self.hosts.append(host)
-        '''
+        self.groupDeletion = False
+        self.groupLoading = True
+
         self.mainSizer = wx.GridBagSizer()
         self.leftSizer = wx.GridBagSizer()
         self.rightSizer = wx.GridBagSizer()
@@ -57,6 +55,8 @@ class RaspMediaAllPlayersPanel(wx.Panel):
                 if host['addr'] == curHost['addr']:
                     curHost['name'] = host['name']
                     curHost['name_label'].SetLabel(curHost['name'])
+
+        self.LoadGroupConfig()
 
     def PageChanged(self, event):
         old = event.GetOldSelection()
@@ -149,24 +149,125 @@ class RaspMediaAllPlayersPanel(wx.Panel):
 
     def SetupGroupSection(self):
         # scrolled panel to show player groups
-        self.groupScroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(180,370))
+        self.groupScroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(300,370))
         self.groupScroll.SetAutoLayout(1)
         self.groupScroll.SetupScrolling(scroll_x=False, scroll_y=True)
-        self.groupSizer.SetMinSize((180,250))
+        self.groupSizer.SetMinSize((300,250))
         self.groupScroll.SetSizer(self.groupSizer)
 
-        #gLabel = wx.StaticText(self.groupScroll,-1,label=tr("groups"))
+
+    def LoadGroupUI(self):
+        # clear sizer when updating group configurations in UI
+        self.groupSizer.Clear(True)
+
+        # add new group button
         gNew = wx.Button(self.groupScroll,-1,label=tr("new_group"))
         self.Bind(wx.EVT_BUTTON, self.NewGroupClicked, gNew)
 
         #self.groupSizer.Add(gLabel, (0,0))
         self.groupSizer.Add(gNew, (0,0), flag = wx.LEFT, border = 5)
 
+        # parse group configurations and create UI elements
+        self.ParseGroups()
+
+        index = 1
+        print "GROUPS LOADED: ", self.groups
+        for group in self.groups:
+            name = self.groups[group]["name"]
+
+            box = wx.StaticBox(self.groupScroll,-1,name)
+            groupSizer = wx.StaticBoxSizer(box, wx.VERTICAL)
+
+            print "Adding group %s to UI..." % name
+            memberList = wx.ListCtrl(self.groupScroll,-1,size=(255,80), style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+            memberList.Show(True)
+            memberList.InsertColumn(0,tr("player_name"), width = 145)
+            memberList.InsertColumn(1,"Master", width = 50, format = wx.LIST_FORMAT_CENTER)
+            memberList.InsertColumn(2,"Member", width = 50, format = wx.LIST_FORMAT_CENTER)
+
+            members = self.groups[group]['members']
+            for member in members:
+                idx = memberList.InsertStringItem(memberList.GetItemCount(), member['player_name'])
+                if member['master']:
+                    memberList.SetStringItem(idx, 1, "*")
+                else:
+                    memberList.SetStringItem(idx, 2, "*")
+
+            editGroup = wx.Button(self.groupScroll,-1,label="Edit Group",size=(85,25))
+            editAct = wx.Button(self.groupScroll,-1,label="Actions",size=(85,25))
+            delGroup = wx.Button(self.groupScroll,-1,label="Delete",size=(85,25))
+
+            self.Bind(wx.EVT_BUTTON, lambda event, group=self.groups[group]: self.EditGroup(event,group), editGroup)
+            self.Bind(wx.EVT_BUTTON, lambda event, group=self.groups[group]: self.EditActions(event,group), editAct)
+            self.Bind(wx.EVT_BUTTON, lambda event, group=self.groups[group]: self.DeleteGroup(event,group), delGroup)
+            self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, lambda event, group=self.groups[group], list=memberList: self.MemberDetails(event,group,list), memberList)
+
+            # add UI elements
+            groupSizer.Add(memberList)
+            btnSizer = wx.GridBagSizer()
+            btnSizer.Add(editGroup, (0,0))
+            btnSizer.Add(editAct, (0,1))
+            btnSizer.Add(delGroup, (0,2))
+            groupSizer.Add(btnSizer)
+
+            index +=1
+            self.groupSizer.Add(groupSizer, (index, 0), span=(1,2))
+
+
+        self.groupSizer.Layout()
+
+    def EditGroup(self, event, group):
+        dlg = groupDlg.GroupEditDialog(self,-1,"Edit group",self.hosts,group=group)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.LoadGroupConfig()
+
+    def EditActions(self, event, group):
+        dlg = actDlg.ActionEditDialog(self,-1,"Actions",self.hosts,group=group)
+        dlg.ShowModal()
+
+    def DeleteGroup(self, event, group):
+        qDlg = wx.MessageDialog(self,"Delete group %s?" % group['name'], "Delete", style = wx.YES_NO)
+        if qDlg.ShowModal() == wx.ID_YES:
+            self.groupDeletion = True
+            msgData = network.messages.getMessage(GROUP_DELETE, ["-s", group['name']])
+            Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
+            dlgStyle = wx.PD_AUTO_HIDE
+            self.prgDialog = wx.ProgressDialog("Deleting...", "Deleting group %s..." % group['name'], parent = self, style = dlgStyle)
+            self.prgDialog.Pulse()
+            network.udpconnector.sendMessage(msgData)
+
+    def MemberDetails(self, event, group, list):
+        item = event.GetItem()
+        index = list.GetFirstSelected()
+        dlg = playerDlg.PlayerInfoDialog(self,-1,"Player Info",group['members'][index])
+        dlg.ShowModal()
 
     def NewGroupClicked(self, event=None):
         dlg = groupDlg.GroupEditDialog(self,-1,tr("new_group"),self.hosts)
-        dlg.ShowModal()
+        if dlg.ShowModal() == wx.ID_OK:
+            dlg = wx.ProgressDialog(tr("saving"), tr("saving_group"), parent = self, style = wx.PD_AUTO_HIDE)
+            dlg.Pulse()
+            time.sleep(len(self.hosts))
+            dlg.Update(100)
+            if HOST_SYS == HOST_WIN:
+                dlg.Destroy()
+            self.LoadGroupConfig()
 
+
+    def LoadGroupConfig(self, event=None):
+        # reset previously loaded group config data
+        self.groups = {}
+        self.groupConfigs = []
+
+        print "Loading group config from players..."
+        self.groupLoading = True
+        Publisher.subscribe(self.GroupConfigReceived, 'group_config')
+        Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
+        msgData = network.messages.getMessage(GROUP_CONFIG_REQUEST)
+        dlgStyle = wx.PD_AUTO_HIDE
+        self.prgDialog = wx.ProgressDialog("Loading...", "Loading group configurations from player...", parent = self, style = dlgStyle)
+        self.prgDialog.Pulse()
+        network.udpconnector.sendMessage(msgData)
 
     def UpdatePlayerName(self, event, host):
         dlg = wx.TextEntryDialog(self, tr("new_name")+":", tr("player_name"), host['name'])
@@ -218,30 +319,69 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             network.udpconnector.sendMessage(msgData2)
         dlg.Destroy()
 
-    def UdpListenerStopped(self):
-        # print "UDP LISTENER STOPPED IN PANEL %d" % self.index
+    def GroupConfigReceived(self, group_config, playerIP, isDict=False):
         global HOST_SYS
-        if self.pageDataLoading:
-            if self.remoteListLoading:
-                self.pageDataLoading = False
-                Publisher.unsubAll()
-                if self.parent.prgDialog:
-                    # print "CLOSING PRG DIALOG IN PARENT..."
-                    self.parent.prgDialog.Update(100)
-                    if HOST_SYS == HOST_WIN:
-                        self.parent.prgDialog.Destroy()
-                if self.prgDialog:
-                    # print "CLOSING PRG DIALOG IN PANEL..."
-                    self.prgDialog.Update(100)
-                    if HOST_SYS == HOST_WIN:
-                        self.prgDialog.Destroy()
-            else:
-                self.LoadRemoteFileList()
+        if isDict:
+            configDict = group_config
         else:
-            if self.prgDialog:
-                self.prgDialog.Update(100)
-                if HOST_SYS == HOST_WIN:
-                    self.prgDialog.Destroy()
+            configDict = ast.literal_eval(group_config)
+
+        configDict["player_ip"] = playerIP
+
+        # save group configuration, parsing is done when all configs are loaded
+        self.groupConfigs.append(configDict)
+
+    def UdpListenerStopped(self):
+        global HOST_SYS
+        if self.prgDialog:
+            self.prgDialog.Update(100)
+            if HOST_SYS == HOST_WIN:
+                self.prgDialog.Destroy()
+        if self.groupLoading:
+            self.LoadGroupUI()
+            self.groupLoading = False
+        elif self.groupDeletion:
+            self.LoadGroupConfig()
+            self.groupDeletion = False
+
+    def ParseGroups(self):
+        # parse configurations
+        for conf in self.groupConfigs:
+            # read current config
+            name = conf['group']
+            if not name == None:
+                actions = []
+                if "actions" in conf:
+                    actions = conf['actions']
+                ip = conf['player_ip']
+                master = conf['group_master']
+                member = {}
+                member['ip'] = ip
+                found = False
+                for host in self.hosts:
+                    if ip == host['addr']:
+                        member['player_name'] = host['name']
+                        found = True
+                if found:
+                    member['master'] = master
+                    members = []
+                    group = {}
+
+                    if not name in self.groups:
+                        group['name'] = name
+                        group['members'] = members
+                        group['members'].append(member)
+                        group['actions'] = actions
+                        self.groups[name] = group
+                    else:
+                        self.groups[name]['members'].append(member)
+                        if len(actions) > 0:
+                            self.groups[name]['actions'] = actions
+        print self.groups
+        for group in self.groups:
+            self.groups[group]['members'] = sorted(self.groups[group]['members'])
+        print self.groups
+
 
     def ButtonClicked(self, event):
         button = event.GetEventObject()

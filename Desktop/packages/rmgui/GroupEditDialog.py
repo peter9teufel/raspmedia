@@ -1,5 +1,5 @@
 import wx
-import sys, platform
+import sys, platform, time
 from wx.lib.wordwrap import wordwrap
 from packages.rmnetwork import netutil
 import packages.rmnetwork as network
@@ -10,7 +10,7 @@ from packages.lang.Localizer import *
 # DIALOG FOR GROUP CREATION AND EDITING ########################################
 ################################################################################
 class GroupEditDialog(wx.Dialog):
-    def __init__(self,parent,id,title,hosts,actions=[]):
+    def __init__(self,parent,id,title,hosts,actions=[],group=None):
         wx.Dialog.__init__(self,parent,id,title)
         self.parent = parent
         self.hosts = hosts
@@ -19,6 +19,8 @@ class GroupEditDialog(wx.Dialog):
         self.master = -1
         self.mainSizer = wx.GridBagSizer()
         self.__InitUI()
+        if group:
+            self.UpdateUI(group)
         self.SetSizerAndFit(self.mainSizer)
         self.Center()
 
@@ -57,6 +59,20 @@ class GroupEditDialog(wx.Dialog):
 
         self.__ValidateInput()
 
+    def UpdateUI(self, group):
+        self.nameCtrl.SetValue(group['name'])
+        members = group['members']
+        for member in members:
+            ip = member['ip']
+            name = member['player_name']
+            master = member['master']
+            index = get_index(self.hosts, 'addr', ip)
+            self.members.append(index)
+            if master:
+                self.master = index
+            self.UpdateAvailableMasters()
+
+
     def SelectMembers(self, event):
         hostNames = []
         for host in self.hosts:
@@ -91,8 +107,6 @@ class GroupEditDialog(wx.Dialog):
                     index = i
             # set selected master in combo box
             self.combo.SetSelection(i)
-            print "Master selected at index: ", index
-            print "Index of Master in host list: ", self.master
         else:
             self.combo.SetSelection(-1)
             self.master == -1
@@ -104,8 +118,6 @@ class GroupEditDialog(wx.Dialog):
         selection = self.combo.GetSelection()
         if not selection == -1:
             self.master = self.masterHosts[selection]["index"]
-            print "Selection: ", selection
-            print "Index of Master in host list: ", self.master
             self.__ValidateInput()
 
 
@@ -114,6 +126,7 @@ class GroupEditDialog(wx.Dialog):
         masterIP = self.hosts[self.master]['addr']
         actions = self.actions
         master = "0"
+
         # SEND GROUP CONFIG TO MASTER AND MEMBERS
         for member in self.members:
             if member == self.master:
@@ -124,6 +137,7 @@ class GroupEditDialog(wx.Dialog):
                 master = "0"
             msgData = network.messages.getMessage(GROUP_CONFIG, ['-s',name,'-i',master])
             network.udpconnector.sendMessage(msgData, self.hosts[member]['addr'])
+
         self.EndModal(wx.ID_OK)
         self.Destroy()
 
@@ -136,3 +150,6 @@ class GroupEditDialog(wx.Dialog):
             self.okBtn.Enable()
         else:
             self.okBtn.Disable()
+
+def get_index(seq, attr, value):
+    return next(index for (index, d) in enumerate(seq) if d[attr] == value)

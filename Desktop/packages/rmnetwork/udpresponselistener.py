@@ -55,7 +55,8 @@ class UDPResponseListener(threading.Thread):
 					elif result == CONFIG_REQUEST:
 						# print "Config data received:"
 						wx.CallAfter(Publisher.sendMessage, 'config', config=response)
-						# print response
+					elif result == GROUP_CONFIG_REQUEST:
+						wx.CallAfter(Publisher.sendMessage, 'group_config', group_config=response, playerIP=address[0])
 					elif result == PLAYER_UPDATE_ERROR:
 						# print "Player update failed: " + response
 						wx.CallAfter(Publisher.sendMessage, 'update_failed')
@@ -63,6 +64,10 @@ class UDPResponseListener(threading.Thread):
 						# print "Player BOOT_COMPLETE"
 						wx.CallAfter(Publisher.sendMessage, 'boot_complete')
 						stopListening()
+					elif result == GROUP_CONFIG_ADD_ACTION:
+						wx.CallAfter(Publisher.sendMessage, 'action_saved')
+					elif result == GROUP_CONFIG_ACTION_DELETE:
+						wx.CallAfter(Publisher.sendMessage, 'action_deleted')
 
 
 def stopListening():

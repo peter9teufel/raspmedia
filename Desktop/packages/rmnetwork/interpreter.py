@@ -13,6 +13,7 @@ def interpret(msg_data):
 	# print "Size: " + str(size)
 
 	flag, data = readShort(data)
+	result = flag
 	returnData = None
 	# print "Flag: " + str(flag)
 	if flag == SERVER_REQUEST_ACKNOWLEDGE:
@@ -28,14 +29,12 @@ def interpret(msg_data):
 	elif flag == FILELIST_RESPONSE:
 		returnData = readFileList(data)
 		result = INTERPRETER_FILELIST_REQUEST
-	elif flag == CONFIG_REQUEST:
-		result = CONFIG_REQUEST
+	elif flag == CONFIG_REQUEST or flag == GROUP_CONFIG_REQUEST:
+		result = flag
 		returnData = readConfigData(data)
 	elif flag == PLAYER_UPDATE_ERROR:
 		result = flag
 		returnData, data = readString(data)
-	elif flag == PLAYER_BOOT_COMPLETE:
-		result = flag
 
 	#print "Remaining data: " + data.decode("utf-8")
 
@@ -59,7 +58,6 @@ def readFileList(data):
 def readInt(data):
 	intBytes = data[:4]
 	remainingData = data[4:]
-	#num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
 	# LE change
 	num = (intBytes[3] << 24) + (intBytes[2] << 16) + (intBytes[1] << 8) + intBytes[0]
 	return num, remainingData

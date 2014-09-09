@@ -101,5 +101,6 @@ strings = {
 	"name": "Name",
 	"members": "Members",
 	"master": "Select Master,
-	"msg_select_members": "Select the players for your group:"
+	"msg_select_members": "Select the players for your group:",
+	"saving_group": "Saving group..."
 }

@@ -59,31 +59,37 @@ def setGroupConfigValue(key, value):
 def addGroupAction(action):
     global groupConfig
     groupConfig = readGroupConfig()
-    groupConfig["actions"].append(action)
-    writeGroupConfigFile()
+    if __actionIndex(action) == -1:
+        # action not in list --> append and save
+        groupConfig["actions"].append(action)
+        writeGroupConfigFile()
 
-def deleteGroupAction(action):
-    global groupConfig
-    readGroupConfig()
+def __actionIndex(action):
     ind = -1
     cnt = 0
-    try:
-        actionDict = ast.literal_eval(action)
-        action = actionDict
-    except:
-        pass
-    sd = __sortDict(action)
-    action = sd
+    # convert to dict in case it is still a string
+    action = __toDict(action)
+    action = __sortDict(action)
     for a in groupConfig['actions']:
-        try:
-            actionDict = ast.literal_eval(a)
-            a = actionDict
-        except:
-            pass
+        a = __toDict(a)
         a = __sortDict(a)
         if cmp(a, action) == 0:
             ind = cnt
         cnt += 1
+    return ind
+
+def __toDict(data):
+    try:
+        dict = ast.literal_eval(data)
+        data = dict
+    except:
+        pass
+    return data
+
+def deleteGroupAction(action):
+    global groupConfig
+    readGroupConfig()
+    ind = __actionIndex(action)
     if not ind == -1:
         del groupConfig['actions'][ind]
     writeGroupConfigFile()

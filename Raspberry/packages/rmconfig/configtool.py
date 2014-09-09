@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os, re, subprocess, time, json
+import os, re, subprocess, time, json, ast
 
 cwd = os.getcwd()
 mainConfigFile = cwd + '/main.conf'
@@ -72,7 +72,8 @@ def deleteGroupAction(action):
         action = actionDict
     except:
         pass
-    action = __sortDict(action)
+    sd = __sortDict(action)
+    action = sd
     for a in groupConfig['actions']:
         try:
             actionDict = ast.literal_eval(a)
@@ -91,8 +92,6 @@ def __sortDict(dict):
     sDict = {}
     for key in sorted(dict):
         sDict[key] = dict[key]
-    # print dict
-    # print sDict
     return sDict
 
 def writeConfigFile():

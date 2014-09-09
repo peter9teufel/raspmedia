@@ -65,12 +65,24 @@ def addGroupAction(action):
 def deleteGroupAction(action):
     global groupConfig
     readGroupConfig()
-    delAct = None
+    ind = -1
+    cnt = 0
+    try:
+        actionDict = ast.literal_eval(action)
+        action = actionDict
+    except:
+        pass
     for a in groupConfig['actions']:
+        try:
+            actionDict = ast.literal_eval(a)
+            a = actionDict
+        except:
+            pass
         if cmp(a, action) == 0:
-            delAct = a
-    if not delAct == None:
-        groupConfig['actions'].remove(delAct)
+            ind = cnt
+        cnt += 1
+    if not ind == -1:
+        del groupConfig['actions'][ind]
     writeGroupConfigFile()
 
 

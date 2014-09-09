@@ -64,7 +64,7 @@ def addGroupAction(action):
 
 def deleteGroupAction(action):
     global groupConfig
-    groupConfig = readGroupConfig()
+    readGroupConfig()
     delAct = None
     for a in groupConfig['actions']:
         if cmp(a, action) == 0:

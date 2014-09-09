@@ -101,6 +101,8 @@ class GroupActionHandler(threading.Thread):
                 except:
                     print "Conversion to dictionary not necessary."
 
+                print action
+                '''
                 if "type" in action:
                     # only process actions with defined type
                     type = action["type"]
@@ -120,8 +122,8 @@ class GroupActionHandler(threading.Thread):
                 else:
                     # no type defined, action ignored
                     pass
-
-
+                '''
+            '''
             # periodic actions are started in threads, check if startup actions have to be handled
             if self.startUp:
                 for sAction in startupActions:
@@ -130,7 +132,7 @@ class GroupActionHandler(threading.Thread):
                     t.daemon = True
                     t.start()
                 self.startUp = False
-
+            '''
             # wait for update event
             self.updateevent.wait()
             update = True

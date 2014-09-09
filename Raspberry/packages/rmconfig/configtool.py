@@ -58,6 +58,7 @@ def setGroupConfigValue(key, value):
 
 def addGroupAction(action):
     global groupConfig
+    groupConfig = readGroupConfig()
     groupConfig["actions"].append(action)
     writeGroupConfigFile()
 

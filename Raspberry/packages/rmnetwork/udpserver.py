@@ -53,6 +53,10 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                 response = messages.getGroupConfigMessage()
                 if cSocket.sendto(response, (self.client_address[0], UDP_PORT)):
                     print "Group Config sent!"
+            elif result == GROUP_CONFIG_ADD_ACTION:
+                    response = messages.getMessage(GROUP_CONFIG_ADD_ACTION)
+                    if cSocket.sendto(response, (self.client_address[0], UDP_PORT)):
+                        print "Action saved confirmation sent!"
             elif result == PLAYER_UPDATE_ERROR:
                 responseData = messages.getMessage(PLAYER_UPDATE_ERROR, ["-s", str(msg)])
                 cSocket.sendto(responseData, (self.client_address[0], UDP_PORT))

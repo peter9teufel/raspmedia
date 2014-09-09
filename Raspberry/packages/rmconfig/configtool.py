@@ -72,12 +72,14 @@ def deleteGroupAction(action):
         action = actionDict
     except:
         pass
+    action = __sortDict(action)
     for a in groupConfig['actions']:
         try:
             actionDict = ast.literal_eval(a)
             a = actionDict
         except:
             pass
+        a = __sortDict(a)
         if cmp(a, action) == 0:
             ind = cnt
         cnt += 1
@@ -85,6 +87,13 @@ def deleteGroupAction(action):
         del groupConfig['actions'][ind]
     writeGroupConfigFile()
 
+def __sortDict(dict):
+    sDict = {}
+    for key in sorted(dict):
+        sDict[key] = dict[key]
+    # print dict
+    # print sDict
+    return sDict
 
 def writeConfigFile():
 	global config

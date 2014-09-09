@@ -97,6 +97,9 @@ def interpret(msg_data, sender_ip=None):
 	elif flag == GROUP_CONFIG_ADD_ACTION:
 		result = flag
 		msg, data = readString(data)
+	elif flag == GROUP_CONFIG_ACTION_DELETE:
+		result = flag
+		msg, data = readString(data)
 
 	#print "Remaining data: " + data.decode("utf-8")
 

@@ -62,6 +62,18 @@ def addGroupAction(action):
     groupConfig["actions"].append(action)
     writeGroupConfigFile()
 
+def deleteGroupAction(action):
+    global groupConfig
+    groupConfig = readGroupConfig()
+    delAct = None
+    for a in groupConfig['actions']:
+        if cmp(a, action) == 0:
+            delAct = a
+    if not delAct == None:
+        groupConfig['actions'].remove(delAct)
+    writeGroupConfigFile()
+
+
 def writeConfigFile():
 	global config
 	f = open(mainConfigFile, 'w')

@@ -95,8 +95,12 @@ class GroupActionHandler(threading.Thread):
                 pass
 
             for action in self.actions:
-                print action
-                '''
+                try:
+                    actionDict = ast.literal_eval(action)
+                    action = actionDict
+                except:
+                    print "Conversion to dictionary not necessary."
+
                 if "type" in action:
                     # only process actions with defined type
                     type = action["type"]
@@ -116,7 +120,7 @@ class GroupActionHandler(threading.Thread):
                 else:
                     # no type defined, action ignored
                     pass
-                '''
+
 
             # periodic actions are started in threads, check if startup actions have to be handled
             if self.startUp:

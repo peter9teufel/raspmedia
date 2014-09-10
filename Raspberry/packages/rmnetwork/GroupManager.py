@@ -68,12 +68,6 @@ class GroupManager():
 class GroupActionHandler(threading.Thread):
     def __init__(self, actions):
         self.actions = actions
-        # convert actions to dict if needed
-        try:
-            actionDict = ast.literal_eval(actions)
-            actions = actionDict
-        except:
-            pass
         self.runevent = threading.Event()
         self.updateevent = threading.Event()
         self.actionThreads = []
@@ -89,6 +83,12 @@ class GroupActionHandler(threading.Thread):
             self.hosts.append(host)
         # check if actions are defined that should be processed when a new group host came online
         for action in self.actions:
+            # convert action to dict if needed
+            try:
+                actionDict = ast.literal_eval(action)
+                action = actionDict
+            except:
+                pass
             if "type" in action and action['type'] == ACTION_EVENT_NEW_PLAYER:
                 print "New Player found --> triggering action ", action
                 # action found, handled like a startup action using the defined delay
@@ -110,6 +110,12 @@ class GroupActionHandler(threading.Thread):
                 pass
 
             for action in self.actions:
+                # convert action to dict if needed
+                try:
+                    actionDict = ast.literal_eval(action)
+                    action = actionDict
+                except:
+                    pass
                 if "type" in action:
                     # only process actions with defined type
                     type = action["type"]

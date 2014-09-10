@@ -68,6 +68,12 @@ class GroupManager():
 class GroupActionHandler(threading.Thread):
     def __init__(self, actions):
         self.actions = actions
+        # convert actions to dict if needed
+        try:
+            actionDict = ast.literal_eval(actions)
+            actions = actionDict
+        except:
+            pass
         self.runevent = threading.Event()
         self.updateevent = threading.Event()
         self.actionThreads = []
@@ -104,12 +110,6 @@ class GroupActionHandler(threading.Thread):
                 pass
 
             for action in self.actions:
-                try:
-                    actionDict = ast.literal_eval(action)
-                    action = actionDict
-                except:
-                    pass
-
                 if "type" in action:
                     # only process actions with defined type
                     type = action["type"]

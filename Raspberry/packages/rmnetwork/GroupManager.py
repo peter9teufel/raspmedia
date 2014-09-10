@@ -89,7 +89,7 @@ class GroupActionHandler(threading.Thread):
                 action = actionDict
             except:
                 pass
-            if "type" in action and action['type'] == ACTION_EVENT_NEW_PLAYER:
+            if "type" in action and int(action['type']) == ACTION_EVENT_NEW_PLAYER:
                 print "New Player found --> triggering action ", action
                 # action found, handled like a startup action using the defined delay
                 t = threading.Thread(target=self.__ProcessStartupAction, args=[action])
@@ -118,7 +118,7 @@ class GroupActionHandler(threading.Thread):
                     pass
                 if "type" in action:
                     # only process actions with defined type
-                    type = action["type"]
+                    type = int(action["type"])
                     if type == ACTION_TYPE_ONETIME:
                         if action["event"] == ACTION_EVENT_STARTUP:
                             print "Triggering startup action ", action
@@ -158,7 +158,7 @@ class GroupActionHandler(threading.Thread):
 
     def __ProcessPeriodicAction(self, action, stopevent):
         # processes given action, call method in separate Thread!
-        pType = action["periodic_type"]
+        pType = int(action["periodic_type"])
         mult = 0
         if pType == PERIODIC_SEC:
             mult = 1
@@ -170,7 +170,7 @@ class GroupActionHandler(threading.Thread):
             mult = 86400
 
         # calculate interval in seconds according to periodic type
-        interval = action["periodic_interval"] * mult
+        interval = int(action["periodic_interval"]) * mult
         print "Starting periodic process of action ", action
         while not stopevent.is_set():
             # get action command and send it to members
@@ -181,15 +181,17 @@ class GroupActionHandler(threading.Thread):
 
     def __ProcessStartupAction(self, action):
         # delay in seconds before triggering command
-        delay = action["delay"]
+        delay = int(action["delay"])
         print "Processing onetime action in %d seconds" % delay
-        time.sleep(int(delay))
+        time.sleep(delay)
 
         self.__SendCommandToHosts(action)
 
     def __SendCommandToHosts(self, action):
         # get action command and send it to members
         cmd = action["command"]
+        print "Sending Command to hosts: ", cmd
+        print "Hosts: ", self.hosts
         msgData = messages.getMessage(int(cmd))
         udpbroadcaster.sendMessageToHosts(msgData, self.hosts)
 

@@ -81,6 +81,15 @@ class GroupActionHandler(threading.Thread):
     def AddHost(self, host):
         if not host in self.hosts:
             self.hosts.append(host)
+        # check if actions are defined that should be processed when a new group host came online
+        for action in self.actions:
+            if "type" in action and action['type'] == ACTION_EVENT_NEW_PLAYER:
+                print "New Player found --> triggering action ", action
+                # action found, handled like a startup action using the defined delay
+                t = threading.Thread(target=self.__ProcessStartupAction, args=[action])
+                t.daemon = True
+                t.start()
+
 
     def run(self):
         # wait to get started
@@ -99,15 +108,14 @@ class GroupActionHandler(threading.Thread):
                     actionDict = ast.literal_eval(action)
                     action = actionDict
                 except:
-                    print "Conversion to dictionary not necessary."
+                    pass
 
-                print action
-                '''
                 if "type" in action:
                     # only process actions with defined type
                     type = action["type"]
                     if type == ACTION_TYPE_ONETIME:
                         if action["event"] == ACTION_EVENT_STARTUP:
+                            print "Triggering startup action ", action
                             startupActions.append(action)
                     elif type == ACTION_TYPE_PERIODIC:
                         t_stop = threading.Event()
@@ -122,8 +130,7 @@ class GroupActionHandler(threading.Thread):
                 else:
                     # no type defined, action ignored
                     pass
-                '''
-            '''
+
             # periodic actions are started in threads, check if startup actions have to be handled
             if self.startUp:
                 for sAction in startupActions:
@@ -132,7 +139,7 @@ class GroupActionHandler(threading.Thread):
                     t.daemon = True
                     t.start()
                 self.startUp = False
-            '''
+
             # wait for update event
             self.updateevent.wait()
             update = True
@@ -158,7 +165,7 @@ class GroupActionHandler(threading.Thread):
 
         # calculate interval in seconds according to periodic type
         interval = action["periodic_interval"] * mult
-
+        print "Starting periodic process of action ", action
         while not stopevent.is_set():
             # get action command and send it to members
             self.__SendCommandToHosts(action)
@@ -169,6 +176,7 @@ class GroupActionHandler(threading.Thread):
     def __ProcessStartupAction(self, action):
         # delay in seconds before triggering command
         delay = action["delay"]
+        print "Processing onetime action in %d seconds" % delay
         time.sleep(int(delay))
 
         self.__SendCommandToHosts(action)

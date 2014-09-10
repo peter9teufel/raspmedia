@@ -6,18 +6,18 @@ import GroupManager
 
 
 def interpret(msg_data, sender_ip=None):
-	print "Interpreting incoming data..."
+	#print "Interpreting incoming data..."
 
 	# initialize with error state
 	result = INTERPRETER_ERROR
 
 	data = bytearray(msg_data)
 	size, data = readInt(data)
-	print "Size: " + str(size)
+	#print "Size: " + str(size)
 
 	flag, data = readShort(data)
 	msg = None
-	print "Flag: " + str(flag)
+	#print "Flag: " + str(flag)
 	if flag == CONFIG_UPDATE:
 		data = readConfigUpdate(data)
 		result = INTERPRETER_SUCCESS
@@ -159,8 +159,8 @@ def readFileList(data):
 	print "FILE LIST READ: ", files
 
 def readConfigUpdate(data):
-	print "Current config: ", configtool.config
-	print "Processing config update message..."
+	#print "Current config: ", configtool.config
+	#print "Processing config update message..."
 	key, data = readString(data)
 	value, data = readConfigValue(data, key)
 	print "New Key/Value Pair:"

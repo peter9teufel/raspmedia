@@ -103,5 +103,27 @@ strings = {
 	"members": "Members",
 	"master": "Master auswählen",
 	"msg_select_members": "Player der Gruppe auswählen:",
-	"saving_group": "Gruppe wird gespeichert..."
+	"saving_group": "Gruppe wird gespeichert...",
+	"edit": "Bearbeiten",
+	"actions": "Actions",
+	"delete_group": "Gruppe %s löschen?",
+	"deleting_group": "Lösche Gruppe %s...",
+	"loading_group_config": "Lade Gruppen-Konfigurationen...",
+	"delete_action": "Action %s löschen?",
+	# ACTION DESCRIPTION
+	"sec": "Sekunde",
+	"min": "Minute",
+	"hour": "Stunde",
+	"every": "alle",
+	"after": "nach",
+	"when": "wenn",
+	# CMD AND TYPES
+	"update": "Aktualisieren",
+	"restart": "Stop + Play",
+	"startup": "Player hochgefahren",
+	"new_player_found": "neuer Player online",
+	"per_sec": "Periodisch (sec)",
+	"per_min": "Periodisch (min)",
+	"per_hour": "Periodisch (hour)",
+	"desc_plural": "n"
 }

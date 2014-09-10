@@ -7,7 +7,6 @@ def sendBroadcast(data,wait_for_connection=False):
 	if wait_for_connection:
 		# wait until at least one interface is connected but not longer as a defined timeout
 		t = 0
-		print "Waiting for connected interface..."
 		while t < STARTUP_IF_TIMEOUT and netutil.num_connected_interfaces() == 0:
 			time.sleep(1)
 			t += 1
@@ -27,12 +26,10 @@ def _sendMessage(data,local_bind=None):
 	port = UDP_PORT
 	# if valid message data present --> send it
 	if data:
-		print "Creating socket..."
 		# SOCK_DGRAM is the socket type to use for UDP sockets
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 		if local_bind:
 			sock.bind((local_bind, 29885))
-		print "Sending message..."
 		sent = False
 		while not sent:
 			sent = sock.sendto(data + "\n", ('<broadcast>', port))
@@ -48,11 +45,9 @@ def sendMessageToHosts(data, hosts):
 	port = UDP_PORT
 	# if valid message data present --> send it
 	if data:
-		print "Creating socket..."
 		# SOCK_DGRAM is the socket type to use for UDP sockets
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 
-		print "Sending message..."
 		sent = False
 		for host in hosts:
 			while not sent:
@@ -64,7 +59,7 @@ def sendMessageToHosts(data, hosts):
 def cleanExit():
 	global sock
 	if sock:
-		print "Closing socket before quitting..."
+		#print "Closing socket before quitting..."
 		if sock:
 			sock.close()
 	print "Done! Bye bye..."

@@ -65,7 +65,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                     gConf = configtool.readGroupConfig()
                     response = messages.getMessage(GROUP_CONFIG_ACTION_DELETE)
                     if cSocket.sendto(response, (self.client_address[0], UDP_PORT)):
-                        print "Action saved confirmation sent!"
+                        print "Action deleted confirmation sent!"
                     GroupManager.ReInitGroupManager(gConf)
             elif result == PLAYER_UPDATE_ERROR:
                 responseData = messages.getMessage(PLAYER_UPDATE_ERROR, ["-s", str(msg)])
@@ -101,18 +101,4 @@ def stop():
         print "Done!"
 
 
-if __name__ == "__main__":
-    print "Type commands any time -->"
-    print "-- \"start\" to start UDP server"
-    print "-- \"stop\" to stop close UDP server"
-    print "-- \"quit\" exit program:"
-
-    running = True
-    while running:
-        cmd = raw_input("")
-        running = (cmd != "quit")
-        if(cmd == "start"):
-            start()
-        elif(cmd == "stop"):
-            stop()
 stop()

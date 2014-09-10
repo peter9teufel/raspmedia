@@ -10,9 +10,9 @@ import wx.lib.scrolledpanel as scrolled
 from wx.lib.pubsub import pub as Publisher
 
 # mapping from combo choices to constant codes
-CMD = [u'Play', u'Stop', u'Restart', u'Reboot', u'Update']
+CMD = ['play', 'stop', 'restart', 'reboot', 'update']
 CMD_CODE = [PLAYER_START, PLAYER_STOP, PLAYER_RESTART, PLAYER_REBOOT, PLAYER_UPDATE]
-TYPE = [u'Startup', u'New player found', u'Periodic (sec)', u'Periodic (min)', u'Periodic (hour)']
+TYPE = ['startup', 'new_player_found', 'per_sec', 'per_min', 'per_hour']
 TYPE_CODE = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER, PERIODIC_SEC, PERIODIC_MIN, PERIODIC_HOUR]
 TYPE_ONETIME = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER]
 
@@ -44,11 +44,11 @@ class ActionEditDialog(wx.Dialog):
     def __InitUI(self):
         self.headSizer = wx.BoxSizer(wx.VERTICAL)
         self.contentSizer = wx.BoxSizer(wx.VERTICAL)
-        self.actScroll = scrolled.ScrolledPanel(self, -1, (395,200))
+        self.actScroll = scrolled.ScrolledPanel(self, -1, (437,200))
         self.actScroll.SetAutoLayout(1)
         self.actScroll.SetupScrolling(scroll_x=True, scroll_y=True)
-        self.actScroll.SetMinSize((395,200))
-        self.contentSizer.SetMinSize((380,195))
+        self.actScroll.SetMinSize((437,200))
+        self.contentSizer.SetMinSize((415,195))
         self.actScroll.SetSizer(self.contentSizer)
 
 
@@ -61,9 +61,9 @@ class ActionEditDialog(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self.Close, close)
 
         # divider line between sections
-        line = wx.StaticLine(self, -1, size = (394,2))
-        secLine = wx.StaticLine(self, -1, size = (394,2))
-        lineBottom = wx.StaticLine(self, -1, size = (394,2))
+        line = wx.StaticLine(self, -1, size = (437,2))
+        secLine = wx.StaticLine(self, -1, size = (437,2))
+        lineBottom = wx.StaticLine(self, -1, size = (437,2))
 
         # add content sizers and section dividers to main sizer
         self.mainSizer.Add(self.headSizer)
@@ -76,14 +76,20 @@ class ActionEditDialog(wx.Dialog):
     def SetupHeadSection(self):
         # Sizer with combo boxes to define new action
         comboSizer = wx.BoxSizer()
-        self.cmdCombo = wx.ComboBox(self, -1, choices=CMD)
+        cmdChoices = []
+        for c in CMD:
+            cmdChoices.append(tr(c))
+        self.cmdCombo = wx.ComboBox(self, -1, choices=cmdChoices, size=(134,26))
         self.cmdCombo.SetName('cmd')
-        self.typeCombo = wx.ComboBox(self, -1, choices=TYPE)
+        typeChoices = []
+        for t in TYPE:
+            typeChoices.append(tr(t))
+        self.typeCombo = wx.ComboBox(self, -1, choices=typeChoices, size=(174,26))
         self.typeCombo.SetName('type')
         self.times = []
         for i in range(101):
             self.times.append(str(i))
-        self.timeCombo = wx.ComboBox(self, -1, choices=self.times)
+        self.timeCombo = wx.ComboBox(self, -1, choices=self.times, size=(77,26))
 
         self.addBtn = wx.Button(self,-1,label="+", size=(25,25))
 
@@ -95,7 +101,7 @@ class ActionEditDialog(wx.Dialog):
         comboSizer.Add(self.cmdCombo, flag = wx.LEFT, border = 10)
         comboSizer.Add(self.typeCombo)
         comboSizer.Add(self.timeCombo)
-        comboSizer.Add(self.addBtn, flag = wx.ALIGN_CENTER_VERTICAL)
+        comboSizer.Add(self.addBtn, flag = wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 10)
         self.addBtn.Disable()
         self.ResetCombos()
 
@@ -127,15 +133,15 @@ class ActionEditDialog(wx.Dialog):
             actionDict = ast.literal_eval(action)
             action = actionDict
         except:
-            print "Conversion to dictionary not necessary."
+            pass
         actBox = wx.BoxSizer()
-        actBox.SetMinSize((374,10))
+        actBox.SetMinSize((409,10))
         desc = self.__GetDescription(action)
 
         descLabel = wx.StaticText(self.actScroll,-1,label=desc)
-        descLabel.SetMinSize((338,25))
+        descLabel.SetMinSize((385,25))
         delBtn = wx.Button(self.actScroll,-1,label="x",size=(25,25))
-        line = wx.StaticLine(self.actScroll, -1, size = (368,2))
+        line = wx.StaticLine(self.actScroll, -1, size = (416,2))
         self.Bind(wx.EVT_BUTTON, lambda event, action=action: self.DeleteAction(event,action), delBtn)
 
         actBox.Add(descLabel, flag = wx.ALL, border = 3)
@@ -147,20 +153,27 @@ class ActionEditDialog(wx.Dialog):
 
     def __GetDescription(self, action):
         ind = CMD_CODE.index(action['command'])
-        desc = '"' + CMD[ind] + '"'
+        desc = '"' + tr(CMD[ind]) + '"'
         if action['type'] == ACTION_TYPE_PERIODIC:
-            desc += " every " + action['periodic_interval']
+            desc += " " + tr("every") + " " + action['periodic_interval']
             pType = action['periodic_type']
             if pType == PERIODIC_SEC:
-                desc += " seconds"
+                desc += " " + tr("sec")
             elif pType == PERIODIC_MIN:
-                desc += " minutes"
+                desc += " " + tr("min")
             elif pType == PERIODIC_HOUR:
-                desc += " hours"
+                desc += " " + tr("hour")
+
+            if int(action['periodic_interval']) > 1:
+                desc += tr("desc_plural")
         elif action['type'] == ACTION_TYPE_ONETIME:
-            desc += " " + action['delay'] + " seconds after"
+            desc += " " + tr("after")
+            desc += " " + action['delay'] + " " + tr("sec")
+            if int(action['delay']) > 1:
+                desc += tr("desc_plural")
+            desc += " " + tr("when")
             ind = TYPE_CODE.index(action['event'])
-            event = TYPE[ind]
+            event = tr(TYPE[ind])
             desc += " " + event
         return desc
 
@@ -169,7 +182,7 @@ class ActionEditDialog(wx.Dialog):
 
     def DeleteAction(self, event, action):
         desc = self.__GetDescription(action)
-        dlg = wx.MessageDialog(self, tr("deleting"), "Delete Action '%s'?" % desc, style = wx.YES_NO)
+        dlg = wx.MessageDialog(self, tr("delete_action") % desc, tr("deleting"), style = wx.YES_NO)
         if dlg.ShowModal() == wx.ID_YES:
             self.currentAction = action
             # send action to group master

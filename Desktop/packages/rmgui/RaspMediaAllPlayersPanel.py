@@ -193,9 +193,9 @@ class RaspMediaAllPlayersPanel(wx.Panel):
                 else:
                     memberList.SetStringItem(idx, 2, "*")
 
-            editGroup = wx.Button(self.groupScroll,-1,label="Edit Group",size=(85,25))
-            editAct = wx.Button(self.groupScroll,-1,label="Actions",size=(85,25))
-            delGroup = wx.Button(self.groupScroll,-1,label="Delete",size=(85,25))
+            editGroup = wx.Button(self.groupScroll,-1,label=tr("edit"),size=(85,25))
+            editAct = wx.Button(self.groupScroll,-1,label=tr("actions"),size=(85,25))
+            delGroup = wx.Button(self.groupScroll,-1,label=tr("delete"),size=(85,25))
 
             self.Bind(wx.EVT_BUTTON, lambda event, group=self.groups[group]: self.EditGroup(event,group), editGroup)
             self.Bind(wx.EVT_BUTTON, lambda event, group=self.groups[group]: self.EditActions(event,group), editAct)
@@ -217,22 +217,22 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.groupSizer.Layout()
 
     def EditGroup(self, event, group):
-        dlg = groupDlg.GroupEditDialog(self,-1,"Edit group",self.hosts,group=group)
+        dlg = groupDlg.GroupEditDialog(self,-1,tr("edit"),self.hosts,group=group)
         if dlg.ShowModal() == wx.ID_OK:
             self.LoadGroupConfig()
 
     def EditActions(self, event, group):
-        dlg = actDlg.ActionEditDialog(self,-1,"Actions",self.hosts,group=group)
+        dlg = actDlg.ActionEditDialog(self,-1,tr("actions"),self.hosts,group=group)
         dlg.ShowModal()
 
     def DeleteGroup(self, event, group):
-        qDlg = wx.MessageDialog(self,"Delete group %s?" % group['name'], "Delete", style = wx.YES_NO)
+        qDlg = wx.MessageDialog(self,tr("delete_group") % group['name'], tr("delete"), style = wx.YES_NO)
         if qDlg.ShowModal() == wx.ID_YES:
             self.groupDeletion = True
             msgData = network.messages.getMessage(GROUP_DELETE, ["-s", group['name']])
             Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
             dlgStyle = wx.PD_AUTO_HIDE
-            self.prgDialog = wx.ProgressDialog("Deleting...", "Deleting group %s..." % group['name'], parent = self, style = dlgStyle)
+            self.prgDialog = wx.ProgressDialog(tr("deleting_group") % group['name'], tr("delete"), parent = self, style = dlgStyle)
             self.prgDialog.Pulse()
             network.udpconnector.sendMessage(msgData)
 
@@ -265,7 +265,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         msgData = network.messages.getMessage(GROUP_CONFIG_REQUEST)
         dlgStyle = wx.PD_AUTO_HIDE
-        self.prgDialog = wx.ProgressDialog("Loading...", "Loading group configurations from player...", parent = self, style = dlgStyle)
+        self.prgDialog = wx.ProgressDialog(tr("loading"), tr("loading_group_config"), parent = self, style = dlgStyle)
         self.prgDialog.Pulse()
         network.udpconnector.sendMessage(msgData)
 

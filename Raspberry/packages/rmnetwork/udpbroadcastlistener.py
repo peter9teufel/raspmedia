@@ -4,25 +4,20 @@ import interpreter
 from constants import *
 
 def stopListening():
-	print "Stopping UDP Broadcast Listening routine..."
 	global wait
 	wait = False
 	if sock:
 		sock.close()
-	print "Done!"
 
 def startListening():
-	print "UDP Broadcast Listener starting listening routine..."
 	global sock
 	global wait
 	if not sock:
 		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		sock.bind(('', 60007))
-		
+
 	wait = True
 
-	print "INSIDE BROADCASTLISTENER:"
-	print "Waiting for incoming data..."
 	while wait:	
 		#result = select.select([sock],[],[])
 		#print "Result from select - processing..."

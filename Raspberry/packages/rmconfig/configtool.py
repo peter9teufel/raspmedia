@@ -105,20 +105,17 @@ def writeConfigFile():
 	f = open(mainConfigFile, 'w')
 	json.dump(config, f)
 	f.close()
-	print "Config file updated!"
 
 def writeGroupConfigFile():
     global groupConfig
     f = open(groupConfigFile, 'w')
     json.dump(groupConfig, f)
     f.close()
-    print "Group config file updated!"
 
 def readConfig():
 	global config
 	#check if config file exists
 	if os.path.isfile(mainConfigFile):
-		print "Config file found!"
 		with open(mainConfigFile) as conf:
 			config = json.load(conf)
 			conf.close()
@@ -128,7 +125,6 @@ def readConfig():
 
 def readGroupConfig():
     global groupConfig
-    print "Checking group config..."
     if os.path.isfile(groupConfigFile):
         with open(groupConfigFile) as group:
             groupConfig = json.load(group)
@@ -139,7 +135,6 @@ def readGroupConfig():
 
 
 def configFileAvailable():
-	print "Checking config file path: " + mainConfigFile
 	if os.path.isfile(mainConfigFile):
 		return True
 	else:

@@ -10,7 +10,6 @@ def IdentifyImage(name, ip=None):
     #name = "RaspMedia"
     #ip = "192.168.1.110"
     nameSize = draw.textsize(name, font=font)
-    print "NAMESIZE: ",nameSize
     nameX = 960 - (nameSize[0] / 2)
     nameY = 500
     if ip:

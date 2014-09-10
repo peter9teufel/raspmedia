@@ -50,7 +50,6 @@ def main():
     openFileSocket()
     startMediaPlayer()
 
-    print "Boot complete - sending broadcast..."
     # send boot complete broadcast
     msgData = messages.getMessage(PLAYER_BOOT_COMPLETE)
     udpbroadcaster.sendBroadcast(msgData, True)
@@ -64,14 +63,12 @@ def main():
     # simple CLI to modify and quit program when debugging
     print ""
     print ""
-    print "Loading CLI....."
-    time.sleep(0.5)
-    print ""
-    print ""
     print "Type commands any time -->"
     print "-- \"start\" to start the UDP server"
     print "-- \"stop\" to stop and close the UDP server"
     print "-- \"quit\" to exit the program"
+    print ""
+    print ""
 
     running = True
     while running:
@@ -93,5 +90,9 @@ def main():
     # subprocess.call(["sudo","fbi","--once","-a","-noverbose","-T","2", "./raspmedia.jpg"])
 
 if __name__ == '__main__':
+    print ""
+    print ":::::::::::::::::::::::::::::::::::::::::::::::::"
     print ":::::::::: WELCOME TO RASPMEDIA PLAYER ::::::::::"
+    print ":::::::::::::::::::::::::::::::::::::::::::::::::"
+    print ""
     main()

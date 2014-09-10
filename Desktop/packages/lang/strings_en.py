@@ -100,7 +100,30 @@ strings = {
 	"new_group": "New Group",
 	"name": "Name",
 	"members": "Members",
-	"master": "Select Master,
+	"master": "Select Master",
 	"msg_select_members": "Select the players for your group:",
-	"saving_group": "Saving group..."
+	"saving_group": "Saving group...",
+	"edit": "Edit",
+	"actions": "Actions",
+	"delete_group": "Delete group %s?",
+	"deleting_group": "Deleting group %s...",
+	"loading_group_config": "Loading group configurations from your players...",
+	"delete_action": "Delete action %s?",
+	# ACTION DESCRIPTION
+	"sec": "second",
+	"min": "minute",
+	"hour": "hour",
+	"every": "every",
+	"after": "after",
+	"when": "when",
+	# CMD AND TYPES
+	"update": "Update",
+	"restart": "Restart",
+	"startup": "Boot completed",
+	"new_player_found": "new player online",
+	"per_sec": "Periodic (sec)",
+	"per_min": "Periodic (min)",
+	"per_hour": "Periodic (hour)",
+	"desc_plural": "s"
+
 }

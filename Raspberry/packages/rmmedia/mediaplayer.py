@@ -25,7 +25,7 @@ class MediaPlayer(threading.Thread):
 
     def run(self):
         global playerState, identifyFlag
-        print ":::::MEDIAPLAYER THREAD RUN METHOD STARTED:::::"
+        #print ":::::MEDIAPLAYER THREAD RUN METHOD STARTED:::::"
         self.reloadConfig()
 
         # show player startup image for 3 seconds (+ loading time)
@@ -98,7 +98,7 @@ class MediaPlayer(threading.Thread):
             i += 1
             wakes += 1
             if wakes > 10:
-                print "Waking up and checking config...."
+                #print "Waking up and checking config...."
                 # print "Seconds running: ",i
                 # print "Calculated duration: ",duration
                 # check config every 10 seconds
@@ -119,8 +119,8 @@ class MediaPlayer(threading.Thread):
                 # process image file
                 imgCmdList.append(self.mediaPath + file)
                 numImg += 1
-        print "Image command to call:"
-        print imgCmdList
+        #print "Image command to call:"
+        #print imgCmdList
         subprocess.call(imgCmdList)
         wakes = 0
         # wait in loop as fbi command does not block and check for config changes
@@ -154,7 +154,7 @@ class MediaPlayer(threading.Thread):
     def singleVideoLoop(self, filename):
         duration = self.getVideoDurationSeconds(filename)
         fullPath = self.mediaPath + filename
-        print "VIDEO PATH: ", fullPath
+        #print "VIDEO PATH: ", fullPath
         looper1 = OMXPlayer(fullPath, start_playback=True)
         looper2 = OMXPlayer(fullPath, start_playback=True)
         looper2.toggle_pause()
@@ -167,7 +167,7 @@ class MediaPlayer(threading.Thread):
                 pos = looper2.position
             # print "Position: ", pos
             if pos > duration -2:
-                print "TOGGLING LOOPERS..."
+                #print "TOGGLING LOOPERS..."
                 # start other looper, wait 3 seconds and reload current looper for next round
                 if looper1Active:
                     looper2.toggle_pause()
@@ -197,7 +197,7 @@ class MediaPlayer(threading.Thread):
         end = output.index('.',start)
         durStr = output[start:end]
         duration = int(durStr)
-        print "VIDEO DURATION: ",duration
+        #print "VIDEO DURATION: ",duration
         return duration
 
     def videoLoop(self):
@@ -223,14 +223,14 @@ class MediaPlayer(threading.Thread):
     def playVideo(self,file):
         global playerState
         # process video file -> omxplay will block until its done
-        print "Status PLAYER_STARTED: ", playerState == PLAYER_STARTED
+        #print "Status PLAYER_STARTED: ", playerState == PLAYER_STARTED
         if playerState == PLAYER_STARTED:
             # file = re.escape(file)
-            print "Starting video file " + file
+            #print "Starting video file " + file
             # check if raspberry pi or ubuntu testing machine
             fullPath = self.mediaPath + file
-            print "Full Path:"
-            print fullPath
+            #print "Full Path:"
+            #print fullPath
             if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
                 subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
             else:
@@ -250,7 +250,7 @@ class MediaPlayer(threading.Thread):
                 curImgCmd.append(self.mediaPath + file)
                 subProc = subprocess.Popen(curImgCmd)
                 # sleep while image is shown, append a second for loading time
-                print "Showing image " + file + " for " + str(self.config['image_interval']) + " seconds"
+                #print "Showing image " + file + " for " + str(self.config['image_interval']) + " seconds"
                 time.sleep(self.config['image_interval'] + 2    )
                 subProc.kill()
                 subProc.wait()
@@ -299,8 +299,8 @@ class MediaPlayer(threading.Thread):
 
     def processMediaFiles(self):
         global playerState
-        print "Checking config on files to process:"
-        print self.config
+        #print "Checking config on files to process:"
+        #print self.config
         if self.config['image_enabled'] and self.config['video_enabled']:
             if len(self.allMediaFiles()) > 0:
                 self.processAllFiles()
@@ -384,7 +384,7 @@ def identifySelf():
     identifyFlag = True
     config = configtool.readConfig()
     ImageIdentifier.IdentifyImage(config['player_name'])
-    print "Image prepared..."
+    #print "Image prepared..."
     mp_thread.identify_event.clear()
     play()
 

@@ -20,7 +20,6 @@ class GroupManager():
             self.actionHandler = GroupActionHandler(self.actions)
             self.actionHandler.daemon = True
             self.actionHandler.start()
-            time.sleep(2)
             self.GroupMasterRoutine()
         else:
             # player is a group member --> broadcast acknowledge in case master is already online
@@ -84,20 +83,21 @@ class GroupActionHandler(threading.Thread):
     def AddHost(self, host):
         if not host in self.hosts:
             self.hosts.append(host)
-        # check if actions are defined that should be processed when a new group host came online
-        for action in self.actions:
-            # convert action to dict if needed
-            try:
-                actionDict = ast.literal_eval(action)
-                action = actionDict
-            except:
-                pass
-            if "type" in action and int(action['type']) == ACTION_TYPE_ONETIME and int(action['event']) == ACTION_EVENT_NEW_PLAYER:
-                print "New Player found --> triggering action ", action
-                # action found, handled like a startup action using the defined delay
-                t = threading.Thread(target=self.__ProcessStartupAction, args=[action])
-                t.daemon = True
-                t.start()
+        if not host == "127.0.0.1":
+            # check if actions are defined that should be processed when a new group host came online
+            for action in self.actions:
+                # convert action to dict if needed
+                try:
+                    actionDict = ast.literal_eval(action)
+                    action = actionDict
+                except:
+                    pass
+                if "type" in action and int(action['type']) == ACTION_TYPE_ONETIME and int(action['event']) == ACTION_EVENT_NEW_PLAYER:
+                    print "New Player found --> triggering action ", action
+                    # action found, handled like a startup action using the defined delay
+                    t = threading.Thread(target=self.__ProcessStartupAction, args=[action])
+                    t.daemon = True
+                    t.start()
 
 
     def run(self):
@@ -210,7 +210,6 @@ def Schedule(startUp=True):
 
 def ReInitGroupManager(groupConfig):
     InitGroupManager(groupConfig)
-    time.sleep(2)
     Schedule(False)
 
 def MemberRequest(groupName, masterIP):

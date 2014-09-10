@@ -6,7 +6,7 @@ import PlayerInfoDialog as playerDlg
 import ActionEditDialog as actDlg
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
-import os, sys, platform, ast, time, threading, shutil
+import os, sys, platform, ast, time, threading, shutil, copy
 
 import wx
 from wx.lib.pubsub import pub as Publisher
@@ -31,6 +31,9 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.parent = parent
         self.index = index
         self.hosts = sorted(hosts)
+        self.memberHosts = []
+        self.availableHosts = list(self.hosts)
+        self.nameLabels = {}
         self.groupConfigs = []
         self.groups = {}
 
@@ -54,7 +57,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             for curHost in self.hosts:
                 if host['addr'] == curHost['addr']:
                     curHost['name'] = host['name']
-                    curHost['name_label'].SetLabel(curHost['name'])
+                    self.nameLabels[curHost['addr']].SetLabel(curHost['name'])
 
         self.LoadGroupConfig()
 
@@ -106,7 +109,8 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         # name, ip and a rename button for each host
         for host in sorted(self.hosts):
             name = wx.StaticText(self.scroll,-1,label=host['name'])
-            host['name_label'] = name
+            # host['name_label'] = name
+            self.nameLabels[host['addr']] = name
             ip = wx.StaticText(self.scroll,-1,label=host['addr'])
             setName = wx.Button(self.scroll,-1,label="...",size=(27,25))
             identify = wx.Button(self.scroll,-1,label=tr("identify"))
@@ -171,14 +175,12 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.ParseGroups()
 
         index = 1
-        print "GROUPS LOADED: ", self.groups
         for group in self.groups:
             name = self.groups[group]["name"]
 
             box = wx.StaticBox(self.groupScroll,-1,name)
             groupSizer = wx.StaticBoxSizer(box, wx.VERTICAL)
 
-            print "Adding group %s to UI..." % name
             memberList = wx.ListCtrl(self.groupScroll,-1,size=(255,80), style=wx.LC_REPORT|wx.SUNKEN_BORDER)
             memberList.Show(True)
             memberList.InsertColumn(0,tr("player_name"), width = 145)
@@ -217,8 +219,18 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.groupSizer.Layout()
 
     def EditGroup(self, event, group):
-        dlg = groupDlg.GroupEditDialog(self,-1,tr("edit"),self.hosts,group=group)
+        editHosts = list(self.availableHosts)
+        for host in group['members']:
+            editHosts.append({'addr': host['ip'], 'name': host['player_name']})
+
+        dlg = groupDlg.GroupEditDialog(self,-1,tr("edit"),editHosts,group=group)
         if dlg.ShowModal() == wx.ID_OK:
+            dlg = wx.ProgressDialog(tr("saving"), tr("saving_group"), parent = self, style = wx.PD_AUTO_HIDE)
+            dlg.Pulse()
+            time.sleep(len(self.hosts))
+            dlg.Update(100)
+            if HOST_SYS == HOST_WIN:
+                dlg.Destroy()
             self.LoadGroupConfig()
 
     def EditActions(self, event, group):
@@ -243,7 +255,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         dlg.ShowModal()
 
     def NewGroupClicked(self, event=None):
-        dlg = groupDlg.GroupEditDialog(self,-1,tr("new_group"),self.hosts)
+        dlg = groupDlg.GroupEditDialog(self,-1,tr("new_group"),self.availableHosts)
         if dlg.ShowModal() == wx.ID_OK:
             dlg = wx.ProgressDialog(tr("saving"), tr("saving_group"), parent = self, style = wx.PD_AUTO_HIDE)
             dlg.Pulse()
@@ -258,6 +270,8 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         # reset previously loaded group config data
         self.groups = {}
         self.groupConfigs = []
+        self.availableHosts = list(self.hosts)
+        self.memberHosts = []
 
         print "Loading group config from players..."
         self.groupLoading = True
@@ -362,6 +376,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
                     if ip == host['addr']:
                         member['player_name'] = host['name']
                         found = True
+                        self.memberHosts.append(host)
                 if found:
                     member['master'] = master
                     members = []
@@ -377,11 +392,22 @@ class RaspMediaAllPlayersPanel(wx.Panel):
                         self.groups[name]['members'].append(member)
                         if len(actions) > 0:
                             self.groups[name]['actions'] = actions
-        print self.groups
         for group in self.groups:
             self.groups[group]['members'] = sorted(self.groups[group]['members'])
-        print self.groups
 
+        print ""
+        print self.groups
+        print ""
+        self.UpdateAvailableHosts()
+
+
+    def UpdateAvailableHosts(self):
+        for host in self.memberHosts:
+            if host in self.availableHosts:
+                ind = self.availableHosts.index(host)
+                del self.availableHosts[ind]
+        print "Member hosts:    ", self.memberHosts
+        print "Available hosts: ", self.availableHosts
 
     def ButtonClicked(self, event):
         button = event.GetEventObject()

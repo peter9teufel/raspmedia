@@ -18,6 +18,10 @@ class GroupEditDialog(wx.Dialog):
         self.members = []
         self.master = -1
         self.mainSizer = wx.GridBagSizer()
+        self.editMode = not (group == None)
+        print ""
+        print "EDIT MODE: ", self.editMode
+        print ""
         self.__InitUI()
         if group:
             self.UpdateUI(group)
@@ -66,6 +70,7 @@ class GroupEditDialog(wx.Dialog):
             ip = member['ip']
             name = member['player_name']
             master = member['master']
+            print self.hosts
             index = get_index(self.hosts, 'addr', ip)
             self.members.append(index)
             if master:
@@ -127,16 +132,25 @@ class GroupEditDialog(wx.Dialog):
         actions = self.actions
         master = "0"
 
-        # SEND GROUP CONFIG TO MASTER AND MEMBERS
-        for member in self.members:
-            if member == self.master:
-                # member index == master index --> set master flag
-                master = "1"
+        hostInd = 0
+        for host in self.hosts:
+            if hostInd in self.members:
+                if hostInd == self.master:
+                    # member index == master index --> set master flag
+                    master = "1"
+                else:
+                    # member --> master flag is false
+                    master = "0"
+                print "Sending config to ", host
+                msgData = network.messages.getMessage(GROUP_CONFIG, ['-s',name,'-i',master])
+                network.udpconnector.sendMessage(msgData, host['addr'])
             else:
-                # member --> master flag is false
-                master = "0"
-            msgData = network.messages.getMessage(GROUP_CONFIG, ['-s',name,'-i',master])
-            network.udpconnector.sendMessage(msgData, self.hosts[member]['addr'])
+                if self.editMode:
+                    print "Removing host %r from group" % host
+                    # delete group conif in other availbable hosts that may have been in this group before
+                    msgData = network.messages.getMessage(GROUP_DELETE, ['-s',name])
+                    network.udpconnector.sendMessage(msgData, host['addr'])
+            hostInd += 1
 
         self.EndModal(wx.ID_OK)
         self.Destroy()

@@ -29,6 +29,9 @@ class GroupManager():
 
 
     def GroupMasterRoutine(self):
+	# add localhost to host list to receive commands on master player as well
+	self.memberHosts.append('127.0.0.1')
+	self.actionHandler.AddHost('127.0.0.1')
         # send member request broadcast
         msgData = messages.getMessage(GROUP_MEMBER_REQUEST, ["-s", str(self.groupName)])
         udpbroadcaster.sendBroadcast(msgData, True)
@@ -89,7 +92,7 @@ class GroupActionHandler(threading.Thread):
                 action = actionDict
             except:
                 pass
-            if "type" in action and int(action['type']) == ACTION_EVENT_NEW_PLAYER:
+            if "type" in action and int(action['type']) == ACTION_TYPE_ONETIME and int(action['event']) == ACTION_EVENT_NEW_PLAYER:
                 print "New Player found --> triggering action ", action
                 # action found, handled like a startup action using the defined delay
                 t = threading.Thread(target=self.__ProcessStartupAction, args=[action])

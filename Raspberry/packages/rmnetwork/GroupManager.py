@@ -71,7 +71,14 @@ class GroupManager():
 
 class GroupActionHandler(threading.Thread):
     def __init__(self, actions):
-        self.actions = actions
+	self.actions = []
+	for action in actions:
+	    try:
+		ad = ast.literal_eval(action)
+		action = ad
+	    except:
+		pass
+	    self.actions.append(action)
         self.runevent = threading.Event()
         self.updateevent = threading.Event()
         self.actionThreads = []
@@ -144,6 +151,8 @@ class GroupActionHandler(threading.Thread):
             # periodic actions are started in threads, check if startup actions have to be handled
             global startup
             if startup:
+		print "ACTIONS: ", self.actions
+		print "STARTUP: ", startupActions
                 for sAction in startupActions:
                     index = self.actions.index(sAction)
                     del self.actions[index]

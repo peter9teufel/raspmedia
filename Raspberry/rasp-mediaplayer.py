@@ -16,6 +16,8 @@ def shellquote(s):
 def startMediaPlayer():
 	# set config and path for player and start it
     # rmmedia.mediaplayer.main()
+    global config
+    config = rmconfig.configtool.readConfig()
     rmmedia.mediaplayer.setMediaPath(mediaPath)
     rmmedia.mediaplayer.identify = False
     if config['autoplay']:

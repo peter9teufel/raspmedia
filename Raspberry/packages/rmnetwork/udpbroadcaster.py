@@ -52,7 +52,8 @@ def sendMessageToHosts(data, hosts):
 		for host in hosts:
 			while not sent:
 				sent = sock.sendto(data + "\n", (host, port))
-		print "Message sent: ",sent
+			sent = False
+		print "Message sent to ", hosts
 		sock.close()
 
 

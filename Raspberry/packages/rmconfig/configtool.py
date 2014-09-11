@@ -17,18 +17,24 @@ def is_number(s):
         return False
 
 def initConfig():
-	global config
-	config = {}
-	config["userMediaPath"] = ""
-	config["image_interval"] = 4
-	config["image_blend_interval"] = 300
-	config["video_enabled"] = 1
-	config["image_enabled"] = 1
-	config["autoplay"] = 1
-	config["group_filetypes"] = 1
-	config["shuffle"] = 0
-	config["repeat"] = 1
-	config["userPlaylist"] = ""
+    global config
+    if configFileAvailable:
+        # config file available
+        config = readConfig()
+    else:
+        # no config file available --> init
+    	config = {}
+    	config["userMediaPath"] = ""
+    	config["image_interval"] = 4
+    	config["image_blend_interval"] = 550
+    	config["video_enabled"] = 0
+    	config["image_enabled"] = 1
+    	config["autoplay"] = 1
+    	config["group_filetypes"] = 1
+    	config["shuffle"] = 0
+    	config["repeat"] = 1
+    	config["userPlaylist"] = ""
+        writeConfigFile()
 	return config
 
 def initGroupConfig():

@@ -208,7 +208,7 @@ def InitGroupManager(groupConfig):
 
 def Schedule():
     global groupManager
-    groupManager.ScheduleActions(startUp)
+    groupManager.ScheduleActions()
 
 def ReInitGroupManager(groupConfig):
     InitGroupManager(groupConfig)

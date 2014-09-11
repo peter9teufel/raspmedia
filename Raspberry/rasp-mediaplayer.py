@@ -8,14 +8,10 @@ from packages import rmconfig, rmmedia, rmutil, rmnetwork
 from packages.rmnetwork import udpserver, tcpfilesocket, udpbroadcaster, messages, GroupManager
 from constants import *
 
+config = {}
+
 def shellquote(s):
     return "'" +  s.replace("'", "'\\''") + "'"
-
-def reloadConfig():
-	global config
-	if rmconfig.configtool.configFileAvailable():
-		print "Reading config file..."
-		config = rmconfig.configtool.readConfig()
 
 def startMediaPlayer():
 	# set config and path for player and start it
@@ -35,7 +31,6 @@ def openFileSocket():
 def main():
     global config, groupConfig, mediaPath
     config = rmconfig.configtool.initConfig()
-    reloadConfig()
 
     # default media path
     mediaPath = os.getcwd() + '/media/'

@@ -18,7 +18,7 @@ def is_number(s):
 
 def initConfig():
     global config
-    if configFileAvailable:
+    if configFileAvailable():
         # config file available
         config = readConfig()
     else:

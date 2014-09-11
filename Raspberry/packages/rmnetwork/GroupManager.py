@@ -24,7 +24,7 @@ class GroupManager():
             self.GroupMasterRoutine()
         else:
             # player is a group member --> broadcast acknowledge with request flag set to false in case master is already online
-            byRequest = False
+            byRequest = "0"
             msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName), "-i", byRequest])
             udpbroadcaster.sendBroadcast(msgData)
 
@@ -41,7 +41,7 @@ class GroupManager():
         if not self.groupMaster and reqGroupName == self.groupName:
             self.masterHost = masterIP
             # member of requested group --> send acknowledge
-            byRequest = True
+            byRequest = "1"
             msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName), "-i", byRequest])
             udpbroadcaster.sendMessage(msgData, self.masterHost)
 

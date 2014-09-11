@@ -145,7 +145,8 @@ class GroupActionHandler(threading.Thread):
             global startup
             if startup:
                 for sAction in startupActions:
-                    self.actions.remove(sAction)
+                    index = self.actions.index(sAction)
+                    del self.actions[index]
                     t = threading.Thread(target=self.__ProcessStartupAction, args=[action])
                     t.daemon = True
                     t.start()

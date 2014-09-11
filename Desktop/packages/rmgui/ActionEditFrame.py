@@ -17,14 +17,14 @@ TYPE_CODE = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER, PERIODIC_SEC, PERIOD
 TYPE_ONETIME = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER]
 
 ################################################################################
-# DIALOG FOR ACTION EDITING ####################################################
+# FRAME FOR ACTION EDITING #####################################################
 ################################################################################
-class ActionEditDialog(wx.Dialog):
+class ActionEditFrame(wx.Frame):
     def __init__(self,parent,id,title,hosts,group):
-        wx.Dialog.__init__(self,parent,id,title)
+        wx.Frame.__init__(self,parent,id,title)
         self.parent = parent
         self.hosts = hosts
-
+        self.Bind(wx.EVT_CLOSE, self.Close)
         self.group = group
         self.currentAction = None
         self.actionSaved = True
@@ -57,8 +57,8 @@ class ActionEditDialog(wx.Dialog):
         self.LoadActionUI()
 
         # close button
-        close = wx.Button(self,-1,label="OK")
-        self.Bind(wx.EVT_BUTTON, self.Close, close)
+        self.okBtn = wx.Button(self,-1,label="OK")
+        self.Bind(wx.EVT_BUTTON, self.Close, self.okBtn)
 
         # divider line between sections
         line = wx.StaticLine(self, -1, size = (437,2))
@@ -71,7 +71,7 @@ class ActionEditDialog(wx.Dialog):
         self.mainSizer.Add(secLine, flag=wx.BOTTOM, border = 3)
         self.mainSizer.Add(self.actScroll)
         self.mainSizer.Add(lineBottom, flag=wx.TOP|wx.BOTTOM, border = 3)
-        self.mainSizer.Add(close, flag = wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border = 10)
+        self.mainSizer.Add(self.okBtn, flag = wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border = 10)
 
     def SetupHeadSection(self):
         # Sizer with combo boxes to define new action
@@ -188,7 +188,8 @@ class ActionEditDialog(wx.Dialog):
             # send action to group master
             Publisher.subscribe(self.CurrentActionDeleted, 'action_deleted')
             Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
-
+            self.prgDlg = wx.ProgressDialog(tr("deleting"), tr("deleting_action") % desc, parent=self, style=wx.PD_AUTO_HIDE)
+            self.prgDlg.Pulse()
             msgData = network.messages.getMessage(GROUP_CONFIG_ACTION_DELETE, ["-s", str(action)])
             network.udpconnector.sendMessage(msgData, self.masterHost, 3)
 
@@ -199,6 +200,9 @@ class ActionEditDialog(wx.Dialog):
         if not ind == -1:
             del self.actions[ind]
         self.currentAction = None
+        self.prgDlg.Update(100)
+        if platform.system() == "Windows":
+            self.prgDlg.Destroy()
         self.ResetCombos()
         self.contentSizer.Clear(True)
         self.LoadActionUI()
@@ -253,8 +257,9 @@ class ActionEditDialog(wx.Dialog):
 
 
     def Close(self, event):
-        self.EndModal(wx.ID_OK)
+        self.MakeModal(False)
         self.Destroy()
+        event.Skip()
 
     def __ValidateInput(self, event=None):
         if not self.cmdCombo.GetSelection() == -1 and not self.typeCombo.GetSelection() == -1 and not self.timeCombo.GetSelection() == -1:

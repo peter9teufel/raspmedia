@@ -83,7 +83,8 @@ def interpret(msg_data, sender_ip=None):
 		GroupManager.MemberRequest(group, sender_ip)
 	elif flag == GROUP_MEMBER_ACKNOWLEDGE:
 		group, data = readString(data)
-		GroupManager.MemberAcknowledge(group, sender_ip)
+		byRequest , data = readInt(data)
+		GroupManager.MemberAcknowledge(group, sender_ip, byRequest)
 	elif flag == GROUP_CONFIG:
 		result = flag
 		readGroupConfig(data)

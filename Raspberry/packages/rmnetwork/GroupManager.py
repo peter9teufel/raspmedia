@@ -3,6 +3,7 @@ import udpserver, tcpfilesocket, udpbroadcaster, messages
 from constants import *
 
 groupManager = None
+startup = True
 
 class GroupManager():
     def __init__(self, config):
@@ -22,15 +23,16 @@ class GroupManager():
             self.actionHandler.start()
             self.GroupMasterRoutine()
         else:
-            # player is a group member --> broadcast acknowledge in case master is already online
-            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName)])
+            # player is a group member --> broadcast acknowledge with request flag set to false in case master is already online
+            byRequest = False
+            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName), "-i", byRequest])
             udpbroadcaster.sendBroadcast(msgData)
 
 
     def GroupMasterRoutine(self):
-	# add localhost to host list to receive commands on master player as well
-	self.memberHosts.append('127.0.0.1')
-	self.actionHandler.AddHost('127.0.0.1')
+        # add localhost to host list to receive commands on master player as well
+        self.memberHosts.append('127.0.0.1')
+        self.actionHandler.AddHost('127.0.0.1', True)
         # send member request broadcast
         msgData = messages.getMessage(GROUP_MEMBER_REQUEST, ["-s", str(self.groupName)])
         udpbroadcaster.sendBroadcast(msgData, True)
@@ -39,23 +41,23 @@ class GroupManager():
         if not self.groupMaster and reqGroupName == self.groupName:
             self.masterHost = masterIP
             # member of requested group --> send acknowledge
-            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName)])
+            byRequest = True
+            msgData = messages.getMessage(GROUP_MEMBER_ACKNOWLEDGE, ["-s", str(self.groupName), "-i", byRequest])
             udpbroadcaster.sendMessage(msgData, self.masterHost)
 
-    def HandleGroupMemberAcknowledge(self, ackGroupName, memberIP):
+    def HandleGroupMemberAcknowledge(self, ackGroupName, memberIP, byRequest):
         if self.groupMaster and ackGroupName == self.groupName:
-	    print "MEMBER ACKNOWLEDGED: ", memberIP
+            print "MEMBER ACKNOWLEDGED: ", memberIP
             if not memberIP in self.memberHosts:
                 self.memberHosts.append(memberIP)
                 self.memberCount += 1
-            self.actionHandler.AddHost(memberIP)
+            self.actionHandler.AddHost(memberIP, byRequest)
 
-    def ScheduleActions(self, startUp):
+    def ScheduleActions(self):
         if self.groupMaster:
             # start thread if not already alive
             if not self.actionHandler.isAlive():
                 self.actionHandler.start()
-            self.actionHandler.startUp = startUp
             # set runevent to trigger action scheduling
             self.actionHandler.runevent.set()
 
@@ -75,15 +77,14 @@ class GroupActionHandler(threading.Thread):
         self.actionThreads = []
         self.hosts = []
         self.running = True
-        # bool flag to indicate we're in startup phase
-        self.startUp = True
 
         threading.Thread.__init__(self, name="GroupActionHandler_Thread")
 
-    def AddHost(self, host):
+    def AddHost(self, host, byRequest):
         if not host in self.hosts:
             self.hosts.append(host)
-        if not host == "127.0.0.1":
+        # if not localhost and host added not in response to a member request --> New player online event --> check actions
+        if not host == "127.0.0.1" and not byRequest:
             # check if actions are defined that should be processed when a new group host came online
             for action in self.actions:
                 # convert action to dict if needed
@@ -141,13 +142,14 @@ class GroupActionHandler(threading.Thread):
                     pass
 
             # periodic actions are started in threads, check if startup actions have to be handled
-            if self.startUp:
+            global startup
+            if startup:
                 for sAction in startupActions:
                     self.actions.remove(sAction)
                     t = threading.Thread(target=self.__ProcessStartupAction, args=[action])
                     t.daemon = True
                     t.start()
-                self.startUp = False
+                    startup = False
 
             # wait for update event
             self.updateevent.wait()
@@ -204,21 +206,23 @@ def InitGroupManager(groupConfig):
     global groupManager
     groupManager = GroupManager(groupConfig)
 
-def Schedule(startUp=True):
+def Schedule():
     global groupManager
     groupManager.ScheduleActions(startUp)
 
 def ReInitGroupManager(groupConfig):
     InitGroupManager(groupConfig)
-    Schedule(False)
+    global startup
+    startup = False
+    Schedule()
 
 def MemberRequest(groupName, masterIP):
     global groupManager
     groupManager.HandleGroupMemberRequest(groupName, masterIP)
 
-def MemberAcknowledge(groupName, memberIP):
+def MemberAcknowledge(groupName, memberIP, byRequest):
     global groupManager
-    groupManager.HandleGroupMemberAcknowledge(groupName, memberIP)
+    groupManager.HandleGroupMemberAcknowledge(groupName, memberIP, byRequest)
 
 def UpdateActions():
     global groupManager

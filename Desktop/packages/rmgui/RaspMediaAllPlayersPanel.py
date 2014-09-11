@@ -3,7 +3,7 @@ import packages.rmutil as rmutil
 from packages.rmgui import *
 import GroupEditDialog as groupDlg
 import PlayerInfoDialog as playerDlg
-import ActionEditDialog as actDlg
+import ActionEditFrame as actionFrame
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil, copy
@@ -234,8 +234,9 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             self.LoadGroupConfig()
 
     def EditActions(self, event, group):
-        dlg = actDlg.ActionEditDialog(self,-1,tr("actions"),self.hosts,group=group)
-        dlg.ShowModal()
+        frame = actionFrame.ActionEditFrame(self,-1,tr("actions"),self.hosts,group=group)
+        frame.Show(True)
+        frame.MakeModal(True)
 
     def DeleteGroup(self, event, group):
         qDlg = wx.MessageDialog(self,tr("delete_group") % group['name'], tr("delete"), style = wx.YES_NO)

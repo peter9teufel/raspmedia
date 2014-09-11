@@ -24,6 +24,7 @@ def initConfig():
     else:
         # no config file available --> init
     	config = {}
+        config["player_name"] = "RaspMedia Player"
     	config["userMediaPath"] = ""
     	config["image_interval"] = 4
     	config["image_blend_interval"] = 550

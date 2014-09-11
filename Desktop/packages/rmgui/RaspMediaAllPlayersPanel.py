@@ -411,9 +411,6 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         for group in self.groups:
             self.groups[group]['members'] = sorted(self.groups[group]['members'])
 
-        print ""
-        print self.groups
-        print ""
         self.UpdateAvailableHosts()
 
 
@@ -422,8 +419,6 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             if host in self.availableHosts:
                 ind = self.availableHosts.index(host)
                 del self.availableHosts[ind]
-        print "Member hosts:    ", self.memberHosts
-        print "Available hosts: ", self.availableHosts
 
     def ButtonClicked(self, event):
         button = event.GetEventObject()

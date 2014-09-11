@@ -35,7 +35,6 @@ class ActionEditFrame(wx.Frame):
         for member in self.group['members']:
             if member['master']:
                 self.masterHost = member['ip']
-        print "Group Master: ", self.masterHost
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         self.__InitUI()
         self.SetSizerAndFit(self.mainSizer)

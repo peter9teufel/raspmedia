@@ -149,7 +149,22 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.rightSizer.Add(stopAll,(1,1), flag=wx.ALL, border=5)
         self.rightSizer.Add(identAll,(2,1), flag=wx.LEFT, border=5)
         self.rightSizer.Add(rebootAll,(3,1), flag=wx.ALL, border=5)
-        self.rightSizer.Add(line, (4,1), flag=wx.ALL, border=5)
+        self.rightSizer.Add(line, (5,1), flag=wx.ALL, border=5)
+
+        # for developing/testing
+        update = wx.Button(self,-1,label="Update All", size=(200,25))
+        self.Bind(wx.EVT_BUTTON, self.UpdateAllPlayers, update)
+        self.rightSizer.Add(update,(4,1), flag=wx.LEFT, border=5)
+
+    def UpdateAllPlayers(self, event=None):
+        dlg = wx.MessageDialog(self, "Updating all players, RaspMedia Control needs to be closed. Restart application when players have updated and rebooted.", "Update all players", style = wx.YES_NO)
+        if dlg.ShowModal() == wx.ID_YES:
+            msgData = network.messages.getMessage(PLAYER_UPDATE)
+            network.udpconnector.sendMessage(msgData)
+            if HOST_SYS == HOST_WIN:
+                dlg.Destroy()
+            self.parent.parent.Close()
+
 
     def SetupGroupSection(self):
         # scrolled panel to show player groups

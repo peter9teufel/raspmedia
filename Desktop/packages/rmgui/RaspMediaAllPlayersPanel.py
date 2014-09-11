@@ -80,8 +80,8 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.SetupGroupSection()
 
         # add sizers to main sizer
-        self.mainSizer.Add(self.scroll ,(0,0), span=(2,1), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.LEFT | wx.RIGHT, border=10)
-        self.mainSizer.Add(self.rightSizer, (0,2), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.TOP | wx.RIGHT | wx.BOTTOM, border=5)
+        self.mainSizer.Add(self.scroll ,(0,0), span=(2,1), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.LEFT | wx.RIGHT, border=15)
+        self.mainSizer.Add(self.rightSizer, (0,2), flag = wx.ALL, border=10)
         self.mainSizer.Add(self.groupScroll, (1,2), flag = wx.TOP | wx.RIGHT | wx.LEFT, border=10)
 
         self.SetSizerAndFit(self.mainSizer)
@@ -108,20 +108,38 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         index = 0
         # name, ip and a rename button for each host
         for host in sorted(self.hosts):
-            name = wx.StaticText(self.scroll,-1,label=host['name'])
-            # host['name_label'] = name
-            self.nameLabels[host['addr']] = name
-            ip = wx.StaticText(self.scroll,-1,label=host['addr'])
-            setName = wx.Button(self.scroll,-1,label="...",size=(27,25))
-            identify = wx.Button(self.scroll,-1,label=tr("identify"))
+
+            playerBox = wx.StaticBox(self.scroll,-1,label=host['name'])
+            boxSizer = wx.StaticBoxSizer(playerBox, wx.VERTICAL)
+
+            self.nameLabels[host['addr']] = playerBox
+
+            ip = wx.StaticText(self.scroll,-1,label=host['addr'],size=(110,25))
+            setName = wx.Button(self.scroll,-1,label="Player Name",size=(110,25))
+            identify = wx.Button(self.scroll,-1,label=tr("identify"),size=(110,25))
             line = wx.StaticLine(self.scroll,-1,size=(280,2))
 
+            ipLabel = wx.StaticText(self.scroll,-1,label="Player IP:",size=(110,25))
+
+            ipSizer = wx.BoxSizer()
+            ipSizer.Add(ipLabel,flag=wx.ALL, border = 5)
+            ipSizer.Add(ip, flag=wx.ALIGN_RIGHT | wx.ALL, border = 5)
+
+            btnSizer = wx.BoxSizer()
+            btnSizer.Add(identify, flag=wx.ALL, border = 5)
+            btnSizer.Add(setName, flag=wx.ALIGN_RIGHT|wx.ALL, border = 5)
+
+            # add UI elements to box
+            boxSizer.Add(ipSizer)
+            boxSizer.Add(btnSizer)
+
             # add status UI for current host
-            self.leftSizer.Add(name, (index,0), flag=wx.ALL, border=5)
-            self.leftSizer.Add(setName, (index,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, border=5)
-            index += 1
-            self.leftSizer.Add(ip, (index,0), flag=wx.ALL, border=5)
-            self.leftSizer.Add(identify, (index,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, border=5)
+            #self.leftSizer.Add(name, (index,0), flag=wx.ALL, border=5)
+            #self.leftSizer.Add(setName, (index,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, border=5)
+            #index += 1
+            #self.leftSizer.Add(ip, (index,0), flag=wx.ALL, border=5)
+            #self.leftSizer.Add(identify, (index,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, border=5)
+            self.leftSizer.Add(boxSizer, (index,0), flag=wx.ALL, border=5)
             index += 1
             self.leftSizer.Add(line, (index, 0), span=(1,2), flag=wx.LEFT, border=10)
             index += 1
@@ -131,30 +149,33 @@ class RaspMediaAllPlayersPanel(wx.Panel):
 
 
     def SetupControlSection(self):
+        ctrlBox = wx.StaticBox(self,-1,label="Master Control")
+        boxSizer = wx.StaticBoxSizer(ctrlBox, wx.VERTICAL)
+
         # setup controls
         startAll = wx.Button(self,-1,label=tr("restart_all"), size=(200,25))
         stopAll = wx.Button(self,-1,label=tr("stop_all"), size=(200,25))
         identAll = wx.Button(self,-1,label=tr("identify_all"), size=(200,25))
         rebootAll = wx.Button(self,-1,label=tr("reboot_all"), size=(200,25))
+        update = wx.Button(self,-1,label="Update All", size=(200,25))
 
         # bind events
         self.Bind(wx.EVT_BUTTON, self.RestartAllPlayers, startAll)
         self.Bind(wx.EVT_BUTTON, self.StopAllPlayers, stopAll)
         self.Bind(wx.EVT_BUTTON, self.IdentifyAllPlayers, identAll)
         self.Bind(wx.EVT_BUTTON, self.RebootAllPlayers, rebootAll)
+        self.Bind(wx.EVT_BUTTON, self.UpdateAllPlayers, update)
 
         line = wx.StaticLine(self,-1,size=(260,2))
 
-        self.rightSizer.Add(startAll,(0,1), flag=wx.LEFT, border=5)
-        self.rightSizer.Add(stopAll,(1,1), flag=wx.ALL, border=5)
-        self.rightSizer.Add(identAll,(2,1), flag=wx.LEFT, border=5)
-        self.rightSizer.Add(rebootAll,(3,1), flag=wx.ALL, border=5)
-        self.rightSizer.Add(line, (5,1), flag=wx.ALL, border=5)
+        boxSizer.Add(startAll, flag=wx.LEFT, border=5)
+        boxSizer.Add(stopAll, flag=wx.ALL, border=5)
+        boxSizer.Add(identAll, flag=wx.LEFT, border=5)
+        boxSizer.Add(rebootAll, flag=wx.ALL, border=5)
+        boxSizer.Add(update, flag=wx.LEFT, border=5)
 
-        # for developing/testing
-        update = wx.Button(self,-1,label="Update All", size=(200,25))
-        self.Bind(wx.EVT_BUTTON, self.UpdateAllPlayers, update)
-        self.rightSizer.Add(update,(4,1), flag=wx.LEFT, border=5)
+        self.rightSizer.Add(boxSizer,(0,0))
+        self.rightSizer.Add(line, (1,0), flag=wx.ALL, border=5)
 
     def UpdateAllPlayers(self, event=None):
         dlg = wx.MessageDialog(self, "Updating all players, RaspMedia Control needs to be closed. Restart application when players have updated and rebooted.", "Update all players", style = wx.YES_NO)
@@ -303,12 +324,16 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         dlg = wx.TextEntryDialog(self, tr("new_name")+":", tr("player_name"), host['name'])
         if dlg.ShowModal() == wx.ID_OK:
             newName = dlg.GetValue()
+            oldName = host['name']
             host['name'] = newName
-            host['name_label'].SetLabel(newName)
+            # set new name in player box and page tab
+            self.nameLabels[host['addr']].SetLabel(newName)
+            self.parent.UpdatePageName(oldName,newName)
+            # send new name to player
             msgData = network.messages.getConfigUpdateMessage("player_name", str(newName))
             network.udpconnector.sendMessage(msgData, host['addr'])
             time.sleep(0.2)
-            #self.LoadConfig()
+            self.LoadGroupConfig()
         dlg.Destroy()
 
     def RestartAllPlayers(self, event=None):

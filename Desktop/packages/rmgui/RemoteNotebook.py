@@ -72,6 +72,17 @@ class RemoteNotebook(wx.Notebook):
         self.hosts[self.activePageNr]['name'] = config['player_name']
         self.GetPage(self.activePageNr).UpdateConfigUI(config, True)
 
+    def UpdatePageName(self, oldName, newName):
+        for i in range(self.GetPageCount()):
+            page = self.GetPage(i)
+            label = page.GetLabel()
+            print "PAGE LABEL: ",label
+            found = label == oldName
+            print "PAGE FOUND: ", found
+            if found:
+                print "UPDATING PAGE NAME TO: ",newName
+                self.SetPageText(i, newName)
+
     def HostFound(self, host, playerName):
         global playerCount
         # print "Adding host to list..."

@@ -22,7 +22,6 @@ class AppFrame(wx.Frame):
         BASE_PATH = base_path
         self.Bind(wx.EVT_CLOSE, self.Close)
         self.SetupMenuBar()
-        print "Initializing Notebook..."
         self.notebook = remote.RemoteNotebook(self,-1,None)
 
         # Create an accelerator table
@@ -35,11 +34,8 @@ class AppFrame(wx.Frame):
                                               (wx.ACCEL_SHIFT, ord('W'), sc_wifi_id)
                                              ])
         self.SetAcceleratorTable(self.accel_tbl)
-
-        print "Showing window..."
         self.Center()
         self.Show()
-        print "Starting host search..."
         self.notebook.SearchHosts()
 
     def Close(self, event=None):

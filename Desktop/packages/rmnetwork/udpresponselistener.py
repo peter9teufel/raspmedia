@@ -42,10 +42,9 @@ class UDPResponseListener(threading.Thread):
 					# print "Incoming data not from own broadcast --> processing..."
 					result, response = interpreter.interpret(rec)
 					if result == INTERPRETER_SERVER_REQUEST:
-						print "Server request response - length: ", len(rec)
+						# print "Server request response - length: ", len(rec)
 						# print ":".join("{:02x}".format(ord(c)) for c in rec)
-						print "Server address: ", str(address)
-						print ""
+						print "Player found at: ", str(address)
 						if response[1] == TYPE_RASPMEDIA_PLAYER:
 							wx.CallAfter(Publisher.sendMessage, 'host_found', host=address, playerName=str(response[0]))
 					elif result == INTERPRETER_FILELIST_REQUEST:

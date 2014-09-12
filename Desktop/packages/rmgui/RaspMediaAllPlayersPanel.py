@@ -100,7 +100,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
 
     def SetupPlayerSection(self):
         # scrolled panel to show player status list
-        self.scroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(300,565))
+        self.scroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(280,565))
         self.scroll.SetAutoLayout(1)
         self.scroll.SetupScrolling(scroll_x=False, scroll_y=True)
         self.scroll.SetSizer(self.leftSizer)
@@ -117,7 +117,6 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             ip = wx.StaticText(self.scroll,-1,label=host['addr'],size=(110,25))
             setName = wx.Button(self.scroll,-1,label="Player Name",size=(110,25))
             identify = wx.Button(self.scroll,-1,label=tr("identify"),size=(110,25))
-            line = wx.StaticLine(self.scroll,-1,size=(280,2))
 
             ipLabel = wx.StaticText(self.scroll,-1,label="Player IP:",size=(110,25))
 
@@ -141,8 +140,8 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             #self.leftSizer.Add(identify, (index,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, border=5)
             self.leftSizer.Add(boxSizer, (index,0), flag=wx.ALL, border=5)
             index += 1
-            self.leftSizer.Add(line, (index, 0), span=(1,2), flag=wx.LEFT, border=10)
-            index += 1
+            #self.leftSizer.Add(line, (index, 0), span=(1,2), flag=wx.LEFT, border=10)
+            #index += 1
 
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.UpdatePlayerName(event,host), setName)
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.IdentifyPlayer(event,host), identify)
@@ -189,7 +188,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
 
     def SetupGroupSection(self):
         # scrolled panel to show player groups
-        self.groupScroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(300,370))
+        self.groupScroll = wx.lib.scrolledpanel.ScrolledPanel(self, -1, size=(290,345))
         self.groupScroll.SetAutoLayout(1)
         self.groupScroll.SetupScrolling(scroll_x=False, scroll_y=True)
         self.groupSizer.SetMinSize((300,250))
@@ -253,6 +252,7 @@ class RaspMediaAllPlayersPanel(wx.Panel):
 
 
         self.groupSizer.Layout()
+        self.groupScroll.SetupScrolling(scroll_x=False, scroll_y=True)
 
     def EditGroup(self, event, group):
         editHosts = list(self.availableHosts)
@@ -310,7 +310,6 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.availableHosts = list(self.hosts)
         self.memberHosts = []
 
-        print "Loading group config from players..."
         self.groupLoading = True
         Publisher.subscribe(self.GroupConfigReceived, 'group_config')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')

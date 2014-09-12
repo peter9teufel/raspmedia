@@ -30,8 +30,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.host = host
         self.path = self.DefaultPath()
         self.mainSizer = wx.GridBagSizer()
-        self.configSizer = wx.GridBagSizer()
-        self.playerSizer = wx.GridBagSizer()
+        self.playerSizer = wx.BoxSizer()
         self.filesSizer = wx.GridBagSizer()
         self.notebook_event = None
         self.prgDialog = None
@@ -93,67 +92,69 @@ class RaspMediaCtrlPanel(wx.Panel):
             self.LoadData()
 
     def Initialize(self):
-        # print "Setting up player section..."
         self.SetupPlayerSection()
-        # print "Setting up file lists..."
         self.SetupFileLists()
 
-        self.mainSizer.Add(self.playerSizer,(0,0), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.LEFT | wx.RIGHT, border=10)
-        self.mainSizer.Add(self.configSizer, (0,2), flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
-
-        self.mainSizer.Add(self.filesSizer, (2,0), span=(1,4), flag=wx.BOTTOM | wx.LEFT | wx.RIGHT, border=10)
+        self.mainSizer.Add(self.playerSizer,(0,0), flag = wx.LEFT | wx.RIGHT, border=10)
+        self.mainSizer.Add(self.filesSizer, (2,0), flag=wx.BOTTOM | wx.LEFT | wx.RIGHT, border=10)
 
         self.SetSizerAndFit(self.mainSizer)
 
         line = wx.StaticLine(self,-1,size=(self.mainSizer.GetSize()[0],2))
-        self.mainSizer.Add(line, (1,0), span=(1,4))
-
-        line = wx.StaticLine(self,-1,size=(2,self.mainSizer.GetCellSize(0,0)[1]),style=wx.LI_VERTICAL)
-        self.mainSizer.Add(line,(0,1), flag = wx.LEFT, border = 10)
+        self.mainSizer.Add(line, (1,0), flag = wx.TOP | wx.BOTTOM, border = 10)
 
         self.Fit()
-        psHeight = self.playerSizer.GetSize()[1]
-        # print "PlayerSizer height: ",psHeight
-        line = wx.StaticLine(self,-1,size=(2,psHeight),style=wx.LI_VERTICAL)
-        self.playerSizer.Add(line,(0,2), span=(3,1), flag=wx.LEFT | wx.RIGHT, border=5)
-
-        # self.SetSizeHints(self.GetSize().x,self.GetSize().y,-1,self.GetSize().y)
-        #self.SetSizerAndFit(self.mainSizer)
+        self.parent.Fit()
+        self.parent.parent.Fit()
         self.Show(True)
 
     def SetupPlayerSection(self):
-        # Text label
-        label = wx.StaticText(self,-1,label=tr("remote_control")+": ")
-        self.playerSizer.Add(label,(0,0),(1,2), flag = wx.TOP | wx.BOTTOM, border=5)
+        playerBox = wx.StaticBox(self,-1,label="Player Info")
+        playerBoxSizer = wx.StaticBoxSizer(playerBox, wx.VERTICAL)
 
         # player name and address
+        nameSizer = wx.BoxSizer()
         nameLabel = wx.StaticText(self,-1,label=tr("player_name")+": ")
         self.playerNameLabel = wx.StaticText(self,-1,label="", size = (130,nameLabel.GetSize()[1]))
+        nameSizer.Add(nameLabel)
+        nameSizer.Add(self.playerNameLabel)
+
+        addrSizer = wx.BoxSizer()
         addrLabel = wx.StaticText(self,-1,label=tr("ip_address")+": ")
         playerAddr = wx.StaticText(self,-1,label=self.host)
-        self.playerSizer.Add(nameLabel, (1,0), flag=wx.ALIGN_CENTER_VERTICAL)
-        self.playerSizer.Add(self.playerNameLabel, (1,1), flag=wx.ALIGN_CENTER_VERTICAL)
-        self.playerSizer.Add(addrLabel, (2,0), flag = wx.ALIGN_CENTER_VERTICAL)
-        self.playerSizer.Add(playerAddr, (2,1), flag = wx.ALIGN_CENTER_VERTICAL)
+        addrSizer.Add(addrLabel)
+        addrSizer.Add(playerAddr)
+
+        playerBoxSizer.Add(nameSizer,flag=wx.ALL,border=5)
+        playerBoxSizer.Add(addrSizer,flag=wx.ALL,border=5)
 
         # Play and Stop Button
-        button = wx.Button(self,-1,label=tr("play"))
-        self.playerSizer.Add(button,(1,3))
-        self.Bind(wx.EVT_BUTTON, self.PlayClicked, button)
+        ctrlBox = wx.StaticBox(self,-1,label=tr("remote_control"))
+        ctrlSizer = wx.StaticBoxSizer(ctrlBox, wx.VERTICAL)
 
-        button = wx.Button(self,-1,label=tr("stop"))
-        self.playerSizer.Add(button,(2,3), flag=wx.TOP, border=5)
-        self.Bind(wx.EVT_BUTTON, self.StopClicked, button)
+        play = wx.Button(self,-1,label=tr("play"))
+        stop = wx.Button(self,-1,label=tr("stop"))
+        identify = wx.Button(self,-1,label=tr("identify"))
+        identify.SetName("btn_identify")
+        reboot = wx.Button(self,-1,label=tr("reboot"), size = identify.GetSize())
+        reboot.SetName("btn_reboot")
 
-        button = wx.Button(self,-1,label=tr("identify"))
-        button.SetName("btn_identify")
-        self.playerSizer.Add(button,(1,5), flag = wx.BOTTOM, border = 5)
-        self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
+        self.Bind(wx.EVT_BUTTON, self.PlayClicked, play)
+        self.Bind(wx.EVT_BUTTON, self.StopClicked, stop)
+        self.Bind(wx.EVT_BUTTON, self.ButtonClicked, identify)
+        self.Bind(wx.EVT_BUTTON, self.ButtonClicked, reboot)
 
-        button = wx.Button(self,-1,label=tr("reboot"), size = button.GetSize())
-        button.SetName("btn_reboot")
-        self.playerSizer.Add(button,(2,5), flag=wx.TOP | wx.BOTTOM, border=5)
-        self.Bind(wx.EVT_BUTTON, self.ButtonClicked, button)
+        btnSizer = wx.GridBagSizer()
+
+        btnSizer.Add(play,(0,0),flag=wx.LEFT|wx.TOP,border=5)
+        btnSizer.Add(stop,(1,0),flag=wx.LEFT|wx.BOTTOM,border=5)
+        btnSizer.Add(identify,(0,1),flag=wx.ALL,border=5)
+        btnSizer.Add(reboot,(1,1),flag=wx.LEFT|wx.RIGHT|wx.BOTTOM,border=5)
+        ctrlSizer.Add(btnSizer)
+
+        # add to player sizer
+        self.playerSizer.Add(playerBoxSizer)
+        self.playerSizer.Add(ctrlSizer,flag=wx.LEFT,border=15)
 
     def SetupFileLists(self):
         self.filesSizer.SetEmptyCellSize((0,0))
@@ -232,10 +233,6 @@ class RaspMediaCtrlPanel(wx.Panel):
             size = round(size / 1024 / 1024.0, 1)
             sizeStr = str(size) + "MB"
             self.localList.SetStringItem(idx, 1, sizeStr)
-
-        #col = self.localList.GetColumn(0)
-        #col.SetText(self.path)
-        #self.localList.SetColumn(0, col)
 
     def InsertReceivedFileList(self, serverAddr, files):
         # print "UPDATING REMOTE FILELIST UI..."

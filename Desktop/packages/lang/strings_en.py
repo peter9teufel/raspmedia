@@ -109,7 +109,7 @@ strings = {
 	"deleting_group": "Deleting group '%s'...",
 	"loading_group_config": "Loading group configurations from your players...",
 	"delete_action": "Delete action '%s'?",
-	"deleting_action": "Deleting action '%s'..."
+	"deleting_action": "Deleting action '%s'...",
 	# ACTION DESCRIPTION
 	"sec": "second",
 	"min": "minute",

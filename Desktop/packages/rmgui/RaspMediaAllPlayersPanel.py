@@ -133,15 +133,9 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             boxSizer.Add(btnSizer)
 
             # add status UI for current host
-            #self.leftSizer.Add(name, (index,0), flag=wx.ALL, border=5)
-            #self.leftSizer.Add(setName, (index,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, border=5)
-            #index += 1
-            #self.leftSizer.Add(ip, (index,0), flag=wx.ALL, border=5)
-            #self.leftSizer.Add(identify, (index,1), flag=wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, border=5)
             self.leftSizer.Add(boxSizer, (index,0), flag=wx.ALL, border=5)
             index += 1
-            #self.leftSizer.Add(line, (index, 0), span=(1,2), flag=wx.LEFT, border=10)
-            #index += 1
+
 
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.UpdatePlayerName(event,host), setName)
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.IdentifyPlayer(event,host), identify)

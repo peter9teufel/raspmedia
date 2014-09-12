@@ -22,11 +22,11 @@ destFile="$destPath/RaspMedia Control.app"
 cp -r "$distFile" "$destFile"
 
 # modify plist file of app to be foreground
-echo "Updating Info.plist for RaspMedia Control Release..."
-plist="$destFile/Contents/Info"
-defaults write "$plist" LSBackgroundOnly -string NO
-plist="$plist.plist"
-plutil -convert xml1 "$plist"
+# echo "Updating Info.plist for RaspMedia Control Release..."
+# plist="$destFile/Contents/Info"
+# defaults write "$plist" LSBackgroundOnly -string NO
+# plist="$plist.plist"
+# plutil -convert xml1 "$plist"
 
 # remove build directories
 echo "Cleaning up..."
@@ -43,11 +43,11 @@ destFile="$destPath/RaspMedia Copy Tool.app"
 cp -r "$distFile" "$destFile"
 
 # modify plist file of app to be foreground
-echo "Updating Info.plist for RaspMedia Copy Tool Release..."
-plist="$destFile/Contents/Info"
-defaults write "$plist" LSBackgroundOnly -string NO
-plist="$plist.plist"
-plutil -convert xml1 "$plist"
+# echo "Updating Info.plist for RaspMedia Copy Tool Release..."
+# plist="$destFile/Contents/Info"
+# defaults write "$plist" LSBackgroundOnly -string NO
+# plist="$plist.plist"
+# plutil -convert xml1 "$plist"
 
 # remove build directories
 echo "Cleaning up..."

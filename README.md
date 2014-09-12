@@ -7,10 +7,10 @@ RaspMedia is a standalone mediaplayer for the Raspberry Pi, intended to be used 
 RaspMedia Player provides digital signage using image slideshows, videos or a combination of both. All media files can be easily copied to the player using the RaspMedia Control Desktop application. A second desktop application called *RaspMedia Copy Tool* (only available for Windows by now) allows an even more easy way to send mediafiles (currently only images with Copy Tool) to the RaspMedia Player, see description below.
 The RaspMedia Player is intended as a complete standalone digital signage player. All configuration and media copying can be done over the network without the need to directly access the player, which makes it suitable for screens with less accessibility (e.g. outdoor cabinets etc.).
 The RaspMedia Control Desktop Application needs no further configuration, it automatically detects all players in the local network within seconds.
-The RaspMedia Player currently has to be connected via Ethernet. Future steps will include WiFi settings that can be done in the Desktop Application while connected via Ethernet to allow further access, configuration and data manipulation on the player over WiFi.
+The RaspMedia Player can be configured over Ethernet or WiFi using a suitable WiFi USB Dongle (e.g. Asus N10). To setup WiFi the player has to be connected over Ethernet first to send suitable WiFi configurations using the desktop application.
 
 ##Installation##
-Setting up a RaspMedia player is easy, the complete installation on the raspberry pi is done using a installation script, the desktop software is written in python and can be simply compiled to an executable with pyinstaller using the provided *.spec file.
+Setting up a RaspMedia player is easy, the complete installation on the raspberry pi is done using a installation script, the desktop software is written in python and can be simply compiled to an executable with pyinstaller using the provided build scripts.
 
 ###Installation Raspberry Pi###
 To prepare a fresh Raspberry Pi Raspbian setup you can run prepare_raspbian.sh which will prompt you for a new user password, set the gpu memory split and expand the filesystem.
@@ -40,15 +40,15 @@ The repository also holds two desktop applications to be used with RaspMedia Pla
 
 To use the desktop applications you have several ways:
   * Execute the main python script (needs all required packages to be installed locally)
-  * Mac OSX versions of both applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* from there. This will compile both applications, modify the Info.plist of both to not be background apps, put the two executable *.app* files in a *Release* directory and clean up the *build* and *dist* directories. The *build_mac.sh* script needs pyinstaller and all required packages to be installed locally as for building a single application directly with pyinstaller. A build script for Windows will follow.
+  * Executable versions of both applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* (Mac OS X) or *build_win.bat* (Windows) from there. This will compile both desktop applications, put the two executable files (*.app* on Mac OS X, *.exe* on Windows) in a *Release* directory and clean up the *build* and *dist* directories. The *build_mac.sh* (Mac OS X) and *build_win.bat* (Windows) scripts need pyinstaller and all required packages to be installed locally as for building a single application directly with pyinstaller.
   * Compile the application using pyinstaller and the provided *.spec files (needs all required packages to be installed locally)
   * Get a compiled executable for Mac (*.app) or Windows (32bit or 64bit) by requesting it directly from me. A site with up to date executables for free download will follow in the future.
 
 As the desktop applications are one-file-executables that have all necessary python sources packed they need no further installation. Simply copy/paste them on your PC/Mac and execute them.
 
 ####Security and Firewall####
-Mac prevents the execution from applications that have not been signed by a registered Mac developer. Therefor you need to go to System settings --> security and confirm that you want to open the app allthough it is from a unregistered developer. This has only to be done once.
-Also make sure that your firewall (if you use one) does not block the program. While testing the 32bit version on Windows it was necessary to add an exceptional case in the firewall settings for the executable to be able to access the RaspMedia Player over the network.
+Mac prevents the execution from applications that have not been signed by a registered Mac developer. To approve the app allthough it is from an unregeistered developer, CTRL+Click (Right-Click) on the app file and select open. A dialog box will appear asking if you are sure to launch the application from an unregistered developer. Approve the dialog by clicking 'Open'. From now on the app can be launched as any other app on your Mac.
+Also make sure that your firewall (if you use one) does not block the program. Windows will automatically ask if you want to grant network access to the application. This approval also has to be done only once.
 
 ####RaspMedia Control####
 #####Main Window#####
@@ -59,11 +59,25 @@ The main window offers information on the player (name, IP) and basic controls (
 Right underneath you can find a simple file explorer to search for images on your hard drive which you'd like to send to the player. You can send a single image by double clicking it and approving the dialog or by selecting multiple images, right click and select "Send to player".
 The bottom list is the list of files you currently have on your RaspMedia Player. You can delete single files by double clicking them or again select multiple files, right click them and select "Delete from player".
 If at any time you think the remote list is not up to date (which can occur due to network performance etc.) you can click "Refresh remote filelist" to update the list of files from your player.
+#####All players tab#####
+In addition to the tabs for each player, RaspMedia Control provides the *All players* tab. This page allows you to easily get an overview on the players in your network, their IP addresses and their names. You can easily configure the names of your players or identify them.
+![RaspMedia Control Main Window](/Screenshots/rmc_allplayers.png)
+
+The *Master Control* section allows you to trigger certain actions for all players, including *Play*, *Stop*, *Start synced*, etc.
+Below the *Master Control* section you will find the *Group* configuration. You can bind multiple players together to a group and define certain actions to be done in that group. Actions are always sent from the *Master* of the group.
+To define a new action click on *Actions* in a group, select the command for the action (e.g. *Restart* wich will call a *Stop + Play*), the trigger event, the delay/periodic interval and click the *Plus* button to save the action.
+![RaspMedia Control Main Window](/Screenshots/rmc_actions.png)
+
+Trigger events can be onetime (Master has completely booted, member player comes online) with an additional delay in seconds or periodic (interval in seconds, minutes or hours) with the selected interval.
+To delete an Action simply click the *X* button right to it.
+
+A player can only belong to one single group and each group needs a master. It is also possible to create a group with only one player to be able to automate certain behaviour for this player.
+
 #####Player Settings#####
-From the *File* menu you can access the *Player Settings* to configure some playback options.
+From the *File* menu you can access the *Player Settings* to configure some playback options. On Mac OS X the player settings can be opened with the standard Keyboard Shortcut *CMD + ,*
 ![RaspMedia Player Settings](/Screenshots/rmc_player_settings.png)
 
-The settings are self explanatory, you can enable image and video playback, select if the player should automatically start playback after booting, set the interval for image slideshows and give the player a name.
+The popping up settings window belongs to the player whose tab is currently active. The settings are self explanatory, you can enable image and video playback, select if the player should automatically start playback after booting, set the interval for image slideshows and give the player a name.
 The settings also enable you to update the player to the newest version (needs internet connection).
 ####RaspMedia Copy Tool####
 The RaspMedia Copy Tool is currently compatible with Microsoft Windows and Mac OS X. The main purpose of this application is to provide an easy way to bring media files on a RaspMedia Player for *technophobic* users.
@@ -79,6 +93,7 @@ In addition to the copy feature the RaspMedia Copy Tool provides the same *Playe
 
 ###Language support###
 The desktop applications *RaspMedia Control* and *RaspMedia Copy Tool* are currently available in english and german using the string files in the *lang* package (strings_de.py, strings_en.py). The language is selected according to the default locale of the system the application is started. If the language code of the default locale is unknown, english is selected as the default language.
+The reading of the default locale is currently not working properly in the compiled desktop versions for Mac OS X and prevents the app from starting except when starting from the terminal. Therefor the desktop applications for Mac OS X are not compiled automatically in the correct language. Have a look in the *Localizer.py* in the *lang* package, the language code to be used (currently *DE* or *EN*) is hardcoded for Mac OS X in there.
 Additional languages can be added by translating the strings file for the new language and add the appropriate language code in the part where the *Localizer* (see package *lang*) checks the code of the default locale.
 
 ##License##

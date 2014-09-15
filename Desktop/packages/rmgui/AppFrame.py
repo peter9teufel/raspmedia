@@ -5,7 +5,10 @@ import WifiDialog as wifi
 import packages.rmnetwork as network
 from packages.lang.Localizer import *
 import sys, os
-from wx.lib.pubsub import pub as Publisher
+if platform.system() == "Linux":
+    from pubsub import pub as Publisher
+else:
+    from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
 
 BASE_PATH = None

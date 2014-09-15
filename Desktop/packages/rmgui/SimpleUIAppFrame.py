@@ -7,7 +7,11 @@ import packages.rmutil as util
 import WifiDialog as wifi
 from packages.rmnetwork.constants import *
 import sys, os, platform, time, shutil, ast
-from wx.lib.pubsub import pub as Publisher
+
+if platform.system() == "Linux":
+    from pubsub import pub as Publisher
+else:
+    from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
 from operator import itemgetter
 from packages.lang.Localizer import *
@@ -140,13 +144,13 @@ class SimpleUIAppFrame(wx.Frame):
         os._exit(0)
 
     def WaitForUSB(self):
-        if HOST_SYS == HOST_WIN:
-            util.Win32DeviceDetector.waitForUSBDrive()
-        elif HOST_SYS == HOST_MAC:
-            util.MacDriveDetector.waitForUSBDrive()
-        self.prgDialog.UpdatePulse(tr("plug_usb"))
         print "Waiting for USB Drive..."
         Publisher.subscribe(self.USBConnected, 'usb_connected')
+        self.prgDialog.UpdatePulse(tr("plug_usb"))
+        if HOST_SYS == HOST_WIN:
+            util.Win32DeviceDetector.waitForUSBDrive()
+        elif HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
+            util.MacDriveDetector.waitForUSBDrive()
 
 
     def USBConnected(self, path):

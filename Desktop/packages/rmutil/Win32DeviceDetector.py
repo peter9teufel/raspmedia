@@ -2,7 +2,10 @@ import win32api, win32con, win32gui
 from ctypes import *
 import threading, sys
 import wx
-from wx.lib.pubsub import pub as Publisher
+if platform.system() == "Linux":
+    from pubsub import pub as Publisher
+else:
+    from wx.lib.pubsub import pub as Publisher
 
 bg_thread = None
 bg_tid = None

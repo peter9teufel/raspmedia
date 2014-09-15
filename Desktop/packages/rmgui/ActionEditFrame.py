@@ -7,7 +7,10 @@ from packages.lang.Localizer import *
 
 from wx.lib.wordwrap import wordwrap
 import wx.lib.scrolledpanel as scrolled
-from wx.lib.pubsub import pub as Publisher
+if platform.system() == "Linux":
+    from pubsub import pub as Publisher
+else:
+    from wx.lib.pubsub import pub as Publisher
 
 # mapping from combo choices to constant codes
 CMD = ['play', 'stop', 'restart', 'reboot', 'update']

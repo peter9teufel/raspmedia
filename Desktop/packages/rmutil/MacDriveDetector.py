@@ -1,8 +1,14 @@
-import threading, sys, os, time
+import threading, sys, os, time, platform
 import wx
-from wx.lib.pubsub import pub as Publisher
+if platform.system() == "Linux":
+    from pubsub import pub as Publisher
+else:
+    from wx.lib.pubsub import pub as Publisher
 
-VOLUMES_PATH = "/Volumes"
+if platform.system() == "Linux":
+    VOLUMES_PATH = "/media"
+else:
+    VOLUMES_PATH = "/Volumes"
 bg_thread = None
 runFlag = True
 volumes = None
@@ -16,6 +22,7 @@ def waitForUSBDrive():
         bg_thread = BackgroundUSBDetection()
         bg_thread.daemon = True
         bg_thread.start()
+        bg_thread.join()
 
 # RESULT CALL --> wx.CallAfter(Publisher.sendMessage, 'usb_connected', path=drive_path)
 
@@ -27,6 +34,7 @@ class BackgroundUSBDetection(threading.Thread):
         threading.Thread.__init__(self, name="Mac_Drive_Detector")
 
     def run(self):
+        print "Thread started..."
         global runFlag, volumes
         while runFlag:
             # check volumes
@@ -45,11 +53,10 @@ class BackgroundUSBDetection(threading.Thread):
         for volume in curVolumes:
             if not volume in oldVolumes:
                 newVol.append(volume)
-        # print "Found new volumes: ", newVol
         return newVol
 
 
 if __name__=='__main__':
     # load current list of volumes
     volumes = os.listdir(VOLUMES_PATH)
-    CheckForVolumes()
+    waitForUSBDrive()

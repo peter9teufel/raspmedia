@@ -2,8 +2,46 @@
 # Sets gpu memory to 128 MB
 sudo echo "gpu_mem=128" >> /boot/config.txt;
 
-# prompt for a new user password
-passwd pi;
+# check if user pi present (not present e.g. on Banana Pi Raspbian image)
+if id -u pi >/dev/null 2>pi; then
+        # user pi found -> prompt for new password
+        echo "Running on Raspberry Pi, proceeding with preparation..."
+        echo "Please choose a password for your player, this may be needed to access and maintain it."
+        passwd pi
+else
+        if id -u bananapi >/dev/null 2>bananapi; then
+            echo "Running on Banana Pi environment..."
+            echo ""
+            echo "Disabling boot to Banana Pi desktop..."
+            sudo update-rc.d -f lightdm remove
+            echo "Creating needed pi user environment..."
+            useradd -m -g pi pi
+            echo ""
+            echo "Please choose a password for your player, this may be needed to access and maintain it."
+            passwd pi
+        else
+            echo ""
+            echo "##################################################################################################"
+            echo ""
+            echo "RaspMedia supports Raspbian Image on Raspberry Pi or Banana Pi, your setup seems to be different."
+            echo "Installation aborted!"
+            echo ""
+            echo "##################################################################################################"
+            echo ""
+            exit 1
+        fi
+fi
+
+echo "Password saved, user environment ready to proceed..."
+
+# disable boot to desktop
+if [ -e /etc/profile.d/boottoscratch.sh ]; then
+    rm -f /etc/profile.d/boottoscratch.sh
+    sed -i /etc/inittab \
+      -e "s/^#\(.*\)#\s*BTS_TO_ENABLE\s*/\1/" \
+      -e "/#\s*BTS_TO_DISABLE/d"
+    telinit q
+fi
 
 # download the raspmedia installation script and make it executable
 cd /home/pi;
@@ -89,3 +127,6 @@ echo "rc.local modified:";
 echo /etc/rc.local;
 echo "Rebooting now...";
 sudo reboot;
+
+# preparation script deletes itself after completion
+rm -- "$0"

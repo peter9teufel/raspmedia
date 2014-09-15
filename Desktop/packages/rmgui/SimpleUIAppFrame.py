@@ -9,7 +9,8 @@ from packages.rmnetwork.constants import *
 import sys, os, platform, time, shutil, ast
 
 if platform.system() == "Linux":
-    from pubsub import pub as Publisher
+    from wx.lib.pubsub import setupkwargs
+    from wx.lib.pubsub import pub as Publisher
 else:
     from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap

@@ -4,7 +4,8 @@ import wx
 import messages
 from packages.lang.Localizer import *
 if platform.system() == "Linux":
-    from pubsub import pub as Publisher
+    from wx.lib.pubsub import setupkwargs
+    from wx.lib.pubsub import pub as Publisher
 else:
     from wx.lib.pubsub import pub as Publisher
 

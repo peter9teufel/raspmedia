@@ -8,7 +8,8 @@ from packages.lang.Localizer import *
 from wx.lib.wordwrap import wordwrap
 import wx.lib.scrolledpanel as scrolled
 if platform.system() == "Linux":
-    from pubsub import pub as Publisher
+    from wx.lib.pubsub import setupkwargs
+    from wx.lib.pubsub import pub as Publisher
 else:
     from wx.lib.pubsub import pub as Publisher
 

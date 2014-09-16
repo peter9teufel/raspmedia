@@ -1,6 +1,6 @@
 import win32api, win32con, win32gui
 from ctypes import *
-import threading, sys
+import threading, sys, platform
 import wx
 if platform.system() == "Linux":
     from wx.lib.pubsub import setupkwargs

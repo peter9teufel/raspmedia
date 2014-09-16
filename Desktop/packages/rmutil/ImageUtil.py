@@ -1,5 +1,11 @@
 import os, platform
-import wx, Image, ImageDraw, ImageFont
+import wx
+
+try:
+    import Image, ImageDraw, ImageFont
+except:
+    from PIL import Image, ImageDraw, ImageFont
+
 from packages.lang.Localizer import *
 
 SUPPORTED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')

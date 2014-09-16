@@ -1,4 +1,8 @@
-import wx, Image
+import wx
+try:
+    import Image
+except:
+    from PIL import Image
 import wx.lib.scrolledpanel as scrolled
 import sys
 

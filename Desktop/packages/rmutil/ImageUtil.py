@@ -1,10 +1,6 @@
 import os, platform
 import wx
-
-try:
-    import Image, ImageDraw, ImageFont
-except:
-    from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 from packages.lang.Localizer import *
 

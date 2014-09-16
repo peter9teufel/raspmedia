@@ -151,7 +151,7 @@ class SimpleUIAppFrame(wx.Frame):
         if HOST_SYS == HOST_WIN:
             util.Win32DeviceDetector.waitForUSBDrive()
         elif HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
-            util.MacDriveDetector.waitForUSBDrive()
+            util.UnixDriveDetector.waitForUSBDrive()
 
 
     def USBConnected(self, path):

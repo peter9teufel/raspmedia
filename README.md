@@ -10,8 +10,13 @@ The RaspMedia Control Desktop Application needs no further configuration, it aut
 The RaspMedia Player can be configured over Ethernet or WiFi using a suitable WiFi USB Dongle (e.g. Asus N10). To setup WiFi the player has to be connected over Ethernet first to send suitable WiFi configurations using the desktop application.
 
 ###Compatibility###
+####Player devices####
 RaspMedia is compatible with the Raspberry Pi (Model B) with Raspbian installed and with the Raspberry Clone *Banana Pi* with the *Raspbian for Banana Pi* image installed. The installation script differs between the two environments and takes care about a correct installation.
   * Note: Banana Pi uses a different default SSH login then the Raspberry Pi. Make yourself comfortable on how to log in to your device. The installation routine is then identical.
+
+####Desktop applications####
+The desktop applications for the RaspMedia player are compatible with Windows Vista/7/8 (32/64 bit), Mac OSX 10.6+, Ubuntu (12.04+) and Fedora 20. Available executables that I compile for different systems can be found at http://bit.do/raspmedia
+Other operating systems then mentioned above may work but are not tested. Feel free to install the required dependencies and try to compile on other systems as well.
 
 ##Installation##
 Setting up a RaspMedia player is easy, the complete installation on the raspberry pi is done using a installation script, the desktop software is written in python and can be simply compiled to an executable with pyinstaller using the provided build scripts.
@@ -44,7 +49,7 @@ The repository also holds two desktop applications to be used with RaspMedia Pla
 
 To use the desktop applications you have several ways:
   * Execute the main python script (needs all required packages to be installed locally)
-  * Executable versions of both applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* (Mac OS X) or *build_win.bat* (Windows) from there. This will compile both desktop applications, put the two executable files (*.app* on Mac OS X, *.exe* on Windows) in a *Release* directory and clean up the *build* and *dist* directories. The *build_mac.sh* (Mac OS X) and *build_win.bat* (Windows) scripts need pyinstaller and all required packages to be installed locally as for building a single application directly with pyinstaller.
+  * Executable versions of both applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* (Mac OS X), *build_win.bat* (Windows) or *build_linux.sh* (Ubuntu, Fedora) from there. This will compile both desktop applications, put the two executable files (*.app* on Mac OS X, *.exe* on Windows, executable file on Ubuntu/Fedora) in a *Release* directory and clean up the *build* and *dist* directories. The *build_mac.sh* (Mac OS X), *build_linux.sh* (Ubuntu, Fedora) and *build_win.bat* (Windows) scripts need pyinstaller and all required packages to be installed locally as for building a single application directly with pyinstaller. If you have questions on the needed dependencies feel free to contact me.
   * Compile the application using pyinstaller and the provided *.spec files (needs all required packages to be installed locally)
   * Get a compiled executable for Mac (*.app) or Windows (32bit or 64bit) by requesting it directly from me. A site with up to date executables for free download will follow in the future.
 
@@ -52,7 +57,7 @@ As the desktop applications are one-file-executables that have all necessary pyt
 
 ####Security and Firewall####
 Mac prevents the execution from applications that have not been signed by a registered Mac developer. To approve the app allthough it is from an unregeistered developer, CTRL+Click (Right-Click) on the app file and select open. A dialog box will appear asking if you are sure to launch the application from an unregistered developer. Approve the dialog by clicking 'Open'. From now on the app can be launched as any other app on your Mac.
-Also make sure that your firewall (if you use one) does not block the program. Windows will automatically ask if you want to grant network access to the application. This approval also has to be done only once.
+Also make sure that your firewall (if you use one, e.g. Fedora blocked it by default when testing) does not block the program. Windows will automatically ask if you want to grant network access to the application. This approval also has to be done only once.
 
 ####RaspMedia Control####
 #####Main Window#####

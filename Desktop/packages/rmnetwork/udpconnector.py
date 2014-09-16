@@ -63,8 +63,11 @@ def _sendMessage(data,host,local_bind=None,response_timeout=None):
 		# print "Sending message..."
 		sent = False
 		while not sent:
-			# print "Trying to send..."
-			sent = sock.sendto(data + "\n", (host, port))
+			try:
+				sent = sock.sendto(data + "\n", (host, port))
+			except:
+				print "UDP %s (local IP: %s) failed, this can happen with virtual network adapters..." % (host,local_bind)
+				sent = True
 		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,0)
 		# print "Message sent!"
 		#data, addr = sock.recvfrom(6)

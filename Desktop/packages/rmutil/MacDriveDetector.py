@@ -1,4 +1,4 @@
-import threading, sys, os, time, platform
+import threading, sys, os, time, platform, getpass
 import wx
 if platform.system() == "Linux":
     from wx.lib.pubsub import setupkwargs
@@ -8,7 +8,8 @@ else:
 
 if platform.system() == "Linux":
     if 'fedora' in platform.dist():
-        VOLUMES_PATH = "/run/media/$USER"
+        user = getpass.getuser()
+        VOLUMES_PATH = "/run/media/" + user
     else:
         VOLUMES_PATH = "/media"
 else:

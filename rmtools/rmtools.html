@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Kiosk</title>
+        <title>RaspMedia Desktop Applications</title>
         <link rel="stylesheet" type="text/css" href="css/style.css">
         <link rel="stylesheet" type="text/css" href="css/fonts.css">
         <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
@@ -45,6 +45,20 @@
             <a href="./downloads/RM_CopyTool_MacOSX.zip"></a>
         </div>
 
+        <div class="dl5";>
+            <p id="txt_h">RaspMedia Control</p>
+            <p id="txt">Linux (Ubuntu 12.04+/Fedora 20)</p>
+            <p id="txt">v1.0 (c)2014</p>
+            <a href="./downloads/RM_Control_Linux.zip"></a>
+        </div>
+
+        <div class="dl6">
+            <p id="txt_h">RaspMedia Copy Tool</p>
+            <p id="txt">Linux (Ubuntu 12.04+/Fedora 20)</p>
+            <p id="txt">v1.0 (c)2014</p>
+            <a href="./downloads/RM_CopyTool_Linux.zip"></a>
+        </div>
+
         <script>
             $(".dl1").click(function(){
                  window.location=$(this).find("a").attr("href");
@@ -59,6 +73,14 @@
                  return false;
             });
             $(".dl4").click(function(){
+                 window.location=$(this).find("a").attr("href");
+                 return false;
+            });
+            $(".dl5").click(function(){
+                 window.location=$(this).find("a").attr("href");
+                 return false;
+            });
+            $(".dl6").click(function(){
                  window.location=$(this).find("a").attr("href");
                  return false;
             });

@@ -7,7 +7,10 @@ else:
     from wx.lib.pubsub import pub as Publisher
 
 if platform.system() == "Linux":
-    VOLUMES_PATH = "/media"
+    if 'fedora' in platform.dist():
+        VOLUMES_PATH = "/run/media/$USER"
+    else:
+        VOLUMES_PATH = "/media"
 else:
     VOLUMES_PATH = "/Volumes"
 bg_thread = None

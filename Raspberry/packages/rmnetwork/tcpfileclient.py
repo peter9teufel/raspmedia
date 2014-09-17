@@ -1,14 +1,8 @@
 import socket
 import sys, os, platform
-import wx
 import messages
 from packages.lang.Localizer import *
 from packages.rmmedia import mediaplayer
-if platform.system() == "Linux":
-    from wx.lib.pubsub import setupkwargs
-    from wx.lib.pubsub import pub as Publisher
-else:
-    from wx.lib.pubsub import pub as Publisher
 
 observers = []
 _BLOCK_SIZE = 1024

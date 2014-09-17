@@ -8,25 +8,28 @@ import sys
 ################################################################################
 class ScrollableSelectableImageView(scrolled.ScrolledPanel):
     def __init__(self,parent,id,size,images=[],cols=2,deletion=False):
-        scrolled.ScrolledPanel.__init__(self,parent,id,size=size)
+        scrolled.ScrolledPanel.__init__(self,parent,id,size=size,style=wx.SUNKEN_BORDER)
         self.parent = parent
-        w = size[0] - 10
+        w = size[0] - 14
         self.size = (w,size[1])
         self.cols = cols
         self.deletion = deletion
         self.mainSizer = wx.GridBagSizer()
+        #self.SetMinSize(size)
+        #self.mainSizer.SetMinSize(size)
         abspath = os.path.abspath(__file__)
         dname = os.path.dirname(abspath)
         if self.deletion:
-            self.check = Image.open(dname + 'ScrollableSelectableImageViewPNG/deletemark.png')
+            self.check = Image.open(dname + '/ScrollableSelectableImageViewPNG/deletemark.png')
         else:
-            self.check = Image.open(dname + 'ScrollableSelectableImageViewPNG/checkmark.png')
+            self.check = Image.open(dname + '/ScrollableSelectableImageViewPNG/checkmark.png')
         self.check.thumbnail((40,40))
         self.images = images
         self.__LoadImages()
         self.SetSizer(self.mainSizer)
         self.SetAutoLayout(1)
         self.SetupScrolling(scroll_x=False, scroll_y=True)
+        self.Fit()
 
     def GetSelection(self):
         selection = []
@@ -34,6 +37,54 @@ class ScrollableSelectableImageView(scrolled.ScrolledPanel):
             if img['checked']:
                 selection.append(img['img_name'])
         return selection
+
+    def UpdateImages(self, files):
+        self.mainSizer.Clear(True)
+        self.images = files
+        self.__LoadImages()
+        self.SetAutoLayout(1)
+        self.SetupScrolling(scroll_x=False, scroll_y=True)
+        self.Fit()
+
+    def SelectAll(self, event=None):
+        cnt = 0
+        for img in self.images:
+            if not img['checked']:
+                cnt += 1
+        dlg = None
+        if cnt > 2:
+            dlg = wx.ProgressDialog("Selecting...", "Selecting all images...")
+            dlg.Pulse()
+        for img in self.images:
+            if not img['checked']:
+                self.__ToggleImage(img)
+        if not dlg == None:
+            dlg.Update(100)
+            if platform.system() == 'Windows':
+                dlg.Destroy()
+
+    def UnselectAll(self, event=None):
+        cnt = 0
+        for img in self.images:
+            if img['checked']:
+                cnt += 1
+        dlg = None
+        if cnt > 2:
+            dlg = wx.ProgressDialog("Unselecting...", "Unselecting all images...")
+            dlg.Pulse()
+        for img in self.images:
+            if img['checked']:
+                self.__ToggleImage(img)
+        if not dlg == None:
+            dlg.Update(100)
+            if platform.system() == 'Windows':
+                dlg.Destroy()
+
+    def __ToggleImage(self, image):
+        imagePath = image['img_path'] + image['img_name']
+        image["checked"] = not image["checked"]
+        wxImage = self.__ScaleImage(imagePath, self.imgWidth, image["checked"])
+        image['img_ctrl'].SetBitmap(wx.BitmapFromImage(wxImage))
 
     def __LoadImages(self):
         row = 0
@@ -45,13 +96,20 @@ class ScrollableSelectableImageView(scrolled.ScrolledPanel):
         self.imgWidth = self.size[0] / self.cols - 4
         images = []
 
+        dlg = False
+        if len(self.images) > 5:
+            dlg = True
+            prgDlg = wx.ProgressDialog("Loading previews...", "Loading image previews...")
+            prgDlg.Pulse()
+
         # load images and determine needed height for sizer
         for imgObj in self.images:
             imgPath = imgObj["img_path"] + imgObj['img_name']
             # get resized version of current image and save it temporary
             curImg = self.__ScaleImage(imgPath, self.imgWidth, imgObj["checked"])
             curImgCtrl = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(curImg))
-            curImgCtrl.Bind(wx.EVT_LEFT_DOWN, lambda event, imagePath=imgPath, imgCtrl=curImgCtrl: self.ImageClicked(event,imagePath,imgCtrl))
+            imgObj['img_ctrl'] = curImgCtrl
+            curImgCtrl.Bind(wx.EVT_LEFT_DOWN, lambda event, image=imgObj: self.ImageClicked(event,image))
             # print "Adding image in scrollable view at position (%d,%d)" % (row,col)
             self.mainSizer.Add(curImgCtrl,(row,col), flag=wx.ALL, border=2)
 
@@ -60,13 +118,13 @@ class ScrollableSelectableImageView(scrolled.ScrolledPanel):
             if col == 0:
                 row += 1
 
-    def ImageClicked(self, event, imagePath,imgCtrl):
-        for img in self.images:
-            curPath = img["img_path"] + img["img_name"]
-            if curPath == imagePath:
-                img["checked"] = not img["checked"]
-                wxImage = self.__ScaleImage(imagePath, self.imgWidth, img["checked"])
-                imgCtrl.SetBitmap(wx.BitmapFromImage(wxImage))
+        if dlg:
+            prgDlg.Update(100)
+            if platform.system() == 'Windows':
+                prgDlg.Destroy()
+
+    def ImageClicked(self, event, image):
+        self.__ToggleImage(image)
 
 
     def __ScaleImage(self, imgPath, width, checked=False):

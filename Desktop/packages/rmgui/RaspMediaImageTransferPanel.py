@@ -1,6 +1,7 @@
 import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import *
+from packages.rmgui import ScrollableSelectableImageView as imgView
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
@@ -12,6 +13,8 @@ if platform.system() == "Linux":
 else:
     from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
+
+import unidecode
 
 HOST_WIN = 1
 HOST_MAC = 2
@@ -32,10 +35,12 @@ class RaspMediaImageTransferPanel(wx.Panel):
         self.index = index
         self.host = host
         self.path = self.DefaultPath()
-        self.mainSizer = wx.GridBagSizer()
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         self.notebook_event = None
         self.prgDialog = None
         self.Initialize()
+        self.UpdateLocalFiles(False)
+        self.UpdatePathLabel()
 
     def DefaultPath(self):
         path = os.path.expanduser("~")
@@ -52,13 +57,82 @@ class RaspMediaImageTransferPanel(wx.Panel):
         return result
 
     def Initialize(self):
-        # TODO INIT UI
+        # play/stop controls
+        #pImg = wx.Image("img/ic_play.png", wx.BITMAP_TYPE_PNG).Rescale(20,20)
+        #sImg = wx.Image("img/ic_stop.png", wx.BITMAP_TYPE_PNG).Rescale(20,20)
+        #pBitMap = pImg.ConvertToBitmap()
+        #sBitMap = sImg.ConvertToBitmap()
 
-        # fit size and show
-        self.Fit()
-        self.parent.Fit()
-        self.parent.parent.Fit()
+
+        # image views
+        self.localImg = imgView.ScrollableSelectableImageView(self,-1,(300,400))
+        self.remoteImg = imgView.ScrollableSelectableImageView(self,-1,(300,400),deletion=True)
+
+        self.selDir = wx.Button(self,-1,label=tr("select_dir"), size=(300,25))
+
+        selAllLocal = wx.Button(self,-1,label="All", size=(60,25))
+        clearLocalSel = wx.Button(self,-1,label="None", size=(60,25))
+        selAllRemote = wx.Button(self,-1,label="All", size=(60,25))
+        clearRemoteSel = wx.Button(self,-1,label="None", size=(60,25))
+        execute = wx.Button(self,-1,label=tr("apply"), size=(145,25))
+        exitBtn = wx.Button(self,-1,label=tr("exit"), size=(145,25))
+
+        # bind buttons
+        self.selDir.Bind(wx.EVT_BUTTON, self.ChangeDir)
+        selAllLocal.Bind(wx.EVT_BUTTON, self.localImg.SelectAll)
+        clearLocalSel.Bind(wx.EVT_BUTTON, self.localImg.UnselectAll)
+        selAllRemote.Bind(wx.EVT_BUTTON, self.remoteImg.SelectAll)
+        clearRemoteSel.Bind(wx.EVT_BUTTON, self.remoteImg.UnselectAll)
+        execute.Bind(wx.EVT_BUTTON, self.ExecuteChanges)
+        exitBtn.Bind(wx.EVT_BUTTON, self.parent.parent.Close)
+
+        # divider lines
+        line = wx.StaticLine(self,-1,size=(652,2))
+        lineV1 = wx.StaticLine(self,-1,size=(2,400), style=wx.VERTICAL)
+
+        # add elements to UI
+        self.mainSizer.Add(self.selDir, flag=wx.LEFT|wx.TOP, border=10)
+        imgSizer = wx.BoxSizer()
+        # left image selection section
+        imgLeftSizer = wx.BoxSizer(wx.VERTICAL)
+        imgLeftSizer.Add(self.localImg)
+        leftBtnSizer = wx.BoxSizer()
+        leftBtnSizer.Add(selAllLocal)
+        leftBtnSizer.Add(clearLocalSel)
+        imgLeftSizer.Add(leftBtnSizer, flag=wx.TOP, border=3)
+        # right image selection section
+        imgRightSizer = wx.BoxSizer(wx.VERTICAL)
+        imgRightSizer.Add(self.remoteImg)
+        rightBtnSizer = wx.BoxSizer()
+        rightBtnSizer.Add(selAllRemote)
+        rightBtnSizer.Add(clearRemoteSel)
+        imgRightSizer.Add(rightBtnSizer, flag=wx.TOP, border=3)
+        imgSizer.Add(imgLeftSizer,flag=wx.RIGHT,border=10)
+        imgSizer.Add(lineV1, flag=wx.LEFT|wx.RIGHT, border=5)
+        imgSizer.Add(imgRightSizer, flag=wx.LEFT, border=10)
+        self.mainSizer.Add(imgSizer, flag=wx.LEFT|wx.RIGHT, border=10)
+        self.mainSizer.Add(line, flag=wx.TOP|wx.BOTTOM, border=5)
+        botSizer = wx.BoxSizer()
+        botSizer.Add(exitBtn, flag=wx.ALL, border=3)
+        botSizer.Add(execute, flag=wx.ALL, border=3)
+        self.mainSizer.Add(botSizer, flag=wx.ALL|wx.ALIGN_RIGHT, border=10)
+
+        self.SetSizerAndFit(self.mainSizer)
         self.Show(True)
+
+    def ExecuteChanges(self, event):
+        delFiles = self.remoteImg.GetSelection()
+        newFiles = self.localImg.GetSelection()
+
+        # execute changes
+        if len(delFiles) > 0:
+            self.DeleteRemoteFiles(delFiles)
+        if len(newFiles) > 0:
+            self.SendFilesToPlayer(newFiles)
+
+        # reload data
+        self.LoadData()
+
 
     def PageChanged(self, event):
         old = event.GetOldSelection()
@@ -74,21 +148,16 @@ class RaspMediaImageTransferPanel(wx.Panel):
         self.host = hostAddress
 
     def LoadData(self):
-        # TODO CHANGE DIALOG MESSAGE FOR FILE LOADING
-        #self.prgDialog = wx.ProgressDialog(tr("loading"), tr("msg_loading_config_filelist"))
-        #self.prgDialog.Pulse()
-        #self.LoadRemoteFiles()
-        pass
+        self.LoadRemoteFiles()
 
     def LoadRemoteFiles(self, event=None):
         # TODO modify routine to a new FILE_DATA_REQUEST
 
-        if not self.pageDataLoading:
-            Publisher.subscribe(self.UpdateRemoteFiles, 'remote_files_loaded')
-        msgData = network.messages.getMessage(FILELIST_REQUEST)
-        dlgStyle =  wx.PD_AUTO_HIDE
-        self.remoteListLoading = True
+        Publisher.subscribe(self.UpdateRemoteFiles, 'remote_files_loaded')
+        msgData = network.messages.getMessage(FILE_DATA_REQUEST)
         network.udpconnector.sendMessage(msgData, self.host)
+
+        network.tcpfilesocket.openFileSocket(self, HOST_SYS == HOST_WIN)
 
     def UdpListenerStopped(self):
         # print "UDP LISTENER STOPPED IN PANEL %d" % self.index
@@ -99,26 +168,49 @@ class RaspMediaImageTransferPanel(wx.Panel):
             if HOST_SYS == HOST_WIN:
                 self.prgDialog.Destroy()
 
-    def UpdateLocalFiles(self):
-        #TODO update scrollable selectable image view with local files
-        pass
+    def UpdatePathLabel(self):
+        txt = self.path
+        if len(self.path) > 25:
+            txt = '/'
+            words = self.path.split("/")
+            for word in reversed(words):
+                if len(txt) < 25:
+                    txt = '/' + word + txt
+            txt = "..." + txt
+            if len(txt) > 39:
+                txt = "..." + txt[-36:]
+        self.selDir.SetLabel(txt)
 
-    def UpdateRemoteFiles(self):
-        #TODO update scrollable selectable image view with remote files
-        pass
+    def UpdateLocalFiles(self, layout=True):
+        dirFiles = os.listdir(self.path)
+        images = []
+        for file in dirFiles:
+            if not file.startswith(".") and file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                images.append({"img_name": file, "img_path": self.path + '/', "checked": False})
+        self.localImg.UpdateImages(images)
+        if layout:
+            self.LayoutAndFit()
 
-    def DeleteSelectedRemoteFile(self, event):
-        # TODO get selected remote filenames of files to delete from player to variable 'files'
+    def UpdateRemoteFiles(self, files):
+        self.remoteImg.UpdateImages(files)
 
-        self.DeleteRemoteFiles(files)
+        # unselect all local images when remote images are updated
+        self.localImg.UnselectAll()
+        self.LayoutAndFit()
 
 
-    def SendSelectedFilesToPlayer(self, event=None):
-        # TODO get selected local filenames and save them to variable 'files'
+    def LayoutAndFit(self):
+        self.mainSizer.Layout()
+        self.Fit()
+        self.parent.Fit()
+        self.parent.parent.Fit()
+        self.parent.parent.Center()
 
+
+    def SendFilesToPlayer(self, files):
         # optimize the files before sending them
         # create temp directory
-        tmpPath = BASE_PATH + '/' + 'tmp'
+        tmpPath = BASE_PATH + '/' + 'opt_tmp'
         try:
             os.makedirs(tmpPath)
         except OSError as exception:
@@ -154,7 +246,6 @@ class RaspMediaImageTransferPanel(wx.Panel):
             network.udpconnector.sendMessage(msgData, self.host)
             time.sleep(2)
             wx.CallAfter(prgDialog.Destroy)
-            self.LoadData()
 
     def ChangeDir(self, event):
         dlg = wx.DirDialog(self, message=tr("select_file_dir"), defaultPath=self.path, style=wx.DD_CHANGE_DIR)
@@ -170,7 +261,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
     def ShowDirectory(self, newPath):
         if not self.path == newPath:
             self.path = newPath
-            self.SetPreviewImage('img/preview.png')
+            self.UpdatePathLabel()
             self.UpdateLocalFiles()
 
 # HELPER METHOD to get correct resource path for image file

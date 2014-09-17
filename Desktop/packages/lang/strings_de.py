@@ -126,5 +126,12 @@ strings = {
 	"per_sec": "Periodisch (sec)",
 	"per_min": "Periodisch (min)",
 	"per_hour": "Periodisch (hour)",
-	"desc_plural": "n"
+	"desc_plural": "n",
+	"apply": "Anwenden",
+	"loading_files": "Lade Dateien...",
+	"waiting_file_transfer": "Player bereitet Bilddateien zum Senden vor...",
+	"saving_previews": "Speichere Vorschaubilder...",
+	"msg_saving_previews": "Speichere Vorschau der Bilder des Players...",
+	"player_connected": "Player verbunden...",
+	"receiving_files": "Empfange Bilddateien vom Player..."
 }

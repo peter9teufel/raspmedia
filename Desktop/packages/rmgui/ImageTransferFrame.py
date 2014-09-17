@@ -4,7 +4,7 @@ import SettingsFrame as prefs
 import WifiDialog as wifi
 import packages.rmnetwork as network
 from packages.lang.Localizer import *
-import sys, os
+import sys, os, shutil
 if platform.system() == "Linux":
     from wx.lib.pubsub import setupkwargs
     from wx.lib.pubsub import pub as Publisher
@@ -19,7 +19,7 @@ BASE_PATH = None
 ################################################################################
 class ImageTransferFrame(wx.Frame):
     def __init__(self,parent,id,title,base_path):
-        wx.Frame.__init__(self,parent,id,title,size=(600,600))
+        wx.Frame.__init__(self,parent,id,title,size=(652,585),style=wx.MINIMIZE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN)
         self.parent = parent
         self.base_path = base_path
         global BASE_PATH
@@ -35,6 +35,10 @@ class ImageTransferFrame(wx.Frame):
         Publisher.unsubAll()
         self.notebook.Close()
         network.udpresponselistener.destroy()
+        # remove temp directory if present
+        tmpPath = os.getcwd() + '/tmp'
+        if os.path.isdir(tmpPath):
+            shutil.rmtree(tmpPath)
         self.Destroy()
         sys.exit(0)
 

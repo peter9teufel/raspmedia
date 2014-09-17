@@ -1,7 +1,6 @@
 import socket
 import sys, os, platform
 import messages
-from packages.lang.Localizer import *
 from packages.rmmedia import mediaplayer
 
 observers = []

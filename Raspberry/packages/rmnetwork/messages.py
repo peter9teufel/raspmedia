@@ -97,14 +97,14 @@ def getTcpFileMessage(files, basePath):
 	for filename in files:
 		filePath = basePath + '/' + filename
 
-		f=open (unicode(filePath), "rb")
-		#print "Appending filename %s with size %d" % (filename, len(bytearray(filename)))
+		f=open (filePath, "rb")
 		data = appendString(data, str(filename), sizeLE=False)
 
 		fileData = f.read()
 		filesize = len(fileData)
 		data = appendInt(data, filesize, False)
-		data = appendBytes(data, fileData)
+		data.extend(fileData)
+		#data = appendBytes(data, fileData)
 	msgData = bytearray()
 	msgSize = len(data)
 	msgData = appendInt(msgData, msgSize, False)

@@ -72,7 +72,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                 cSocket.sendto(responseData, (self.client_address[0], UDP_PORT))
             elif result == FILE_DATA_REQUEST:
                 # send images from player over tcp to host in separate thread to not block other udp handling
-                t = threading.Thread(target=SendImagesOverTCP, args=[self.client_address[0]])
+                t = threading.Thread(target=self.SendImagesOverTCP, args=[self.client_address[0]])
                 t.daemon = True
                 t.start()
         else:
@@ -85,6 +85,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         # cSocket.sendto(data.upper(), self.client_address)
 
     def SendImagesOverTCP(self, host):
+	time.sleep(2)
         tcpfileclient.sendAllImageFiles(host)
 
 def start():

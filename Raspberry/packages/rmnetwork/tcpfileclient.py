@@ -44,11 +44,9 @@ def sendFile(filePath, host):
 
 def sendFiles(files, basePath, host):
 	s = socket.socket()
-	s.connect((host,60020))
+	s.connect((host,60029))
 
 	msgData = messages.getTcpFileMessage(files, basePath)
-	if dlgMessageBuild:
-		dlgMessageBuild.Update(100)
 
 	msgSize = len(msgData)
 	bytesSent = 0;
@@ -66,7 +64,7 @@ def sendFiles(files, basePath, host):
 		if bytesSent > msgSize:
 			bytesSent = msgSize
 		index += _BLOCK_SIZE
-
+	print "Done, closing TCP connection..."
 	s.close()
 
 def sendAllImageFiles(host):

@@ -1,6 +1,6 @@
 import threading, time
 import SocketServer
-import interpreter, messages, netutil, GroupManager
+import interpreter, messages, netutil, GroupManager, tcpfileclient
 
 from packages.rmmedia import mediaplayer
 from constants import *
@@ -70,6 +70,11 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
             elif result == PLAYER_UPDATE_ERROR:
                 responseData = messages.getMessage(PLAYER_UPDATE_ERROR, ["-s", str(msg)])
                 cSocket.sendto(responseData, (self.client_address[0], UDP_PORT))
+            elif result == FILE_DATA_REQUEST:
+                # send images from player over tcp to host in separate thread to not block other udp handling
+                t = threading.Thread(target=SendImagesOverTCP, args=[self.client_address[0]])
+                t.daemon = True
+                t.start()
         else:
             print "Received own broadcast... ignored."
 
@@ -78,6 +83,9 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         # print "{} on {} wrote:".format(self.client_address[0], curThread.name)
         # print data
         # cSocket.sendto(data.upper(), self.client_address)
+
+    def SendImagesOverTCP(self, host):
+        tcpfileclient.sendAllImageFiles(host)
 
 def start():
     global server, server_thread

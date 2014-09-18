@@ -68,6 +68,6 @@ def sendFiles(files, basePath, host):
 	s.close()
 
 def sendAllImageFiles(host):
-    mediaPath = "/home/pi/raspmedia/Raspberry/media"
+    mediaPath = "/home/pi/raspmedia/Raspberry/media/thumbs"
     imgs = mediaplayer.getImageFilelist()
     sendFiles(imgs, mediaPath, host)

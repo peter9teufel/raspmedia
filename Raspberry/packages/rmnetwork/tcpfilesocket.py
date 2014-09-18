@@ -45,30 +45,34 @@ def _openSocket():
         # read number of files
         #numFilesBytes = sc.recv(4)
         numFiles, data = readInt(data)
+
+        # check thumbnails path
+        thumbsPath = os.getcwd() + '/media/thumbs/'
+        if not os.path.isdir(thumbsPath):
+            os.mkdir(thumbsPath)
+
         print "READING %d FILES" % numFiles
         for i in range(numFiles):
             # read file name
-            #nameSizeBytes = sc.recv(4)
-            #nameSize, data = readInt(data)
-            #name = sc.recv(nameSize)
             name, data = readString(data)
-            #print "READING FILE: ", name
             openPath = os.getcwd() + '/media/' + name
-            #fileSizeBytes = sc.recv(4)
             fileSize, data = readInt(data)
-            #print "FILESIZE: ", fileSize
             if not os.path.isdir(openPath):
                 f = open(openPath, 'w+') #open in binary
-                #l=''
-                #while len(l)< fileSize:
-                #    l += sc.recv(1024)
                 l = data[:fileSize]
                 data = data[fileSize:]
                 f.write(l)
-                #print 'Bytes written to file: ', fileSize
                 f.close()
-                #print "File saved!"
+
+                # save thumbnail
+                img = Image.open(openPath)
+                w = img.size[0]
+                h = img.size[1]
+                newW = width
+                newH = width * h / w
+                img.thumbnail((newW,newH)).save(thumbsPath + name)
         print "FILES SAVED!"
+        
         if mediaplayer.playerState == PLAYER_STARTED:
             mediaplayer.stop()
             time.sleep(3)

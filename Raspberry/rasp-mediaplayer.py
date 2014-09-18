@@ -30,6 +30,30 @@ def startUdpServer():
 def openFileSocket():
     tcpfilesocket.openFileSocket()
 
+def checkThumbnails():
+    print "Checking thumbnails..."
+    mediaPath = os.getcwd() + '/media/'
+    thumbPath = mediaPath + 'thumbs/'
+
+    if not os.path.isdir(thumbPath):
+        os.mkdir(thumbPath)
+    cnt = 0
+    files = rmmedia.mediaplayer.getImageFilelist()
+    for name in files:
+        oPath = mediaPath + name
+        tPath = thumbPath + name
+        if not os.path.isfile(tPath):
+            # no thumbnail for image present -> create and save thumbnail
+            img = Image.open(oPath)
+            w = img.size[0]
+            h = img.size[1]
+            newW = 200
+            newH = newW * h / w
+            img.thumbnail((newW,newH))
+            img.save(thumbsPath + name)
+            cnt += 1
+    print "%d missing thumbnails created and saved." % cnt
+
 def main():
     global config, groupConfig, mediaPath
     config = rmconfig.configtool.initConfig()
@@ -56,6 +80,10 @@ def main():
     GroupManager.InitGroupManager(groupConfig)
     GroupManager.Schedule()
 
+    # check if thumbnails completely present
+    t = threading.Thread(target=checkThumbnails)
+    t.daemon = True
+    t.start()
 
     # simple CLI to modify and quit program when debugging
     print ""

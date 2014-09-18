@@ -71,9 +71,9 @@ def _openSocket():
                 newW = 200
                 newH = newW * h / w
                 img.thumbnail((newW,newH))
-		img.save(thumbsPath + name)
+                img.save(thumbsPath + name)
         print "FILES SAVED!"
-        
+
         if mediaplayer.playerState == PLAYER_STARTED:
             mediaplayer.stop()
             time.sleep(3)

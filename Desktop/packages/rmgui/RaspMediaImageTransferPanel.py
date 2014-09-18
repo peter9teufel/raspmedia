@@ -14,8 +14,6 @@ else:
     from wx.lib.pubsub import pub as Publisher
 from wx.lib.wordwrap import wordwrap
 
-import unidecode
-
 HOST_WIN = 1
 HOST_MAC = 2
 HOST_LINUX = 3
@@ -35,6 +33,8 @@ class RaspMediaImageTransferPanel(wx.Panel):
         self.index = index
         self.host = host
         self.path = self.DefaultPath()
+        self.invalidate = True
+        self.remImages = {}
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         self.notebook_event = None
         self.prgDialog = None
@@ -58,22 +58,36 @@ class RaspMediaImageTransferPanel(wx.Panel):
 
     def Initialize(self):
         # play/stop controls
-        #pImg = wx.Image("img/ic_play.png", wx.BITMAP_TYPE_PNG).Rescale(20,20)
-        #sImg = wx.Image("img/ic_stop.png", wx.BITMAP_TYPE_PNG).Rescale(20,20)
-        #pBitMap = pImg.ConvertToBitmap()
-        #sBitMap = sImg.ConvertToBitmap()
+        pImg = wx.Image(resource_path("img/ic_play.png"), wx.BITMAP_TYPE_PNG).Rescale(20,20,wx.IMAGE_QUALITY_HIGH)
+        sImg = wx.Image(resource_path("img/ic_stop.png"), wx.BITMAP_TYPE_PNG).Rescale(20,20,wx.IMAGE_QUALITY_HIGH)
+        pBitMap = pImg.ConvertToBitmap()
+        sBitMap = sImg.ConvertToBitmap()
 
+        playBtn = wx.BitmapButton(self,-1,pBitMap)
+        stopBtn = wx.BitmapButton(self,-1,sBitMap)
 
         # image views
-        self.localImg = imgView.ScrollableSelectableImageView(self,-1,(300,400))
-        self.remoteImg = imgView.ScrollableSelectableImageView(self,-1,(300,400),deletion=True)
+        nums = self.host.split(".")
+        id = 0
+        for num in nums:
+            id += int(num)
+        self.localImg = imgView.ScrollableSelectableImageView(self,id,(300,400),execPath=BASE_PATH)
+        self.remoteImg = imgView.ScrollableSelectableImageView(self,id+1,(300,400),deletion=True,execPath=BASE_PATH)
 
         self.selDir = wx.Button(self,-1,label=tr("select_dir"), size=(300,25))
 
-        selAllLocal = wx.Button(self,-1,label="All", size=(60,25))
-        clearLocalSel = wx.Button(self,-1,label="None", size=(60,25))
-        selAllRemote = wx.Button(self,-1,label="All", size=(60,25))
-        clearRemoteSel = wx.Button(self,-1,label="None", size=(60,25))
+
+        # select all/none bitmap buttons
+        aImg = wx.Image(resource_path("img/ic_selectall.png"), wx.BITMAP_TYPE_PNG).Rescale(47,20,wx.IMAGE_QUALITY_HIGH)
+        nImg = wx.Image(resource_path("img/ic_selectnone.png"), wx.BITMAP_TYPE_PNG).Rescale(47,20,wx.IMAGE_QUALITY_HIGH)
+        aBitMap = aImg.ConvertToBitmap()
+        nBitMap = nImg.ConvertToBitmap()
+
+        selAllLocal = wx.BitmapButton(self,-1,aBitMap,pos=(0,0))
+        clearLocalSel = wx.BitmapButton(self,-1,nBitMap,pos=(0,0))
+        selAllRemote = wx.BitmapButton(self,-1,aBitMap,pos=(0,0))
+        clearRemoteSel = wx.BitmapButton(self,-1,nBitMap,pos=(0,0))
+
         execute = wx.Button(self,-1,label=tr("apply"), size=(145,25))
         exitBtn = wx.Button(self,-1,label=tr("exit"), size=(145,25))
 
@@ -83,6 +97,8 @@ class RaspMediaImageTransferPanel(wx.Panel):
         clearLocalSel.Bind(wx.EVT_BUTTON, self.localImg.UnselectAll)
         selAllRemote.Bind(wx.EVT_BUTTON, self.remoteImg.SelectAll)
         clearRemoteSel.Bind(wx.EVT_BUTTON, self.remoteImg.UnselectAll)
+        playBtn.Bind(wx.EVT_BUTTON, self.Play)
+        stopBtn.Bind(wx.EVT_BUTTON, self.Stop)
         execute.Bind(wx.EVT_BUTTON, self.ExecuteChanges)
         exitBtn.Bind(wx.EVT_BUTTON, self.parent.parent.Close)
 
@@ -99,20 +115,22 @@ class RaspMediaImageTransferPanel(wx.Panel):
         leftBtnSizer = wx.BoxSizer()
         leftBtnSizer.Add(selAllLocal)
         leftBtnSizer.Add(clearLocalSel)
-        imgLeftSizer.Add(leftBtnSizer, flag=wx.TOP, border=3)
+        imgLeftSizer.Add(leftBtnSizer)
         # right image selection section
         imgRightSizer = wx.BoxSizer(wx.VERTICAL)
         imgRightSizer.Add(self.remoteImg)
         rightBtnSizer = wx.BoxSizer()
         rightBtnSizer.Add(selAllRemote)
         rightBtnSizer.Add(clearRemoteSel)
-        imgRightSizer.Add(rightBtnSizer, flag=wx.TOP, border=3)
+        imgRightSizer.Add(rightBtnSizer)
         imgSizer.Add(imgLeftSizer,flag=wx.RIGHT,border=10)
         imgSizer.Add(lineV1, flag=wx.LEFT|wx.RIGHT, border=5)
         imgSizer.Add(imgRightSizer, flag=wx.LEFT, border=10)
         self.mainSizer.Add(imgSizer, flag=wx.LEFT|wx.RIGHT, border=10)
         self.mainSizer.Add(line, flag=wx.TOP|wx.BOTTOM, border=5)
         botSizer = wx.BoxSizer()
+        botSizer.Add(stopBtn)
+        botSizer.Add(playBtn, flag=wx.RIGHT, border=280)
         botSizer.Add(exitBtn, flag=wx.ALL, border=3)
         botSizer.Add(execute, flag=wx.ALL, border=3)
         self.mainSizer.Add(botSizer, flag=wx.ALL|wx.ALIGN_RIGHT, border=10)
@@ -131,33 +149,28 @@ class RaspMediaImageTransferPanel(wx.Panel):
             self.SendFilesToPlayer(newFiles)
 
         # reload data
+        self.invalidate = True
         self.LoadData()
-
-
-    def PageChanged(self, event):
-        old = event.GetOldSelection()
-        new = event.GetSelection()
-        sel = self.parent.GetSelection()
-        self.notebook_event = event
-        # print "OnPageChanged, old:%d, new:%d, sel:%d" % (old, new, sel)
-        newPage = self.parent.GetPage(new)
-        if self.index == newPage.index:
-            self.LoadData()
 
     def SetHost(self, hostAddress):
         self.host = hostAddress
 
     def LoadData(self):
-        self.LoadRemoteFiles()
+        if self.invalidate:
+            self.LoadRemoteFiles()
+        else:
+            self.UpdateRemoteFiles(self.remImages[self.host])
 
     def LoadRemoteFiles(self, event=None):
-        # TODO modify routine to a new FILE_DATA_REQUEST
-
+        # remove previous listener that may be present from other tab
+        Publisher.unsubAll()
+        # send udp request to receive files over tcp
         Publisher.subscribe(self.UpdateRemoteFiles, 'remote_files_loaded')
         msgData = network.messages.getMessage(FILE_DATA_REQUEST)
         network.udpconnector.sendMessage(msgData, self.host)
-
+        # open tcp socket for file transmission
         network.tcpfilesocket.openFileSocket(self, HOST_SYS == HOST_WIN)
+        self.invalidate = False
 
     def UdpListenerStopped(self):
         # print "UDP LISTENER STOPPED IN PANEL %d" % self.index
@@ -192,6 +205,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
             self.LayoutAndFit()
 
     def UpdateRemoteFiles(self, files):
+        self.remImages[self.host] = files
         self.remoteImg.UpdateImages(files)
 
         # unselect all local images when remote images are updated
@@ -210,7 +224,17 @@ class RaspMediaImageTransferPanel(wx.Panel):
     def SendFilesToPlayer(self, files):
         # optimize the files before sending them
         # create temp directory
-        tmpPath = BASE_PATH + '/' + 'opt_tmp'
+        from os.path import expanduser
+        home = expanduser("~")
+        appPath = home + '/.raspmedia/'
+        tmpRoot = appPath + 'tmp/'
+        tmpPath = tmpRoot + 'opt_tmp/'
+        if not os.path.isdir(appPath):
+            os.mkdir(appPath)
+        if not os.path.isdir(tmpRoot):
+            os.mkdir(tmpRoot)
+        if not os.path.isdir(tmpPath):
+            os.mkdir(tmpPath)
         try:
             os.makedirs(tmpPath)
         except OSError as exception:
@@ -257,6 +281,14 @@ class RaspMediaImageTransferPanel(wx.Panel):
             # print "Changing local list to new path: " + filename
             self.ShowDirectory(filename)
         dlg.Destroy()
+
+    def Play(self, event=None):
+        msgData = network.messages.getMessage(PLAYER_START)
+        network.udpconnector.sendMessage(msgData, self.host)
+
+    def Stop(self, event=None):
+        msgData = network.messages.getMessage(PLAYER_STOP)
+        network.udpconnector.sendMessage(msgData, self.host)
 
     def ShowDirectory(self, newPath):
         if not self.path == newPath:

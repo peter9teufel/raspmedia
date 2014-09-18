@@ -35,10 +35,6 @@ class ImageTransferFrame(wx.Frame):
         Publisher.unsubAll()
         self.notebook.Close()
         network.udpresponselistener.destroy()
-        # remove temp directory if present
-        tmpPath = os.getcwd() + '/tmp'
-        if os.path.isdir(tmpPath):
-            shutil.rmtree(tmpPath)
         self.Destroy()
         sys.exit(0)
 

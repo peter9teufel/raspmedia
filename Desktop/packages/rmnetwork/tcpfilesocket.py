@@ -62,7 +62,10 @@ def _openSocket():
     # read number of files
     #numFilesBytes = sc.recv(4)
     numFiles, data = readInt(data)
-    tmpPath =os.getcwd() + '/tmp/'
+    tmp = os.getcwd() + '/tmp/'
+    if not os.path.isdir(tmp):
+        os.mkdir(tmp)
+    tmpPath = tmp + address[0] + '/'
     rFiles = []
     if os.path.isdir(tmpPath):
         # print "Removing old temp directory..."
@@ -99,7 +102,7 @@ def openFileSocket(parentElem, isWindows):
     global prgDialog, windows, parent
     parent = parentElem
     windows = isWindows
-    prgDialog = wx.ProgressDialog(tr("loading_files"), tr("waiting_file_transfer"), style=wx.PD_AUTO_HIDE)
+    prgDialog = wx.ProgressDialog(tr("loading_files"), tr("receiving_files"), style=wx.PD_AUTO_HIDE)
     prgDialog.Pulse()
     global server_thread
     # Start a thread with the server

@@ -132,6 +132,8 @@ strings = {
 	"saving_previews": "Saving previews...",
 	"msg_saving_previews": "Saving previews of the image files from your player...",
 	"player_connected": "Player connected...",
-	"receiving_files": "Receiving image files from your player..."
+	"receiving_files": "Receiving image files from your player...",
+	"loading_previews": "Loading previews...",
+	"msg_loading_previews": "Loading previews of your image files..."
 
 }

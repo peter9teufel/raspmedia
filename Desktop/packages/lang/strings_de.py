@@ -133,5 +133,7 @@ strings = {
 	"saving_previews": "Speichere Vorschaubilder...",
 	"msg_saving_previews": "Speichere Vorschau der Bilder des Players...",
 	"player_connected": "Player verbunden...",
-	"receiving_files": "Empfange Bilddateien vom Player..."
+	"receiving_files": "Empfange Bilddateien vom Player...",
+	"loading_previews": "Lade Vorschau...",
+	"msg_loading_previews": "Lade Vorschau der Bilddateien..."
 }

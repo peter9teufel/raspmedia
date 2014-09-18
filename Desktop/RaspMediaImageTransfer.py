@@ -1,6 +1,6 @@
 from packages.rmgui import ImageTransferFrame as rm_app
 from packages.rmnetwork.constants import *
-import os, platform
+import os, platform, shutil
 try:
     import wx
 except ImportError:
@@ -13,6 +13,17 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 base_path = dname
 app = wx.App()
+
+from os.path import expanduser
+home = expanduser("~")
+appPath = home + '/.raspmedia/'
+tmpPath = appPath + 'tmp/'
+if not os.path.isdir(appPath):
+    os.mkdir(appPath)
+
+if os.path.isdir(tmpPath):
+    shutil.rmtree(tmpPath)
+os.mkdir(tmpPath)
 
 frame = rm_app.ImageTransferFrame(None, -1, 'RaspMedia Image Transfer', base_path)
 

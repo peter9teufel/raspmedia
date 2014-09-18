@@ -137,6 +137,5 @@ class ImageTransferNotebook(wx.Notebook):
         if HOST_SYS == HOST_LINUX and event.GetOldSelection() == -1:
             pass
         else:
-            # pass event to all pages, appropriate one will load data
-            for page in self.pages:
-                page.PageChanged(event)
+            sel = event.GetSelection()
+            self.LoadPageData(sel)

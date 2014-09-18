@@ -87,7 +87,7 @@ def _checkOrientation(img):
         print "Exif data not present or can not be processed, returning unmodified image..."
     return img
 
-def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_FIT):
+def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_CROP):
     prgDialog = wx.ProgressDialog(tr("optimizing"), tr("optimizing_images"), maximum=len(files), style=wx.PD_AUTO_HIDE)
     cnt = 0
     for filename in files:

@@ -2,6 +2,7 @@
 
 # libraries
 import os, sys, subprocess, time, threading
+from PIL import Image
 
 # own modules and packages
 from packages import rmconfig, rmmedia, rmutil, rmnetwork
@@ -50,7 +51,7 @@ def checkThumbnails():
             newW = 200
             newH = newW * h / w
             img.thumbnail((newW,newH))
-            img.save(thumbsPath + name)
+            img.save(thumbPath + name)
             cnt += 1
     print "%d missing thumbnails created and saved." % cnt
 

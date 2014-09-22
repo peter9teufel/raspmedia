@@ -1,7 +1,9 @@
 import socket
 import os, sys, platform, time, threading, shutil
-import Image
+from PIL import Image, ImageDraw
 import wx
+import io
+import binascii
 if platform.system() == "Linux":
     from wx.lib.pubsub import setupkwargs
     from wx.lib.pubsub import pub as Publisher
@@ -42,6 +44,7 @@ def _openSocket():
 
     print "Receiving player data..."
     buff = ''
+    buff += sc.recv(dataSize)
     while len(buff) < dataSize:
         buff += sc.recv(1024)
         prg = len(buff)
@@ -62,11 +65,15 @@ def _openSocket():
     # read number of files
     #numFilesBytes = sc.recv(4)
     numFiles, data = readInt(data)
-    tmp = os.getcwd() + '/tmp/'
+    from os.path import expanduser
+    home = expanduser("~")
+    appPath = home + '/.raspmedia/'
+    tmp = appPath + 'tmp/'
+    if not os.path.isdir(appPath):
+        os.mkdir(appPath)
     if not os.path.isdir(tmp):
         os.mkdir(tmp)
     tmpPath = tmp + address[0] + '/'
-    rFiles = []
     if os.path.isdir(tmpPath):
         # print "Removing old temp directory..."
         shutil.rmtree(tmpPath)
@@ -75,16 +82,24 @@ def _openSocket():
     except OSError as exception:
         # print "Exception in creating DIR: ",exception
         pass
+
+    rFiles = []
     for i in range(numFiles):
         name, data = readString(data)
         openPath = tmpPath + name
         fileSize, data = readInt(data)
         if not os.path.isdir(openPath):
-            f = open(openPath, 'w+') #open in binary
             l = data[:fileSize]
             data = data[fileSize:]
-            f.write(l)
-            f.close()
+            if platform.system() == "Windows":
+                stream = io.BytesIO(l)
+                img = Image.open(stream)
+                draw = ImageDraw.Draw(img)
+                img.save(openPath)
+            else:
+                f = open(openPath, 'w+') #open in binary
+                f.write(l)
+                f.close()
         rFiles.append({"img_name": name, "img_path": tmpPath, "checked": False})
     print "FILES SAVED!"
 

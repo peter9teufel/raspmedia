@@ -32,6 +32,14 @@ class ImageTransferFrame(wx.Frame):
         self.notebook.SearchHosts()
 
     def Close(self, event=None):
+        # remove temp dir if present
+        from os.path import expanduser
+        home = expanduser("~")
+        appPath = home + '/.raspmedia/'
+        tmpPath = appPath + 'tmp/'
+        if os.path.isdir(tmpPath):
+            print "Cleaning up temporary files..."
+            shutil.rmtree(tmpPath)
         Publisher.unsubAll()
         self.notebook.Close()
         network.udpresponselistener.destroy()

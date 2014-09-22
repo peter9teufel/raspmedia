@@ -19,15 +19,19 @@ disable_overscan=1
 #framebuffer_height=1080
 
 # uncomment if hdmi display is not detected and composite is being output
-#hdmi_force_hotplug=1
+hdmi_force_hotplug=1
 
-# uncomment to force a specific HDMI mode (this will force VGA)
-#hdmi_group=1
-#hdmi_mode=1
+# forcing HDMI output in 1080p60
+hdmi_group=1
+hdmi_mode=16
+# uncomment this for 720p
+#hdmi_mode=19
+# uncomment this group and mode for 1366x768 (HDReady)
+#hdmi_group=2
+#hdmi_mode=40
 
-# uncomment to force a HDMI mode rather than DVI. This can make audio work in
-# DMT (computer monitor) modes
-#hdmi_drive=2
+# enable audio over hdmi
+hdmi_drive=2
 
 # uncomment to increase signal to HDMI, if you have interference, blanking, or
 # no display
@@ -36,8 +40,8 @@ disable_overscan=1
 # uncomment for composite PAL
 #sdtv_mode=2
 
-#uncomment to overclock the arm. 700 MHz is the default.
+# ARM frequency to 800
 arm_freq=800
 
-# for more options see http://elinux.org/RPi_config.txt
+# 192M GPU Memory
 gpu_mem=192

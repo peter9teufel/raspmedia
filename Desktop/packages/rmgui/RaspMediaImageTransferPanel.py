@@ -235,24 +235,18 @@ class RaspMediaImageTransferPanel(wx.Panel):
             os.mkdir(tmpRoot)
         if not os.path.isdir(tmpPath):
             os.mkdir(tmpPath)
-        try:
-            os.makedirs(tmpPath)
-        except OSError as exception:
-            print "Exception in creating DIR: ",exception
+
         rmutil.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
         network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
-        # print "Deleting temporary files..."
         shutil.rmtree(tmpPath)
         dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)
         dlg.Pulse()
         numFiles = len(files)
-        # give the player at least 0.2s per file to save
-        time.sleep(numFiles * 0.4)
+        # give the player some time per file to save and create a thumbnail
+        time.sleep(numFiles * 0.5)
         dlg.Update(100)
         if HOST_SYS == HOST_WIN:
             dlg.Destroy()
-
-        # TODO UPDATE UI
 
     def DeleteRemoteFiles(self, files):
         # dialog to verify deleting file on player

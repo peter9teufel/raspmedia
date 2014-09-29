@@ -2,7 +2,7 @@ rmdir /S /Q build dist Release
 mkdir Release
 
 set "cwd=%~dp0"
-set "destPath=%cwd%\Release"
+set "destPath=%cwd%Release"
 set "distPath=dist"
 
 pyinstaller RMImageTransfer.spec

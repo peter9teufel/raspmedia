@@ -14,7 +14,7 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=True,
-          console=False,
+          console=(True if sys.platform == 'win32' else False),
           icon='img/ic_main.ico')
 if sys.platform == 'darwin':
     app = BUNDLE(exe,

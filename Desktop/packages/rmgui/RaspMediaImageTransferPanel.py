@@ -33,6 +33,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
         self.index = index
         self.host = host
         self.path = self.DefaultPath()
+        self.config = []
         self.invalidate = True
         self.remImages = {}
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
@@ -160,6 +161,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
             self.LoadRemoteFiles()
         else:
             self.UpdateRemoteFiles(self.remImages[self.host])
+        self.LoadRemoteConfig()
 
     def LoadRemoteFiles(self, event=None):
         # remove previous listener that may be present from other tab
@@ -171,6 +173,18 @@ class RaspMediaImageTransferPanel(wx.Panel):
         # open tcp socket for file transmission
         network.tcpfilesocket.openFileSocket(self, HOST_SYS == HOST_WIN)
         self.invalidate = False
+
+    def LoadRemoteConfig(self):
+        Publisher.subscribe(self.UpdateRemoteConfig, 'config')
+        msgData = network.messages.getMessage(CONFIG_REQUEST)
+        network.udpconnector.sendMessage(msgData, self.host)
+
+    def UpdateRemoteConfig(self, config, isDict=False):
+        if isDict:
+            configDict = config
+        else:
+            configDict = ast.literal_eval(config)
+        self.config = configDict
 
     def UdpListenerStopped(self):
         # print "UDP LISTENER STOPPED IN PANEL %d" % self.index

@@ -99,8 +99,15 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         #self.Fit()
         line = wx.StaticLine(self,-1,size=(2,565),style=wx.LI_VERTICAL)
         self.mainSizer.Add(line,(0,1), span=(2,1), flag=wx.LEFT | wx.RIGHT, border=5)
-
+        self.LayoutAndFit()
         self.Show(True)
+
+    def LayoutAndFit(self):
+        self.mainSizer.Layout()
+        self.Fit()
+        self.parent.Fit()
+        self.parent.parent.Fit()
+        self.parent.parent.Center()
 
     def SetupPlayerSection(self):
         # scrolled panel to show player status list

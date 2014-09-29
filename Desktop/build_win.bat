@@ -5,6 +5,14 @@ set "cwd=%~dp0"
 set "destPath=%cwd%\Release"
 set "distPath=dist"
 
+pyinstaller RMImageTransfer.spec
+
+set "distFile=%distPath%\RaspMedia Image Transfer.exe"
+set "destFile=%destPath%\RaspMedia Image Transfer.exe"
+copy "%distFile%" "%destFile%"
+
+rmdir /S /Q build dist
+
 pyinstaller RaspMediaApp.spec
 
 set "distFile=%distPath%\RaspMedia Control.exe"

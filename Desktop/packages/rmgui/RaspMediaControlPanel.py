@@ -107,10 +107,18 @@ class RaspMediaCtrlPanel(wx.Panel):
         line = wx.StaticLine(self,-1,size=(self.mainSizer.GetSize()[0],2))
         self.mainSizer.Add(line, (1,0), flag = wx.TOP | wx.BOTTOM, border = 10)
 
+        #self.Fit()
+        #self.parent.Fit()
+        #self.parent.parent.Fit()
+        self.LayoutAndFit()
+        self.Show(True)
+
+    def LayoutAndFit(self):
+        self.mainSizer.Layout()
         self.Fit()
         self.parent.Fit()
         self.parent.parent.Fit()
-        self.Show(True)
+        self.parent.parent.Center()
 
     def SetupPlayerSection(self):
         playerBox = wx.StaticBox(self,-1,label="Player Info")

@@ -1,6 +1,7 @@
 import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import RaspMediaImageTransferPanel as imagePanel
+from packages.rmgui import RaspMediaAllPlayersPanel as rmap
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 import os, sys, platform, ast, time, threading, shutil
@@ -53,6 +54,21 @@ class ImageTransferNotebook(wx.Notebook):
 
     def Close(self):
         self.Destroy()
+
+    def CurrentConfig(self):
+        return self.GetPage(self.activePageNr).config
+
+    def UpdateCurrentPlayerConfig(self, config):
+        self.hosts[self.activePageNr]['name'] = config['player_name']
+        self.GetPage(self.activePageNr).UpdateRemoteConfig(config,True)
+
+    def UpdatePageName(self, oldName, newName):
+        for i in range(self.GetPageCount()):
+            page = self.GetPage(i)
+            label = page.GetLabel()
+            found = label == oldName
+            if found:
+                self.SetPageText(i, newName)
 
     def CurrentlyActiveHost(self):
         if self.activePageNr < len(self.hosts):
@@ -124,6 +140,11 @@ class ImageTransferNotebook(wx.Notebook):
                     self.pages.append(curPage)
                     self.AddPage(curPage, host['name'])
                     ind += 1
+
+                allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
+                self.pages.append(allPlayers)
+                self.AddPage(allPlayers, "All Players")
+
                 self.prgDialog.Update(100)
                 self.LoadPageData(0)
                 self.parent.Center()

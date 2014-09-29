@@ -12,6 +12,20 @@ distPath="dist"
 
 
 ##### BUILD RASPMEDIA CONTROL #####
+echo "Compiling RaspMedia Image Transfer..."
+pyinstaller RMImageTransfer.spec
+
+# copy built version to tools directory
+echo "Making release file for RaspMedia Image Transfer..."
+distFile="$distPath/RaspMedia Image Transfer"
+destFile="$destPath/RaspMedia Image Transfer"
+cp -r "$distFile" "$destFile"
+
+# remove build directories
+echo "Cleaning up..."
+rm -rf build dist
+
+##### BUILD RASPMEDIA CONTROL #####
 echo "Compiling RaspMedia Control..."
 pyinstaller RaspMediaApp.spec
 

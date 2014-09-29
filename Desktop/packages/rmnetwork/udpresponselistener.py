@@ -52,7 +52,6 @@ class UDPResponseListener(threading.Thread):
 						# print response
 						wx.CallAfter(Publisher.sendMessage, 'remote_files', serverAddr=address, files=response)
 					elif result == CONFIG_REQUEST:
-						# print "Config data received:"
 						wx.CallAfter(Publisher.sendMessage, 'config', config=response)
 					elif result == GROUP_CONFIG_REQUEST:
 						wx.CallAfter(Publisher.sendMessage, 'group_config', group_config=response, playerIP=address[0])

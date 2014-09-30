@@ -266,7 +266,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         #if self.notebook_event:
         #	self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
         #else:
-        self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+        self.parent.SetPageText(self.index, str(configDict['player_name']))
         self.parent.parent.Refresh()
 
     def GetLocalSelectionInfo(self):
@@ -553,12 +553,10 @@ class RaspMediaCtrlPanel(wx.Panel):
         network.udpconnector.sendMessage(msgData, self.host)
 
     def UdpListenerStopped(self):
-        # print "UDP LISTENER STOPPED IN PANEL %d" % self.index
         global HOST_SYS
         if self.pageDataLoading:
             if self.remoteListLoading:
                 self.pageDataLoading = False
-                Publisher.unsubAll()
                 if self.parent.prgDialog:
                     # print "CLOSING PRG DIALOG IN PARENT..."
                     self.parent.prgDialog.Update(100)
@@ -570,6 +568,7 @@ class RaspMediaCtrlPanel(wx.Panel):
                     if HOST_SYS == HOST_WIN:
                         self.prgDialog.Destroy()
             else:
+                Publisher.unsubscribe(self.UpdateConfigUI, 'config')
                 self.LoadRemoteFileList()
         else:
             if self.prgDialog:

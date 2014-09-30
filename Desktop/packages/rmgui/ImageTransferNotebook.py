@@ -58,6 +58,23 @@ class ImageTransferNotebook(wx.Notebook):
     def CurrentConfig(self):
         return self.GetPage(self.activePageNr).config
 
+    def GetConfigForHost(self, host):
+        for i in range(self.GetPageCount()):
+            page = self.GetPage(i)
+            pHost = page.host
+            if host['addr'] == pHost:
+                return page.config
+        return -1
+
+    def UpdatePlayerConfig(self, config, host):
+        for i in range(self.GetPageCount()):
+            page = self.GetPage(i)
+            pHost = page.host
+            if host['addr'] == pHost:
+                self.hosts[i]['name'] = config['player_name']
+                self.SetPageText(i, config['player_name'])
+                page.UpdateRemoteConfig(config,True)
+
     def UpdateCurrentPlayerConfig(self, config):
         self.hosts[self.activePageNr]['name'] = config['player_name']
         self.GetPage(self.activePageNr).UpdateRemoteConfig(config,True)

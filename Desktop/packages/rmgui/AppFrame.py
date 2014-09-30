@@ -95,7 +95,8 @@ class AppFrame(wx.Frame):
             wifiDlg.ShowModal()
 
     def SettingsClosedWithConfig(self, config):
-        self.notebook.UpdateCurrentPlayerUI(config)
+        if not self.notebook.CurrentlyActiveHost() == -1:
+            self.notebook.UpdateCurrentPlayerUI(config)
 
 
 # HELPER METHOD to get correct resource path for image file

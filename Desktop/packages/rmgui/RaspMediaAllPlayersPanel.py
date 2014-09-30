@@ -142,7 +142,6 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             ipSizer = wx.BoxSizer()
             ipSizer.Add(ipLabel,flag=wx.ALL, border = 5)
             ipSizer.Add(ip, flag=wx.ALL, border = 5)
-            ipSizer.Layout()
             ipSizer.Add(settingsBtn, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.ALL, border = 5)
 
             btnSizer = wx.BoxSizer()

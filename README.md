@@ -66,7 +66,7 @@ Also make sure that your firewall (if you use one, e.g. Fedora blocked it by def
 ####RaspMedia Image Transfer and RaspMedia Control####
 #####RaspMedia Image Transfer Main Window#####
 RaspMedia Image Transfer allows you to fully configure and setup your RaspMedia Players. On startup the application searches for players in your local network and creates a tab for each player.
-![RaspMedia Control Main Window](/Screenshots/rmc_main.png)
+![RaspMedia Control Main Window](/Screenshots/rmi_main.png)
 
 The main window provides a local view on the left side and a remote view on the right side. The local view shows previews of all images of the currently selected directory. You can change the directory by clicking on the button with the current path above the preview section.
 By clicking single images in the two views you select which images you'd like to send to player and which images you'd like to delete from the player. The *Select All* and *Select None* Buttons below the previews speak for themselves.
@@ -74,7 +74,7 @@ By clicking *Apply* all selected remote images are deleted and all selected loca
 
 #####RaspMedia Control Main Window#####
 RaspMedia Control allows you to fully configure and setup your RaspMedia Players. On startup the application searches for players in your local network and creates a tab for each player.
-![RaspMedia Image Transfer Main Window](/Screenshots/rmi_main.png)
+![RaspMedia Image Transfer Main Window](/Screenshots/rmc_main.png)
 
 The main window offers information on the player (name, IP) and basic controls (Play, Stop, Reboot) at the top, by clicking identify the corresponding player will show a test image with the player name so you can identify each player and give it a appropriate name when setting up multiple players at one time.
 Right underneath you can find a simple file explorer to search for images on your hard drive which you'd like to send to the player. You can send a single image by double clicking it and approving the dialog or by selecting multiple images, right click and select "Send to player".

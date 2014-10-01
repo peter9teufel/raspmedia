@@ -1,6 +1,7 @@
 rmdir /S /Q build
 rmdir /S /Q dist
 rmdir /S /Q Release
+TIMEOUT 2
 md Release
 
 set "cwd=%~dp0"

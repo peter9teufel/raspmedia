@@ -132,17 +132,17 @@ class RaspMediaAllPlayersPanel(wx.Panel):
 
             self.nameLabels[host['addr']] = playerBox
 
-            ip = wx.StaticText(self.scroll,-1,label=host['addr'],size=(70,25))
+            ip = wx.StaticText(self.scroll,-1,label=host['addr'],size=(75,25))
             setName = wx.Button(self.scroll,-1,label="Player Name",size=(110,25))
             identify = wx.Button(self.scroll,-1,label=tr("identify"),size=(110,25))
-            settingsBtn = wx.BitmapButton(self,-1,setBitmap)
+            settingsBtn = wx.BitmapButton(self.scroll,-1,setBitmap)
 
-            ipLabel = wx.StaticText(self.scroll,-1,label="Player IP:",size=(100,25))
+            ipLabel = wx.StaticText(self.scroll,-1,label="Player IP:",size=(110,25))
 
             ipSizer = wx.BoxSizer()
             ipSizer.Add(ipLabel,flag=wx.ALL, border = 5)
             ipSizer.Add(ip, flag=wx.ALL, border = 5)
-            ipSizer.Add(settingsBtn, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.ALL, border = 5)
+            ipSizer.Add(settingsBtn, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_RIGHT|wx.ALL, border = 5)
 
             btnSizer = wx.BoxSizer()
             btnSizer.Add(identify, flag=wx.ALL, border = 5)

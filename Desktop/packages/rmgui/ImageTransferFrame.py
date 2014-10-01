@@ -50,7 +50,6 @@ class ImageTransferFrame(wx.Frame):
         appPath = home + '/.raspmedia/'
         tmpPath = appPath + 'tmp/'
         if os.path.isdir(tmpPath):
-            print "Cleaning up temporary files..."
             shutil.rmtree(tmpPath)
         Publisher.unsubAll()
         self.notebook.Close()

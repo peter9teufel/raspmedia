@@ -526,14 +526,9 @@ class RaspMediaCtrlPanel(wx.Panel):
         if not self.pageDataLoading:
             Publisher.subscribe(self.InsertReceivedFileList, 'remote_files')
             Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
-        #network.udpresponselistener.registerObserver([OBS_FILE_LIST, self.InsertReceivedFileList])
-        #network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
         msgData = network.messages.getMessage(FILELIST_REQUEST)
         dlgStyle =  wx.PD_AUTO_HIDE
-        #self.prgDialog = wx.ProgressDialog("Loading...", "Loading filelist from player...", maximum = 1, parent = self.parent, style = dlgStyle)
-        #self.prgDialog.Pulse()
         self.remoteListLoading = True
-        #self.parent.prgDialog.Pulse("Loading filelist...")
         network.udpconnector.sendMessage(msgData, self.host)
 
     def LoadRemoteConfig(self, event=None):
@@ -541,15 +536,9 @@ class RaspMediaCtrlPanel(wx.Panel):
         if not self.pageDataLoading:
             Publisher.subscribe(self.UpdateConfigUI, 'config')
             Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
-        #network.udpresponselistener.registerObserver([OBS_CONFIG, self.UpdateConfigUI])
-        #network.udpresponselistener.registerObserver([OBS_STOP, self.UdpListenerStopped])
-        # print "Observers registered..."
         msgData = network.messages.getMessage(CONFIG_REQUEST)
         dlgStyle =  wx.PD_AUTO_HIDE
-        #self.prgDialog = wx.ProgressDialog("Loading...", "Loading configuration from player...", maximum = 0, parent = self, style = dlgStyle)
-        #self.prgDialog.Pulse()
         self.remoteListLoading = False
-        #self.parent.prgDialog.Pulse("Loading configuration...")
         network.udpconnector.sendMessage(msgData, self.host)
 
     def UdpListenerStopped(self):
@@ -558,12 +547,10 @@ class RaspMediaCtrlPanel(wx.Panel):
             if self.remoteListLoading:
                 self.pageDataLoading = False
                 if self.parent.prgDialog:
-                    # print "CLOSING PRG DIALOG IN PARENT..."
                     self.parent.prgDialog.Update(100)
                     if HOST_SYS == HOST_WIN:
                         self.parent.prgDialog.Destroy()
                 if self.prgDialog:
-                    # print "CLOSING PRG DIALOG IN PANEL..."
                     self.prgDialog.Update(100)
                     if HOST_SYS == HOST_WIN:
                         self.prgDialog.Destroy()
@@ -575,6 +562,7 @@ class RaspMediaCtrlPanel(wx.Panel):
                 self.prgDialog.Update(100)
                 if HOST_SYS == HOST_WIN:
                     self.prgDialog.Destroy()
+        self.LayoutAndFit()
 
     def ButtonClicked(self, event):
         button = event.GetEventObject()
@@ -593,14 +581,12 @@ class RaspMediaCtrlPanel(wx.Panel):
     def RebootPlayer(self):
         self.prgDialog = wx.ProgressDialog(tr("dlg_title_reboot"), wordwrap(tr("dlg_msg_reboot"), 350, wx.ClientDC(self)), parent = self)
         Publisher.subscribe(self.RebootComplete, "boot_complete")
-        #Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         self.prgDialog.Pulse()
 
         msgData = network.messages.getMessage(PLAYER_REBOOT)
         network.udpconnector.sendMessage(msgData, self.host, UDP_REBOOT_TIMEOUT)
 
     def RebootComplete(self):
-        # print "REBOOT COMPLETE CALLBACK"
         self.prgDialog.Update(100)
         if HOST_SYS == HOST_WIN:
             self.prgDialog.Destroy()
@@ -631,11 +617,8 @@ def resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
-        #print "BASE PATH FOUND: "+ base_path
     except Exception:
-        #print "BASE PATH NOT FOUND!"
         base_path = BASE_PATH
-    #print "JOINING " + base_path + " WITH " + relative_path
     resPath = os.path.normcase(os.path.join(base_path, relative_path))
     #resPath = base_path + relative_path
     #print resPath

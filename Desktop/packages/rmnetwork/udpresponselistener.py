@@ -28,8 +28,6 @@ class UDPResponseListener(threading.Thread):
 			# reset variables
 			rec = None
 			address = None
-			# print "INSIDE BROADCASTLISTENER:"
-			# print "Waiting for incoming data..."
 			try:
 				rec, address = sock.recvfrom(4048)
 			except:
@@ -42,24 +40,18 @@ class UDPResponseListener(threading.Thread):
 					# print "Incoming data not from own broadcast --> processing..."
 					result, response = interpreter.interpret(rec)
 					if result == INTERPRETER_SERVER_REQUEST:
-						# print "Server request response - length: ", len(rec)
-						# print ":".join("{:02x}".format(ord(c)) for c in rec)
-						print "Player found at: ", str(address)
+						print "RaspMedia player found: ", str(address)
 						if response[1] == TYPE_RASPMEDIA_PLAYER:
 							wx.CallAfter(Publisher.sendMessage, 'host_found', host=address, playerName=str(response[0]))
 					elif result == INTERPRETER_FILELIST_REQUEST:
-						# print "File list received!"
-						# print response
 						wx.CallAfter(Publisher.sendMessage, 'remote_files', serverAddr=address, files=response)
 					elif result == CONFIG_REQUEST:
 						wx.CallAfter(Publisher.sendMessage, 'config', config=response)
 					elif result == GROUP_CONFIG_REQUEST:
 						wx.CallAfter(Publisher.sendMessage, 'group_config', group_config=response, playerIP=address[0])
 					elif result == PLAYER_UPDATE_ERROR:
-						# print "Player update failed: " + response
 						wx.CallAfter(Publisher.sendMessage, 'update_failed')
 					elif result == PLAYER_BOOT_COMPLETE:
-						# print "Player BOOT_COMPLETE"
 						wx.CallAfter(Publisher.sendMessage, 'boot_complete')
 						stopListening()
 					elif result == GROUP_CONFIG_ADD_ACTION:
@@ -70,14 +62,12 @@ class UDPResponseListener(threading.Thread):
 
 def stopListening():
 	global listener, observers
-	# print "Stopping UDP Broadcast Listening routine..."
 	global sock, wait
 
 	wx.CallAfter(Publisher.sendMessage, 'listener_stop')
 
 	if listener:
 		listener.run_event.clear()
-	# print "Done!"
 
 def startListening():
 	global listener

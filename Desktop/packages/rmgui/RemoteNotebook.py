@@ -81,11 +81,9 @@ class RemoteNotebook(wx.Notebook):
         return -1
 
     def UpdatePlayerConfig(self, config, host):
-        print "Updating config, searching for host ", host
         for i in range(self.GetPageCount()):
             page = self.GetPage(i)
             pHost = page.host
-            print "Page host: ", pHost
             if host['addr'] == pHost:
                 self.hosts[i]['name'] = config['player_name']
                 self.SetPageText(i, config['player_name'])

@@ -1,13 +1,13 @@
 #RaspMedia Player for Raspberry Pi#
 
 ##Introduction##
-RaspMedia is a standalone mediaplayer for the Raspberry Pi and the Banana Pi, intended to be used for digital signage. It provides image and video playback as a complete standalone solution and is fully configurable over the network using the enclosed Desktop applications.
+RaspMedia is a standalone mediaplayer for the Raspberry Pi and the Banana Pi, intended to be used e.g. for digital signage. It provides image and video playback as a complete standalone solution and is fully configurable over the network using the enclosed Desktop applications.
 
 ###Features###
-RaspMedia Player provides digital signage using image slideshows, videos or a combination of both. All media files can be easily copied to the player using the RaspMedia Control Desktop application. A second desktop application called *RaspMedia Copy Tool* (only available for Windows by now) allows an even more easy way to send mediafiles (currently only images with Copy Tool) to the RaspMedia Player, see description below.
+RaspMedia Player provides digital signage using image slideshows, videos or a combination of both. All media files can be easily copied to the player using the Desktop applications *RaspMedia Control*, *RaspMedia Copy Tool* or *RaspMedia Image Transfer*.
 The RaspMedia Player is intended as a complete standalone digital signage player. All configuration and media copying can be done over the network without the need to directly access the player, which makes it suitable for screens with less accessibility (e.g. outdoor cabinets etc.).
 The RaspMedia Control Desktop Application needs no further configuration, it automatically detects all players in the local network within seconds.
-The RaspMedia Player can be configured over Ethernet or WiFi using a suitable WiFi USB Dongle (e.g. Asus N10). To setup WiFi the player has to be connected over Ethernet first to send suitable WiFi configurations using the desktop application.
+The RaspMedia Player can be configured over Ethernet or WiFi using a suitable WiFi USB Dongle (e.g. Asus N10). To setup WiFi the player has to be connected over Ethernet first to send suitable WiFi configurations using the desktop applications.
 
 ###Compatibility###
 ####Player devices####
@@ -43,15 +43,19 @@ You can get your MPEG2 license at http://www.raspberrypi.com/mpeg-2-license-key/
 MP4 videos may work well without obtaining a license, you may try your files before.
 
 ###Installation Desktop###
-The repository also holds two desktop applications to be used with RaspMedia Player:
+The repository also holds three desktop applications to be used with RaspMedia Player:
    * RaspMedia Control
    * RaspMedia Copy Tool
+   * RaspMedia Image Transfer
+
+All three destop applications are compatible with Windows Vista/7/8 and Mac OSX 10.6+. *RaspMedia Control* and *RaspMedia Copy Tool* are also working with Ubuntu 12.04+ and Fedora 20.
+*RaspMedia Image Transfer* is currently not working on Linux.
 
 To use the desktop applications you have several ways:
   * Execute the main python script (needs all required packages to be installed locally)
-  * Executable versions of both applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* (Mac OS X), *build_win.bat* (Windows) or *build_linux.sh* (Ubuntu, Fedora) from there. This will compile both desktop applications, put the two executable files (*.app* on Mac OS X, *.exe* on Windows, executable file on Ubuntu/Fedora) in a *Release* directory and clean up the *build* and *dist* directories. The *build_mac.sh* (Mac OS X), *build_linux.sh* (Ubuntu, Fedora) and *build_win.bat* (Windows) scripts need pyinstaller and all required packages to be installed locally as for building a single application directly with pyinstaller. If you have questions on the needed dependencies feel free to contact me.
-  * Compile the application using pyinstaller and the provided *.spec files (needs all required packages to be installed locally)
-  * Get a compiled executable for Mac (*.app) or Windows (32bit or 64bit) by requesting it directly from me. A site with up to date executables for free download will follow in the future.
+  * Compile the application using pyinstaller and the provided *.spec* files (needs all required packages to be installed locally)
+  * Executable versions of all applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* (Mac OS X), *build_win.bat* (Windows) or *build_linux.sh* (Ubuntu, Fedora) from there. This will compile the desktop applications, put the executable files (*.app* on Mac OS X, *.exe* on Windows, executable file on Ubuntu/Fedora) in a *Release* directory and clean up the *build* and *dist* directories. The *build_mac.sh* (Mac OS X), *build_linux.sh* (Ubuntu, Fedora) and *build_win.bat* (Windows) scripts need pyinstaller and all required packages to be installed locally as for building a single application directly with pyinstaller. If you have questions on the needed dependencies feel free to contact me.
+  * Get a compiled version for your system (if available) at http://bit.do/raspmedia I will upload working executables there.
 
 As the desktop applications are one-file-executables that have all necessary python sources packed they need no further installation. Simply copy/paste them on your PC/Mac and execute them.
 
@@ -59,18 +63,29 @@ As the desktop applications are one-file-executables that have all necessary pyt
 Mac prevents the execution from applications that have not been signed by a registered Mac developer. To approve the app allthough it is from an unregeistered developer, CTRL+Click (Right-Click) on the app file and select open. A dialog box will appear asking if you are sure to launch the application from an unregistered developer. Approve the dialog by clicking 'Open'. From now on the app can be launched as any other app on your Mac.
 Also make sure that your firewall (if you use one, e.g. Fedora blocked it by default when testing) does not block the program. Windows will automatically ask if you want to grant network access to the application. This approval also has to be done only once.
 
-####RaspMedia Control####
-#####Main Window#####
-RaspMedia Control allows you to fully configure and setup your RaspMedia Players. On startup the application searches for players in your local network and creates a tab for each player.
+####RaspMedia Image Transfer and RaspMedia Control####
+#####RaspMedia Image Transfer Main Window#####
+RaspMedia Image Transfer allows you to fully configure and setup your RaspMedia Players. On startup the application searches for players in your local network and creates a tab for each player.
 ![RaspMedia Control Main Window](/Screenshots/rmc_main.png)
+
+The main window provides a local view on the left side and a remote view on the right side. The local view shows previews of all images of the currently selected directory. You can change the directory by clicking on the button with the current path above the preview section.
+By clicking single images in the two views you select which images you'd like to send to player and which images you'd like to delete from the player. The *Select All* and *Select None* Buttons below the previews speak for themselves.
+By clicking *Apply* all selected remote images are deleted and all selected local images are sent to the player. It's also possible to only delete or only send images.
+
+#####RaspMedia Control Main Window#####
+RaspMedia Control allows you to fully configure and setup your RaspMedia Players. On startup the application searches for players in your local network and creates a tab for each player.
+![RaspMedia Image Transfer Main Window](/Screenshots/rmi_main.png)
 
 The main window offers information on the player (name, IP) and basic controls (Play, Stop, Reboot) at the top, by clicking identify the corresponding player will show a test image with the player name so you can identify each player and give it a appropriate name when setting up multiple players at one time.
 Right underneath you can find a simple file explorer to search for images on your hard drive which you'd like to send to the player. You can send a single image by double clicking it and approving the dialog or by selecting multiple images, right click and select "Send to player".
 The bottom list is the list of files you currently have on your RaspMedia Player. You can delete single files by double clicking them or again select multiple files, right click them and select "Delete from player".
 If at any time you think the remote list is not up to date (which can occur due to network performance etc.) you can click "Refresh remote filelist" to update the list of files from your player.
+
+Compared to *RaspMedia Image Transfer* this applications is a bit more generic by working with file lists and less previews. This can be very helpful when dealing with more files at once. Additionally *RaspMedia Control* allows sending and deleting video files.
+
 #####All players tab#####
-In addition to the tabs for each player, RaspMedia Control provides the *All players* tab. This page allows you to easily get an overview on the players in your network, their IP addresses and their names. You can easily configure the names of your players or identify them.
-![RaspMedia Control Main Window](/Screenshots/rmc_allplayers.png)
+In addition to the tabs for each player, RaspMedia Image Transfer and RaspMedia Control provide the *All players* tab. This page allows you to easily get an overview on the players in your network, their IP addresses and their names. You can easily configure the names of your players or identify them as well as opening the settings window for each single player to define e.g. Image Interval etc.
+![RaspMedia All Players Tab](/Screenshots/rmi_allplayers.png)
 
 The *Master Control* section allows you to trigger certain actions for all players, including *Play*, *Stop*, *Start synced*, etc.
 Below the *Master Control* section you will find the *Group* configuration. You can bind multiple players together to a group and define certain actions to be done in that group. Actions are always sent from the *Master* of the group.

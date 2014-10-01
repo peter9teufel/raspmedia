@@ -35,7 +35,6 @@ def sendFile(filePath, host, parent, isWindows=False):
 	for b in fileSizeBytes:
 		data.append(int(b))
 	# show progress dialog
-	#prgDialog = wx.ProgressDialog("Sending...", "Sending file to player: " + filename, maximum = filesize, parent = parent, style = dlgStyle)
 	prgDialog = wx.ProgressDialog(tr("sending"), tr("sending_files"), maximum = filesize, style = wx.PD_AUTO_HIDE)
 	s.send(data)
 	s.send(filenameEnc)

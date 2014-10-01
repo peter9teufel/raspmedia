@@ -287,7 +287,6 @@ class RaspMediaImageTransferPanel(wx.Panel):
         if dlg.ShowModal() == wx.ID_OK:
             # User has selected something, get the path
             filename = dlg.GetPath()
-            # print "Changing local list to new path: " + filename
             self.ShowDirectory(filename)
         dlg.Destroy()
 
@@ -312,11 +311,8 @@ def resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
-        #print "BASE PATH FOUND: "+ base_path
     except Exception:
-        #print "BASE PATH NOT FOUND!"
         base_path = BASE_PATH
-    #print "JOINING " + base_path + " WITH " + relative_path
     resPath = os.path.normcase(os.path.join(base_path, relative_path))
     #resPath = base_path + relative_path
     #print resPath

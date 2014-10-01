@@ -42,7 +42,6 @@ def _openSocket():
 
     prgDialog = wx.ProgressDialog(tr("player_connected"), tr("receiving_files"), style=wx.PD_AUTO_HIDE, maximum=dataSize)
 
-    print "Receiving player data..."
     buff = ''
     buff += sc.recv(dataSize)
     while len(buff) < dataSize:
@@ -101,7 +100,6 @@ def _openSocket():
                 f.write(l)
                 f.close()
         rFiles.append({"img_name": name, "img_path": tmpPath, "checked": False})
-    print "FILES SAVED!"
 
     prgDialog.Update(100)
     if windows:

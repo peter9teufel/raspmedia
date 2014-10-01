@@ -73,10 +73,8 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         new = event.GetSelection()
         sel = self.parent.GetSelection()
         self.notebook_event = event
-        # print "OnPageChanged, old:%d, new:%d, sel:%d" % (old, new, sel)
         newPage = self.parent.GetPage(new)
         if self.index == newPage.index:
-            # print "PAGE CHANGED TO INDEX %d - PROCESSING AND LOADING DATA..." % (self.index)
             self.pageDataLoading = True
             self.LoadData()
 
@@ -93,13 +91,6 @@ class RaspMediaAllPlayersPanel(wx.Panel):
 
         self.SetSizerAndFit(self.mainSizer)
 
-        #line = wx.StaticLine(self,-1,size=(self.mainSizer.GetSize()[0],2))
-        #self.mainSizer.Add(line, (1,0), span=(1,4))
-
-        #line = wx.StaticLine(self,-1,size=(2,self.mainSizer.GetCellSize(0,0)[1]),style=wx.LI_VERTICAL)
-        #self.mainSizer.Add(line,(0,1), flag = wx.LEFT, border = 10)
-
-        #self.Fit()
         line = wx.StaticLine(self,-1,size=(2,565),style=wx.LI_VERTICAL)
         self.mainSizer.Add(line,(0,1), span=(2,1), flag=wx.LEFT | wx.RIGHT, border=5)
         self.LayoutAndFit()
@@ -496,14 +487,12 @@ class RaspMediaAllPlayersPanel(wx.Panel):
     def RebootPlayer(self):
         self.prgDialog = wx.ProgressDialog(tr("dlg_title_reboot"), wordwrap(tr("dlg_msg_reboot"), 350, wx.ClientDC(self)), parent = self)
         Publisher.subscribe(self.RebootComplete, "boot_complete")
-        #Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
         self.prgDialog.Pulse()
 
         msgData = network.messages.getMessage(PLAYER_REBOOT)
         network.udpconnector.sendMessage(msgData, self.host, UDP_REBOOT_TIMEOUT)
 
     def RebootComplete(self):
-        # print "REBOOT COMPLETE CALLBACK"
         self.prgDialog.Update(100)
         if HOST_SYS == HOST_WIN:
             self.prgDialog.Destroy()
@@ -534,9 +523,7 @@ def resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
-        #print "BASE PATH FOUND: "+ base_path
     except Exception:
-        #print "BASE PATH NOT FOUND!"
         base_path = BASE_PATH
     #print "JOINING " + base_path + " WITH " + relative_path
     resPath = os.path.normcase(os.path.join(base_path, relative_path))

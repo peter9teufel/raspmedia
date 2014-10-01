@@ -66,9 +66,6 @@ def _optimizeFit(fileName, basePath, destPath, maxW, maxH):
             img.thumbnail((width,height), Image.ANTIALIAS)
         else:
             img = img.resize((width, height), Image.ANTIALIAS)
-        #print "Saving optimized image..."
-        #print "W: ", width
-        #print "H: ", height
         img.save(destFilePath, quality=100)
 
 def _checkOrientation(img):
@@ -84,7 +81,7 @@ def _checkOrientation(img):
                 img=img.rotate(90, expand=True)
     except:
         pass
-        print "Exif data not present or can not be processed, returning unmodified image..."
+        # print "Exif data not present or can not be processed, returning unmodified image..."
     return img
 
 def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_CROP):
@@ -104,21 +101,18 @@ def __DrawCaptionWithDC(graphicFilename, captionTxt, txtForeground=wx.BLACK) :
 
     # Create a dc "canvas" onto which the caption text will be drawn
     #  in order to get the text's extent (size).
-    trialBmap_size = (160, 160)     # any size larger than the expexted text extent.
+    trialBmap_size = (160, 160)
     textTrial_bmap = wx.EmptyBitmap( *trialBmap_size )
     dc = wx.MemoryDC( textTrial_bmap )
 
-    txtPos = (5, 5)                     # an offset so the text doesn't get clipped
+    txtPos = (5, 5)
     dc.DrawText( captionTxt, *txtPos )
     txtWid, txtHgt = dc.GetTextExtent( captionTxt )
-    # print '--Caption text: ', captionTxt
-    # print '--Text size = ', txtWid, txtHgt
-    dc.SelectObject( wx.NullBitmap )        # done with this dc; not used again
 
-    #----------------------------------
+    # done with this dc; not used again
+    dc.SelectObject( wx.NullBitmap )
 
     # Draw the caption on the file graphic bitmap.
-
     imgBmap = wx.Image( graphicFilename, wx.BITMAP_TYPE_ANY ).ConvertToBitmap()
     bmapSizeX, bmapSizeY = imgBmap.GetSize()
     # print '--imgBmap Size = ', bmapSizeX, bmapSizeY
@@ -145,15 +139,12 @@ def __DrawCaptionWithPIL(imgPath, captionTxt):
 
     imgW = img.size[0]
     imgH = img.size[1]
-    # print "IMG SIZE: %d x %d" % (imgW,imgH)
+
     txtSize = draw.textsize(captionTxt, font=font)
-    # print "NAMESIZE: ",txtSize
     txtX = imgW/2 - (txtSize[0] / 2)
     txtY = imgH - (txtSize[1])
 
     draw.text((txtX,txtY), captionTxt, (0,0,0), font=font)
-
-    # img.save('raspidentified.jpg')
 
     image = wx.EmptyImage(img.size[0],img.size[1])
     image.SetData(img.convert("RGB").tostring())

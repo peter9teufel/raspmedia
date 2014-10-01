@@ -358,10 +358,16 @@ def deleteFiles(files):
         time.sleep(1)
 
     path = mediaPath
+    thumbPath = mediaPath + '/thumbs/'
     if not path.endswith('/'):
         path += "/"
     for file in files:
+        # delete image
         fullPath = path + file
+        if os.path.isfile(fullPath):
+            os.remove(fullPath)
+        # delete thumbnail
+        fullPath = thumbPath + file
         if os.path.isfile(fullPath):
             os.remove(fullPath)
 

@@ -107,10 +107,18 @@ class RaspMediaCtrlPanel(wx.Panel):
         line = wx.StaticLine(self,-1,size=(self.mainSizer.GetSize()[0],2))
         self.mainSizer.Add(line, (1,0), flag = wx.TOP | wx.BOTTOM, border = 10)
 
+        #self.Fit()
+        #self.parent.Fit()
+        #self.parent.parent.Fit()
+        self.LayoutAndFit()
+        self.Show(True)
+
+    def LayoutAndFit(self):
+        self.mainSizer.Layout()
         self.Fit()
         self.parent.Fit()
         self.parent.parent.Fit()
-        self.Show(True)
+        self.parent.parent.Center()
 
     def SetupPlayerSection(self):
         playerBox = wx.StaticBox(self,-1,label="Player Info")
@@ -258,7 +266,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         #if self.notebook_event:
         #	self.parent.SetPageText(self.notebook_event.GetSelection(), str(configDict['player_name']))
         #else:
-        self.parent.SetPageText(self.parent.GetSelection(), str(configDict['player_name']))
+        self.parent.SetPageText(self.index, str(configDict['player_name']))
         self.parent.parent.Refresh()
 
     def GetLocalSelectionInfo(self):
@@ -545,12 +553,10 @@ class RaspMediaCtrlPanel(wx.Panel):
         network.udpconnector.sendMessage(msgData, self.host)
 
     def UdpListenerStopped(self):
-        # print "UDP LISTENER STOPPED IN PANEL %d" % self.index
         global HOST_SYS
         if self.pageDataLoading:
             if self.remoteListLoading:
                 self.pageDataLoading = False
-                Publisher.unsubAll()
                 if self.parent.prgDialog:
                     # print "CLOSING PRG DIALOG IN PARENT..."
                     self.parent.prgDialog.Update(100)
@@ -562,6 +568,7 @@ class RaspMediaCtrlPanel(wx.Panel):
                     if HOST_SYS == HOST_WIN:
                         self.prgDialog.Destroy()
             else:
+                Publisher.unsubscribe(self.UpdateConfigUI, 'config')
                 self.LoadRemoteFileList()
         else:
             if self.prgDialog:

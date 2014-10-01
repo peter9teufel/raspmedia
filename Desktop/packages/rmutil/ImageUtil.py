@@ -27,22 +27,19 @@ def _optimizeCrop(fileName, basePath, destPath, maxW, maxH):
         else:
             height = maxH
             width = maxH * w / h
-        img.thumbnail((width, height))
-        #print "Saving optimized image..."
-        #print "W: ", width
-        #print "H: ", height
-        # print "Imagesize %d x %d" % (width, height)
+        if width < w and height < h:
+            img.thumbnail((width,height), Image.ANTIALIAS)
+        else:
+            img = img.resize((width, height), Image.ANTIALIAS)
         if width == 1920:
-            # print "Cropping height"
             # crop upper and lower part
             diff = height - 1080
             img = img.crop((0,diff/2,width,height-diff/2))
         else:
-           # print "Cropping width"
             # crop left and right part
             diff = width - 1920
             img = img.crop((diff/2,0,width-diff/2,height))
-        img.save(destFilePath, 'JPEG', quality=90)
+        img.save(destFilePath, quality=100)
 
 def _optimizeFit(fileName, basePath, destPath, maxW, maxH):
     filePath = basePath + '/' + fileName
@@ -65,11 +62,14 @@ def _optimizeFit(fileName, basePath, destPath, maxW, maxH):
         else:
             height = maxH
             width = maxH * w / h
-        img.thumbnail((width, height))
+        if width < w and height < h:
+            img.thumbnail((width,height), Image.ANTIALIAS)
+        else:
+            img = img.resize((width, height), Image.ANTIALIAS)
         #print "Saving optimized image..."
         #print "W: ", width
         #print "H: ", height
-        img.save(destFilePath, 'JPEG', quality=90)
+        img.save(destFilePath, quality=100)
 
 def _checkOrientation(img):
     try :
@@ -87,7 +87,7 @@ def _checkOrientation(img):
         print "Exif data not present or can not be processed, returning unmodified image..."
     return img
 
-def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_FIT):
+def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_CROP):
     prgDialog = wx.ProgressDialog(tr("optimizing"), tr("optimizing_images"), maximum=len(files), style=wx.PD_AUTO_HIDE)
     cnt = 0
     for filename in files:

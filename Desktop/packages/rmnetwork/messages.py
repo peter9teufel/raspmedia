@@ -107,6 +107,7 @@ def getTcpFileMessage(files, basePath):
 
 	data = bytearray()
 	data = appendInt(data, numFiles, False)
+	thumbData = bytearray()
 	for filename in files:
 		filePath = basePath + '/' + filename
 
@@ -118,6 +119,8 @@ def getTcpFileMessage(files, basePath):
 		filesize = len(fileData)
 		data = appendInt(data, filesize, False)
 		data = appendBytes(data, fileData)
+		f.close()
+
 	msgData = bytearray()
 	msgSize = len(data)
 	msgData = appendInt(msgData, msgSize, False)

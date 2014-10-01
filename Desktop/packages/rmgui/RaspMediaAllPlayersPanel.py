@@ -1,6 +1,7 @@
 import packages.rmnetwork as network
 import packages.rmutil as rmutil
 from packages.rmgui import *
+import SettingsFrame as prefs
 import GroupEditDialog as groupDlg
 import PlayerInfoDialog as playerDlg
 import ActionEditFrame as actionFrame
@@ -34,6 +35,8 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         BASE_PATH = parent.parent.base_path
         self.parent = parent
         self.index = index
+        self.host = None
+        self.settingsHost = None
         self.hosts = sorted(hosts)
         self.memberHosts = []
         self.availableHosts = list(self.hosts)
@@ -99,8 +102,15 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         #self.Fit()
         line = wx.StaticLine(self,-1,size=(2,565),style=wx.LI_VERTICAL)
         self.mainSizer.Add(line,(0,1), span=(2,1), flag=wx.LEFT | wx.RIGHT, border=5)
-
+        self.LayoutAndFit()
         self.Show(True)
+
+    def LayoutAndFit(self):
+        self.mainSizer.Layout()
+        self.Fit()
+        self.parent.Fit()
+        self.parent.parent.Fit()
+        self.parent.parent.Center()
 
     def SetupPlayerSection(self):
         # scrolled panel to show player status list
@@ -109,28 +119,34 @@ class RaspMediaAllPlayersPanel(wx.Panel):
         self.scroll.SetupScrolling(scroll_x=False, scroll_y=True)
         self.scroll.SetSizer(self.leftSizer)
 
+        # icon used for settings buttons
+        img = wx.Image(resource_path("img/ic_settings.png"), wx.BITMAP_TYPE_PNG).Rescale(20,20,wx.IMAGE_QUALITY_HIGH)
+        setBitmap = img.ConvertToBitmap()
+
         index = 0
         # name, ip and a rename button for each host
-        for host in sorted(self.hosts):
+        for host in reversed(self.hosts):
 
             playerBox = wx.StaticBox(self.scroll,-1,label=host['name'])
             boxSizer = wx.StaticBoxSizer(playerBox, wx.VERTICAL)
 
             self.nameLabels[host['addr']] = playerBox
 
-            ip = wx.StaticText(self.scroll,-1,label=host['addr'],size=(110,25))
+            ip = wx.StaticText(self.scroll,-1,label=host['addr'],size=(75,25))
             setName = wx.Button(self.scroll,-1,label="Player Name",size=(110,25))
             identify = wx.Button(self.scroll,-1,label=tr("identify"),size=(110,25))
+            settingsBtn = wx.BitmapButton(self.scroll,-1,setBitmap)
 
             ipLabel = wx.StaticText(self.scroll,-1,label="Player IP:",size=(110,25))
 
             ipSizer = wx.BoxSizer()
             ipSizer.Add(ipLabel,flag=wx.ALL, border = 5)
-            ipSizer.Add(ip, flag=wx.ALIGN_RIGHT | wx.ALL, border = 5)
+            ipSizer.Add(ip, flag=wx.ALL, border = 5)
+            ipSizer.Add(settingsBtn, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_RIGHT|wx.ALL, border = 5)
 
             btnSizer = wx.BoxSizer()
             btnSizer.Add(identify, flag=wx.ALL, border = 5)
-            btnSizer.Add(setName, flag=wx.ALIGN_RIGHT|wx.ALL, border = 5)
+            btnSizer.Add(setName, flag=wx.ALL, border = 5)
 
             # add UI elements to box
             boxSizer.Add(ipSizer)
@@ -140,10 +156,9 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             self.leftSizer.Add(boxSizer, (index,0), flag=wx.ALL, border=5)
             index += 1
 
-
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.UpdatePlayerName(event,host), setName)
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.IdentifyPlayer(event,host), identify)
-
+            self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.LoadPlayerSettings(event,host), settingsBtn)
 
     def SetupControlSection(self):
         ctrlBox = wx.StaticBox(self,-1,label="Master Control")
@@ -350,6 +365,28 @@ class RaspMediaAllPlayersPanel(wx.Panel):
                 dlg.Destroy()
             self.parent.parent.Close()
 
+    def LoadPlayerSettings(self, event, host):
+        self.settingsHost = host
+        Publisher.subscribe(self.ShowPlayerSettings, 'config')
+        msgData = network.messages.getMessage(CONFIG_REQUEST)
+        network.udpconnector.sendMessage(msgData, host['addr'])
+
+    def ShowPlayerSettings(self, config, isDict=False):
+        if isDict:
+            configDict = config
+        else:
+            configDict = ast.literal_eval(config)
+        config = configDict
+        settings = prefs.SettingsFrame(self,-1,tr("player_settings"),self.settingsHost, config)
+        settings.Center()
+        settings.SetBackgroundColour('WHITE')
+        settings.Refresh()
+        settings.Show()
+        wx.CallAfter(Publisher.unsubscribe, self.ShowPlayerSettings, 'config')
+
+    def SettingsClosedWithConfig(self, config):
+        self.nameLabels[self.settingsHost['addr']].SetLabel(config['player_name'])
+        self.parent.UpdatePlayerConfig(config, self.settingsHost)
 
     def IdentifyPlayer(self, event, host):
         msgData = network.messages.getMessage(PLAYER_IDENTIFY)

@@ -125,6 +125,15 @@ strings = {
 	"per_sec": "Periodic (sec)",
 	"per_min": "Periodic (min)",
 	"per_hour": "Periodic (hour)",
-	"desc_plural": "s"
+	"desc_plural": "s",
+	"apply": "Apply",
+	"loading_files": "Loading files...",
+	"waiting_file_transfer": "Player is preparing images for sending...",
+	"saving_previews": "Saving previews...",
+	"msg_saving_previews": "Saving previews of the image files from your player...",
+	"player_connected": "Player connected...",
+	"receiving_files": "Receiving image files from your player...",
+	"loading_previews": "Loading previews...",
+	"msg_loading_previews": "Loading previews of your image files..."
 
 }

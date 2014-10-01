@@ -1,6 +1,6 @@
 import packages.rmnetwork as network
 import packages.rmutil as rmutil
-from packages.rmgui import RaspMediaControlPanel as rmc
+from packages.rmgui import RaspMediaImageTransferPanel as imagePanel
 from packages.rmgui import RaspMediaAllPlayersPanel as rmap
 from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
@@ -25,20 +25,14 @@ HOST_LINUX = 3
 HOST_SYS = None
 
 ################################################################################
-# REMOTE NOTEBOOK FOR PLAYER PANELS ############################################
+# IMAGE TRANSFER NOTEBOOK FOR PLAYER PANELS ####################################
 ################################################################################
-class RemoteNotebook(wx.Notebook):
+class ImageTransferNotebook(wx.Notebook):
     def __init__(self, parent, id, log):
         wx.Notebook.__init__(self, parent, id, style=
                             wx.BK_DEFAULT
-                            #wx.BK_TOP
-                            #wx.BK_BOTTOM
-                            #wx.BK_LEFT
-                            #wx.BK_RIGHT
-                            # | wx.NB_MULTILINE
                             )
         self.parent = parent
-        self.log = log
         self.pages = []
         self.hostSearch = False
         self.hosts = []
@@ -61,14 +55,6 @@ class RemoteNotebook(wx.Notebook):
     def Close(self):
         self.Destroy()
 
-    def CurrentlyActiveHost(self):
-        if self.activePageNr < len(self.hosts):
-            # page of single player host is active, return host
-            return self.hosts[self.activePageNr]
-        else:
-            # all players tab or group tab is opened, no host to return
-            return -1
-
     def CurrentConfig(self):
         return self.GetPage(self.activePageNr).config
 
@@ -81,18 +67,17 @@ class RemoteNotebook(wx.Notebook):
         return -1
 
     def UpdatePlayerConfig(self, config, host):
-        print "Updating config, searching for host ", host
         for i in range(self.GetPageCount()):
             page = self.GetPage(i)
             pHost = page.host
-            print "Page host: ", pHost
             if host['addr'] == pHost:
                 self.hosts[i]['name'] = config['player_name']
                 self.SetPageText(i, config['player_name'])
+                page.UpdateRemoteConfig(config,True)
 
-    def UpdateCurrentPlayerUI(self, config):
+    def UpdateCurrentPlayerConfig(self, config):
         self.hosts[self.activePageNr]['name'] = config['player_name']
-        self.GetPage(self.activePageNr).UpdateConfigUI(config, True)
+        self.GetPage(self.activePageNr).UpdateRemoteConfig(config,True)
 
     def UpdatePageName(self, oldName, newName):
         for i in range(self.GetPageCount()):
@@ -101,6 +86,14 @@ class RemoteNotebook(wx.Notebook):
             found = label == oldName
             if found:
                 self.SetPageText(i, newName)
+
+    def CurrentlyActiveHost(self):
+        if self.activePageNr < len(self.hosts):
+            # page of single player host is active, return host
+            return self.hosts[self.activePageNr]
+        else:
+            # all players tab or group tab is opened, no host to return
+            return -1
 
     def HostFound(self, host, playerName):
         global playerCount
@@ -133,10 +126,10 @@ class RemoteNotebook(wx.Notebook):
 
     def UdpListenerStopped(self):
         global playerCount
-        Publisher.unsubscribe(self.UdpListenerStopped, 'listener_stop')
         Publisher.unsubscribe(self.HostFound, 'host_found')
         if self.hostSearch:
             self.hostSearch = False
+            print "%d player found" % playerCount
             if playerCount == 0:
                 self.prgDialog.Update(100)
                 if HOST_SYS == HOST_WIN:
@@ -160,18 +153,20 @@ class RemoteNotebook(wx.Notebook):
                 # sort hosts by hostname
                 self.SortHostList()
                 for host in self.hosts:
-                    curPage = rmc.RaspMediaCtrlPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
+                    curPage = imagePanel.RaspMediaImageTransferPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
                     self.pages.append(curPage)
                     self.AddPage(curPage, host['name'])
                     ind += 1
-
 
                 allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
                 self.pages.append(allPlayers)
                 self.AddPage(allPlayers, "All Players")
 
+                self.prgDialog.Update(100)
                 self.LoadPageData(0)
                 self.parent.Center()
+
+        # Publisher.unsubscribe(self.UdpListenerStopped, 'listener_stop')
 
     def OnPageChanged(self, event):
         global HOST_SYS
@@ -180,6 +175,5 @@ class RemoteNotebook(wx.Notebook):
         if HOST_SYS == HOST_LINUX and event.GetOldSelection() == -1:
             pass
         else:
-            # pass event to all pages, appropriate one will load data
-            for page in self.pages:
-                page.PageChanged(event)
+            sel = event.GetSelection()
+            self.LoadPageData(sel)

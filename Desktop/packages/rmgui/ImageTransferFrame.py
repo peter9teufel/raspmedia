@@ -1,10 +1,10 @@
 import wx
-import RemoteNotebook as remote
+import ImageTransferNotebook as imageNotebook
 import SettingsFrame as prefs
 import WifiDialog as wifi
 import packages.rmnetwork as network
 from packages.lang.Localizer import *
-import sys, os
+import sys, os, shutil
 if platform.system() == "Linux":
     from wx.lib.pubsub import setupkwargs
     from wx.lib.pubsub import pub as Publisher
@@ -17,18 +17,18 @@ BASE_PATH = None
 ################################################################################
 # MAIN FRAME OF APPLICATION ####################################################
 ################################################################################
-class AppFrame(wx.Frame):
+class ImageTransferFrame(wx.Frame):
     def __init__(self,parent,id,title,base_path):
-        wx.Frame.__init__(self,parent,id,title,size=(600,600))
+        wx.Frame.__init__(self,parent,id,title,size=(652,585),style=wx.MINIMIZE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN)
         self.parent = parent
         self.base_path = base_path
         global BASE_PATH
         BASE_PATH = base_path
         self.Bind(wx.EVT_CLOSE, self.Close)
         self.SetupMenuBar()
-        self.notebook = remote.RemoteNotebook(self,-1,None)
+        self.notebook = imageNotebook.ImageTransferNotebook(self,-1,None)
 
-        # Create an accelerator table
+        # Create an accelerator table for shortcuts
         sc_wifi_id = wx.NewId()
         sc_settings_id = wx.NewId()
         self.Bind(wx.EVT_MENU, self.ShowPlayerSettings, id=sc_settings_id)
@@ -38,11 +38,20 @@ class AppFrame(wx.Frame):
                                               (wx.ACCEL_SHIFT, ord('W'), sc_wifi_id)
                                              ])
         self.SetAcceleratorTable(self.accel_tbl)
+
         self.Center()
         self.Show()
         self.notebook.SearchHosts()
 
     def Close(self, event=None):
+        # remove temp dir if present
+        from os.path import expanduser
+        home = expanduser("~")
+        appPath = home + '/.raspmedia/'
+        tmpPath = appPath + 'tmp/'
+        if os.path.isdir(tmpPath):
+            print "Cleaning up temporary files..."
+            shutil.rmtree(tmpPath)
         Publisher.unsubAll()
         self.notebook.Close()
         network.udpresponselistener.destroy()
@@ -73,12 +82,6 @@ class AppFrame(wx.Frame):
         menuBar.Append(helpMenu, "&"+tr("about"))
         self.SetMenuBar(menuBar)
 
-    def ShowAbout(self, event):
-        # message read from defined version info file in the future
-        msg = "RaspMedia Control v1.0\n(c) 2014 by www.multimedia-installationen.at\nContact: software@multimedia-installationen.at\nAll rights reserved."
-        dlg = wx.MessageDialog(self, msg, "About", style=wx.OK)
-        dlg.ShowModal()
-
     def ShowPlayerSettings(self, event):
         actHost = self.notebook.CurrentlyActiveHost()
         if not actHost == -1:
@@ -95,8 +98,13 @@ class AppFrame(wx.Frame):
             wifiDlg.ShowModal()
 
     def SettingsClosedWithConfig(self, config):
-        if not self.notebook.CurrentlyActiveHost() == -1:
-            self.notebook.UpdateCurrentPlayerUI(config)
+        self.notebook.UpdateCurrentPlayerConfig(config)
+
+    def ShowAbout(self, event):
+        # message read from defined version info file in the future
+        msg = "RaspMedia Image Transfer v1.0\n(c) 2014 by www.multimedia-installationen.at\nContact: software@multimedia-installationen.at\nAll rights reserved."
+        dlg = wx.MessageDialog(self, msg, "About", style=wx.OK)
+        dlg.ShowModal()
 
 
 # HELPER METHOD to get correct resource path for image file

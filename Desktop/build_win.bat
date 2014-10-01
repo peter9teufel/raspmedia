@@ -1,11 +1,21 @@
-rmdir /S /Q build dist Release
-mkdir Release
+rmdir /S /Q build
+rmdir /S /Q dist
+rmdir /S /Q Release
+md Release
 
 set "cwd=%~dp0"
-set "destPath=%cwd%\Release"
+set "destPath=Release"
 set "distPath=dist"
 
-pyinstaller RaspMediaApp.spec
+start /wait pyinstaller RMImageTransfer.spec
+
+set "distFile=%distPath%\RaspMedia Image Transfer.exe"
+set "destFile=%destPath%\RaspMedia Image Transfer.exe"
+copy "%distFile%" "%destFile%"
+
+rmdir /S /Q build dist
+
+start /wait pyinstaller RaspMediaApp.spec
 
 set "distFile=%distPath%\RaspMedia Control.exe"
 set "destFile=%destPath%\RaspMedia Control.exe"
@@ -13,7 +23,7 @@ copy "%distFile%" "%destFile%"
 
 rmdir /S /Q build dist
 
-pyinstaller RMCopyTool.spec
+start /wait pyinstaller RMCopyTool.spec
 
 set "distFile=%distPath%\RaspMedia Copy Tool.exe"
 set "destFile=%destPath%\RaspMedia Copy Tool.exe"

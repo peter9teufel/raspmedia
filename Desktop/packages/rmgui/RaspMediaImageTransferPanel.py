@@ -162,6 +162,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
         else:
             self.UpdateRemoteFiles(self.remImages[self.host])
         self.LoadRemoteConfig()
+        self.LayoutAndFit()
 
     def LoadRemoteFiles(self, event=None):
         # remove previous listener that may be present from other tab

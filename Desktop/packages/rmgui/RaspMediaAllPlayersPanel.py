@@ -156,7 +156,6 @@ class RaspMediaAllPlayersPanel(wx.Panel):
             self.leftSizer.Add(boxSizer, (index,0), flag=wx.ALL, border=5)
             index += 1
 
-
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.UpdatePlayerName(event,host), setName)
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.IdentifyPlayer(event,host), identify)
             self.Bind(wx.EVT_BUTTON, lambda event, host=host: self.LoadPlayerSettings(event,host), settingsBtn)

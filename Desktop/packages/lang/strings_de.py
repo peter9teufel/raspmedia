@@ -95,13 +95,13 @@ strings = {
 	"stop_all": "Alle stoppen",
 	"identify_all": "Player identifizieren",
 	"reboot_all": "Alle Player neu starten",
-	"reboot_all_info": "Alle Player werden neu gestartet. RaspMedia Control wird dadurch beendet und muss neu gestartet werden sobald die Player wieder gestartet sind um sich wieder zu verbinden. Neustart durchführen?",
+	"reboot_all_info": u"Alle Player werden neu gestartet. RaspMedia Control wird dadurch beendet und muss neu gestartet werden sobald die Player wieder gestartet sind um sich wieder zu verbinden. Neustart durchführen?",
 	# GROUP SECTION
 	"groups": "Gruppen",
 	"new_group": "Neue Gruppe",
 	"name": "Name",
 	"members": "Members",
-	"master": "Master auswählen",
+	"master": u"Master auswählen",
 	"msg_select_members": u"Player der Gruppe auswählen:",
 	"saving_group": "Gruppe wird gespeichert...",
 	"edit": "Bearbeiten",
@@ -135,5 +135,6 @@ strings = {
 	"player_connected": "Player verbunden...",
 	"receiving_files": "Empfange Bilddateien vom Player...",
 	"loading_previews": "Lade Vorschau...",
-	"msg_loading_previews": "Lade Vorschau der Bilddateien..."
+	"msg_loading_previews": "Lade Vorschau der Bilddateien...",
+	"select_backup_dir": u"Ordner zum Speichern des Player Backups auswählen"
 }

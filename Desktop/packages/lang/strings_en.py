@@ -134,6 +134,7 @@ strings = {
 	"player_connected": "Player connected...",
 	"receiving_files": "Receiving image files from your player...",
 	"loading_previews": "Loading previews...",
-	"msg_loading_previews": "Loading previews of your image files..."
+	"msg_loading_previews": "Loading previews of your image files...",
+	"select_backup_dir": "Choose where to save the backup of your player images"
 
 }

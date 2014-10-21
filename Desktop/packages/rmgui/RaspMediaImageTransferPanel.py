@@ -1,5 +1,5 @@
 import packages.rmnetwork as network
-import packages.rmutil as rmutil
+import packages.rmutil as util
 from packages.rmgui import *
 from packages.rmgui import ScrollableSelectableImageView as imgView
 from packages.rmnetwork.constants import *
@@ -79,8 +79,8 @@ class RaspMediaImageTransferPanel(wx.Panel):
 
 
         # select all/none bitmap buttons
-        aImg = wx.Image(resource_path("img/ic_selectall.png"), wx.BITMAP_TYPE_PNG).Rescale(47,20,wx.IMAGE_QUALITY_HIGH)
-        nImg = wx.Image(resource_path("img/ic_selectnone.png"), wx.BITMAP_TYPE_PNG).Rescale(47,20,wx.IMAGE_QUALITY_HIGH)
+        aImg = wx.Image(resource_path("img/ic_selectall.png"), wx.BITMAP_TYPE_PNG).Rescale(42,18,wx.IMAGE_QUALITY_HIGH)
+        nImg = wx.Image(resource_path("img/ic_selectnone.png"), wx.BITMAP_TYPE_PNG).Rescale(42,18,wx.IMAGE_QUALITY_HIGH)
         aBitMap = aImg.ConvertToBitmap()
         nBitMap = nImg.ConvertToBitmap()
 
@@ -89,6 +89,10 @@ class RaspMediaImageTransferPanel(wx.Panel):
         selAllRemote = wx.BitmapButton(self,-1,aBitMap,pos=(0,0))
         clearRemoteSel = wx.BitmapButton(self,-1,nBitMap,pos=(0,0))
 
+        # detect USB and backup button
+        usbBtn = wx.Button(self,-1,label="Detect USB")
+        backupBtn = wx.Button(self,-1,label="Backup Images")
+
         execute = wx.Button(self,-1,label=tr("apply"), size=(145,25))
         exitBtn = wx.Button(self,-1,label=tr("exit"), size=(145,25))
 
@@ -96,8 +100,10 @@ class RaspMediaImageTransferPanel(wx.Panel):
         self.selDir.Bind(wx.EVT_BUTTON, self.ChangeDir)
         selAllLocal.Bind(wx.EVT_BUTTON, self.localImg.SelectAll)
         clearLocalSel.Bind(wx.EVT_BUTTON, self.localImg.UnselectAll)
+        usbBtn.Bind(wx.EVT_BUTTON, self.WaitForUSB)
         selAllRemote.Bind(wx.EVT_BUTTON, self.remoteImg.SelectAll)
         clearRemoteSel.Bind(wx.EVT_BUTTON, self.remoteImg.UnselectAll)
+        backupBtn.Bind(wx.EVT_BUTTON, self.BackupPlayerFiles)
         playBtn.Bind(wx.EVT_BUTTON, self.Play)
         stopBtn.Bind(wx.EVT_BUTTON, self.Stop)
         execute.Bind(wx.EVT_BUTTON, self.ExecuteChanges)
@@ -116,6 +122,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
         leftBtnSizer = wx.BoxSizer()
         leftBtnSizer.Add(selAllLocal)
         leftBtnSizer.Add(clearLocalSel)
+        leftBtnSizer.Add(usbBtn, flag=wx.ALIGN_CENTER_VERTICAL)
         imgLeftSizer.Add(leftBtnSizer)
         # right image selection section
         imgRightSizer = wx.BoxSizer(wx.VERTICAL)
@@ -123,6 +130,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
         rightBtnSizer = wx.BoxSizer()
         rightBtnSizer.Add(selAllRemote)
         rightBtnSizer.Add(clearRemoteSel)
+        rightBtnSizer.Add(backupBtn, flag=wx.ALIGN_CENTER_VERTICAL)
         imgRightSizer.Add(rightBtnSizer)
         imgSizer.Add(imgLeftSizer,flag=wx.RIGHT,border=10)
         imgSizer.Add(lineV1, flag=wx.LEFT|wx.RIGHT, border=5)
@@ -138,6 +146,29 @@ class RaspMediaImageTransferPanel(wx.Panel):
 
         self.SetSizerAndFit(self.mainSizer)
         self.Show(True)
+
+    def WaitForUSB(self, event=None):
+        print "Waiting for USB Drive..."
+        Publisher.subscribe(self.USBConnected, 'usb_connected')
+        self.prgDialog = wx.ProgressDialog(tr("loading"), tr("plug_usb"))
+        self.prgDialog.Pulse()
+        if HOST_SYS == HOST_WIN:
+            util.Win32DeviceDetector.waitForUSBDrive()
+        elif HOST_SYS == HOST_MAC or HOST_SYS == HOST_LINUX:
+            util.UnixDriveDetector.waitForUSBDrive()
+
+
+    def USBConnected(self, path):
+        # Publisher.unsubscribe(self.USBConnected, 'usb_connected')
+        # print "USB Drive connected and mounted in path %s" % path
+        time.sleep(2)
+        self.prgDialog.Update(100)
+        if HOST_SYS == HOST_WIN:
+            # add colon as path is only the drive letter of the connected USB drive
+            path += ":"
+            self.prgDialog.Destroy()
+
+        self.ShowDirectory(path)
 
     def ExecuteChanges(self, event):
         delFiles = self.remoteImg.GetSelection()
@@ -251,7 +282,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
         if not os.path.isdir(tmpPath):
             os.mkdir(tmpPath)
 
-        rmutil.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
+        util.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
         network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
         shutil.rmtree(tmpPath)
         dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)
@@ -288,6 +319,16 @@ class RaspMediaImageTransferPanel(wx.Panel):
             # User has selected something, get the path
             filename = dlg.GetPath()
             self.ShowDirectory(filename)
+        dlg.Destroy()
+
+    def BackupPlayerFiles(self, event):
+        dlg = wx.DirDialog(self, message=tr("select_backup_dir"), defaultPath=self.path, style=wx.DD_CHANGE_DIR)
+
+        # Call the dialog as a model-dialog so we're required to choose Ok or Cancel
+        if dlg.ShowModal() == wx.ID_OK:
+            # User has selected something, get the path
+            filename = dlg.GetPath()
+            print "Saving files to ", filename
         dlg.Destroy()
 
     def Play(self, event=None):

@@ -20,11 +20,11 @@ def UsbDrivePresent():
 def RaspMediaFilesPresent():
     # check if usb contains kiosk directory
     if os.path.isdir(USB_MEDIA_PATH):
-        WriteLog("USB RaspMedia directory present")
+        print "USB RaspMedia directory present"
         return True
 
 def CopyMediaFiles():
-    WriteLog("Copying files from USB to RaspMedia Player")
+    print "Copying files from USB to RaspMedia Player"
     
     for file in os.listdir(USB_MEDIA_PATH):
         if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
@@ -41,7 +41,7 @@ def CopyMediaFiles():
             dstFile = MEDIA_PATH + '/' + file
             shutil.copyfile(srcFile, dstFile)
 
-    WriteLog("Media files copied to player successfully!")
+    print "Media files copied to player successfully!"
 
 
 def OptimizeAndCopyImage(fileName, basePath, destPath, maxW=1280, maxH=720, minW=400, minH=400):
@@ -99,8 +99,8 @@ def StartupRoutine():
             CopyMediaFiles()
         else:
             print "No media files found on USB device"
-    WriteLog("Startup routine finished, starting RaspMedia Player...")
-    WriteLog("Bye bye...")
+    print "Startup routine finished, starting RaspMedia Player..."
+    print "Bye bye..."
 
     os.system("sudo python rasp-mediaplayer.py")
 

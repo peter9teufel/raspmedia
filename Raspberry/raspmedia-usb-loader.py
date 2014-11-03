@@ -37,7 +37,7 @@ def CopyMediaFiles():
             fileSize = str(size) + 'MB'
             print "Size: ", fileSize
             print "Please wait..."
-            scrFile = USB_MEDIA_PATH + '/' + file
+            srcFile = USB_MEDIA_PATH + '/' + file
             dstFile = MEDIA_PATH + '/' + file
             shutil.copyfile(srcFile, dstFile)
 

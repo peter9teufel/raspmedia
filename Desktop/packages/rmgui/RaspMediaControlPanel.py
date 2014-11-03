@@ -230,8 +230,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         files = []
         for file in os.listdir(self.path):
             if not file.startswith(('$','.')):
-                imgOrVideo = file.endswith((SUPPORTED_IMAGE_EXTENSIONS)) or file.endswith((SUPPORTED_VIDEO_EXTENSIONS))
-                if imgOrVideo:
+                if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                     files.append({"filename": file, "size": os.stat(self.path + '/' + file).st_size})
                 elif os.path.isdir(self.path + '/' + file):
                     folders.append(file)

@@ -58,7 +58,7 @@ echo "Setting up autostart of RaspMedia Player";
 sudo head -n -3 /etc/rc.local > /home/pi/rc.local.tmp;
 sudo cat /home/pi/rc.local.tmp > /etc/rc.local;
 sudo echo 'cd /home/pi/raspmedia/Raspberry' >> /etc/rc.local;
-sudo echo 'sudo python rasp-mediaplayer.py' >> /etc/rc.local;
+sudo echo 'sudo python raspmedia-usb-loader.py' >> /etc/rc.local;
 sudo echo 'exit 0' >> /etc/rc.local;
 sudo rm /home/pi/rc.local.tmp;
 

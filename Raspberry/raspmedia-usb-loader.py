@@ -45,7 +45,7 @@ def CopyMediaFiles():
     print "Media files copied to player successfully!"
 
 
-def OptimizeAndCopyImage(fileName, basePath, destPath, maxW=1280, maxH=720, minW=400, minH=400):
+def OptimizeAndCopyImage(fileName, basePath, destPath, maxW=1920, maxH=1080, minW=400, minH=400):
     filePath = basePath + '/' + fileName
     destFilePath = destPath + '/' + fileName
     #print "Opening image " + filePath

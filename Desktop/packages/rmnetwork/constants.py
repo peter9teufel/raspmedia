@@ -82,4 +82,4 @@ OBS_STOP = 0xee
 
 # filetypes
 SUPPORTED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
-SUPPORTED_VIDEO_EXTENSIONS = ('.mp4', '.m4v', '.mpeg', '.mpg', '.mpeg1', '.mpeg4')
+SUPPORTED_VIDEO_EXTENSIONS = ('.mp4', '.m4v', '.mpeg', '.mpg', '.mpeg1', '.mpeg4', '.avi')

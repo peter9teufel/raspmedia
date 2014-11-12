@@ -3,6 +3,7 @@
 import os, sys, subprocess, time, shutil, Image, threading, random
 import urllib2
 from constants import *
+from packages.rmconfig import configtool
 
 ROOT_PATH = "/home/pi/raspmedia/"
 MEDIA_PATH = ROOT_PATH + "Raspberry/media"
@@ -25,12 +26,18 @@ def RaspMediaFilesPresent():
 
 def CopyMediaFiles():
     print "Copying files from USB to RaspMedia Player"
-    
+    shutil.rmtree(MEDIA_PATH)
+    if not os.path.isdir(MEDIA_PATH):
+        os.mkdir(MEDIA_PATH)
+    imgEnabled = 0
+    vidEnabled = 0
     for file in os.listdir(USB_MEDIA_PATH):
         if not file.startswith('.'):
             if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                imgEnabled = 1
                 OptimizeAndCopyImage(file, USB_MEDIA_PATH, MEDIA_PATH)
             elif file.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
+                vidEnabled = 1
                 print "Copy video file: ", file
                 size = (os.stat(USB_MEDIA_PATH + '/' + file).st_size)
                 size /= 1024
@@ -43,6 +50,11 @@ def CopyMediaFiles():
                 shutil.copyfile(srcFile, dstFile)
 
     print "Media files copied to player successfully!"
+    print "Configuring playback settings for your new media files..."
+    configtool.readConfig()
+    configtool.setConfigValue("image_enabled", imgEnabled)
+    configtool.setConfigValue("video_enabled", vidEnabled)
+    print "Done!"
 
 
 def OptimizeAndCopyImage(fileName, basePath, destPath, maxW=1920, maxH=1080, minW=400, minH=400):
@@ -99,8 +111,12 @@ def StartupRoutine():
             CopyMediaFiles()
         else:
             print "No media files found on USB device"
+    print ""
     print "Startup routine finished, starting RaspMedia Player..."
     print "Bye bye..."
+    print ""
+
+    time.sleep(2)
 
     os.system("sudo python rasp-mediaplayer.py")
 

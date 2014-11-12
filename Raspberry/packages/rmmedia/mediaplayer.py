@@ -202,13 +202,13 @@ class MediaPlayer(threading.Thread):
 
     def videoLoop(self):
         videos = self.allVideos()
-        if len(videos) == 1:
-            self.singleVideoLoop(videos[0])
-        else:
-            while self.config['repeat'] and playerState == PLAYER_STARTED:
-                # check for config changes
-                self.reloadConfig()
-                self.processVideosOnce()
+        #if len(videos) == 1:
+        #    self.singleVideoLoop(videos[0])
+        #else:
+        while self.config['repeat'] and playerState == PLAYER_STARTED:
+            # check for config changes
+            self.reloadConfig()
+            self.processVideosOnce()
 
     def processVideosOnly(self):
         global playerState

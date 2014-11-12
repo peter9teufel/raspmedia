@@ -34,6 +34,9 @@ sudo apt-get -y install fbi;
 # install mplayer
 sudo apt-get -y install mplayer;
 
+# install mediainfo library
+sudo apt-get -y install mediainfo;
+
 echo "Installing PyOMXPlayer...";
 # fetch files for pyomxplayer
 cd /home/pi;

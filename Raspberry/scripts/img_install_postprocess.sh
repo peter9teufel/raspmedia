@@ -79,10 +79,18 @@ sudo git pull origin master
 echo ''
 echo 'Done!'
 echo ''
+
+echo "Setting up autostart of RaspMedia Player";
+# modify rc.local to start raspmedia at boot
+sudo head -n -3 /etc/rc.local > /home/pi/rc.local.tmp;
+sudo cat /home/pi/rc.local.tmp > /etc/rc.local;
+sudo echo 'cd /home/pi/raspmedia/Raspberry' >> /etc/rc.local;
+sudo echo 'sudo python raspmedia-usb-loader.py' >> /etc/rc.local;
+sudo echo 'exit 0' >> /etc/rc.local;
+sudo rm /home/pi/rc.local.tmp
+
 echo 'Your player is now ready to use!'
 echo 'Rebooting player now...'
-
-
 sudo reboot
 
 exit

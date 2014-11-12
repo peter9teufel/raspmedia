@@ -26,11 +26,25 @@ def RaspMediaFilesPresent():
 
 def CopyMediaFiles():
     print "Copying files from USB to RaspMedia Player"
-    shutil.rmtree(MEDIA_PATH)
-    if not os.path.isdir(MEDIA_PATH):
-        os.mkdir(MEDIA_PATH)
-    imgEnabled = 0
-    vidEnabled = 0
+    clear = True
+    # search for update indicator file
+    for file in os.listdir(USB_MEDIA_PATH):
+        if not file.endswith((SUPPORTED_IMAGE_EXTENSIONS)) and not file.endswith((SUPPORTED_VIDEO_EXTENSIONS)) and file.startswith('update'):
+            clear = False
+            config = configtool.readConfig()
+            try:
+                configDict = ast.literal_eval(config)
+                config = configDict
+            except:
+                pass
+            imgEnabled = config["image_enabled"]
+            vidEnabled = config["video_enabled"]
+    if clear:
+        shutil.rmtree(MEDIA_PATH)
+        if not os.path.isdir(MEDIA_PATH):
+            os.mkdir(MEDIA_PATH)
+        imgEnabled = 0
+        vidEnabled = 0
     for file in os.listdir(USB_MEDIA_PATH):
         if not file.startswith('.'):
             if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):

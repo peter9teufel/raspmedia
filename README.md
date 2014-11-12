@@ -5,7 +5,11 @@ RaspMedia is a standalone mediaplayer for the Raspberry Pi and the Banana Pi, in
 
 ###Features###
 RaspMedia Player provides digital signage using image slideshows, videos or a combination of both. All media files can be easily copied to the player using the Desktop applications *RaspMedia Control*, *RaspMedia Copy Tool* or *RaspMedia Image Transfer*.
+
+Furthermore it is possible to load a new set of mediafiles to a RaspMedia Player using an USB Stick. Simply create a folder called *raspmedia* in the root directory of a FAT32 formated USB Stick, put in your videos and/or images, plug the drive to your player and boot it up. The player will recognize the new mediafiles inside the *raspmedia* folder, copy them and configure the player according to the new files (enabling/disabling image and video processing).
+
 The RaspMedia Player is intended as a complete standalone digital signage player. All configuration and media copying can be done over the network without the need to directly access the player, which makes it suitable for screens with less accessibility (e.g. outdoor cabinets etc.).
+
 The RaspMedia Control Desktop Application needs no further configuration, it automatically detects all players in the local network within seconds.
 The RaspMedia Player can be configured over Ethernet or WiFi using a suitable WiFi USB Dongle (e.g. Asus N10). To setup WiFi the player has to be connected over Ethernet first to send suitable WiFi configurations using the desktop applications.
 

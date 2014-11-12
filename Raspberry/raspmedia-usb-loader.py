@@ -30,6 +30,10 @@ def CopyMediaFiles():
     # search for update indicator file
     for file in os.listdir(USB_MEDIA_PATH):
         if not file.endswith((SUPPORTED_IMAGE_EXTENSIONS)) and not file.endswith((SUPPORTED_VIDEO_EXTENSIONS)) and file.startswith('update'):
+            # file indicating a file update found, load config and set flag
+            print "File to indicate a media file update found."
+            print "Current files on the player will not be deleted."
+            print "Existing files with the same name as a new media file will be overwritten."
             clear = False
             config = configtool.readConfig()
             try:
@@ -40,6 +44,7 @@ def CopyMediaFiles():
             imgEnabled = config["image_enabled"]
             vidEnabled = config["video_enabled"]
     if clear:
+        # delete previous files from player
         shutil.rmtree(MEDIA_PATH)
         if not os.path.isdir(MEDIA_PATH):
             os.mkdir(MEDIA_PATH)

@@ -13,6 +13,7 @@ mediaPath = cwd + '/media/'
 mp_thread = None
 identifyFlag = False
 previousState = None
+filenumber = None
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
@@ -276,6 +277,35 @@ class MediaPlayer(threading.Thread):
                 self.processAllFilesOnce()
         stop()
 
+    def processSingleFile(self, number):
+        global playerState
+        global filenumber
+        global cwd
+        files = getMediaFileList()
+        if number < len(files):
+            # number within range of number of files
+            curFile = files[number]
+            if curFile in self.allImages():
+                # selected file is image --> show with fbi
+                filePath = self.mediaPath + curFile
+                imgCmdList = ["sudo","fbi","-noverbose", "-readahead", '-a', "-T","2", filePath]
+                # call fbi command
+                subprocess.call(imgCmdList)
+                # wait in loop for a playerstate change as fbi command does not block
+                while playerState == PLAYER_STARTED:
+                    time.sleep(1)
+            elif curFile in self.allVideos():
+                while playerState == PLAYER_STARTED:
+                    self.playVideo(curFile)
+        else:
+            # number beyond range of files --> show black screen
+            cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
+            subprocess.call(cmdList)
+            # wait in loop for a playerstate change as fbi command does not block
+            while playerState == PLAYER_STARTED:
+                time.sleep(1)
+
+
     def allImages(self):
         images = []
         for file in os.listdir(self.mediaPath):
@@ -299,23 +329,30 @@ class MediaPlayer(threading.Thread):
 
     def processMediaFiles(self):
         global playerState
-        #print "Checking config on files to process:"
-        #print self.config
-        if self.config['image_enabled'] and self.config['video_enabled']:
-            if len(self.allMediaFiles()) > 0:
-                self.processAllFiles()
-            else:
-                stop()
-        elif self.config['image_enabled']:
-            if len(self.allImages()) > 0:
-                self.processImagesOnly()
-            else:
-                stop()
-        elif self.config['video_enabled']:
-            if len(self.allVideos()) > 0:
-                self.processVideosOnly()
-            else:
-                stop()
+        global filenumber
+
+        # if global filenumber is NONE process files as usual
+        if filenumber == None:
+            #print "Checking config on files to process:"
+            #print self.config
+            if self.config['image_enabled'] and self.config['video_enabled']:
+                if len(self.allMediaFiles()) > 0:
+                    self.processAllFiles()
+                else:
+                    stop()
+            elif self.config['image_enabled']:
+                if len(self.allImages()) > 0:
+                    self.processImagesOnly()
+                else:
+                    stop()
+            elif self.config['video_enabled']:
+                if len(self.allVideos()) > 0:
+                    self.processVideosOnly()
+                else:
+                    stop()
+        else:
+            # filenumber for processing a single file is set, only handle this single file if available
+            self.processSingleFile(filenumber)
 
         # set player state to stopped as processing is done at this point
         playerState = PLAYER_STOPPED
@@ -414,6 +451,12 @@ def play():
     #mp_thread.playerState = PLAYER_STARTED
     print "Mediaplayer running in thread: ", mp_thread.name
 
+def startFileNumber(number):
+    global playerState
+    global filenumber
+    stop()
+    filenumber = number
+    play()
 
 def stop():
     global mp_thread

@@ -37,6 +37,9 @@ GROUP_CONFIG_ACTION_DELETE = 0x19
 # new flags for IMAGE TRANSFER APP
 FILE_DATA_REQUEST = 0x20
 
+# flag for message to play file number
+PLAYER_START_FILENUMBER = 0xb0
+
 
 # Action types
 ACTION_TYPE_ONETIME = 0xc1

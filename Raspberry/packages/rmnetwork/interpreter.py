@@ -103,6 +103,9 @@ def interpret(msg_data, sender_ip=None):
 		msg, data = readString(data)
 	elif flag == FILE_DATA_REQUEST:
 		result = flag
+	elif flag == PLAYER_START_FILENUMBER:
+		number, data = readInt(data)
+		mediaplayer.startFileNumber(number)
 
 	#print "Remaining data: " + data.decode("utf-8")
 

@@ -7,6 +7,7 @@ from packages.lang.Localizer import *
 
 from wx.lib.wordwrap import wordwrap
 import wx.lib.scrolledpanel as scrolled
+import wx.lib.masked as masked
 if platform.system() == "Linux":
     from wx.lib.pubsub import setupkwargs
     from wx.lib.pubsub import pub as Publisher
@@ -14,11 +15,11 @@ else:
     from wx.lib.pubsub import pub as Publisher
 
 # mapping from combo choices to constant codes
-CMD = ['play', 'stop', 'restart', 'reboot', 'update']
-CMD_CODE = [PLAYER_START, PLAYER_STOP, PLAYER_RESTART, PLAYER_REBOOT, PLAYER_UPDATE]
-TYPE = ['startup', 'new_player_found', 'per_sec', 'per_min', 'per_hour']
-TYPE_CODE = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER, PERIODIC_SEC, PERIODIC_MIN, PERIODIC_HOUR]
-TYPE_ONETIME = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER]
+CMD = ['play', 'stop', 'restart', 'play_number', 'reboot', 'update']
+CMD_CODE = [PLAYER_START, PLAYER_STOP, PLAYER_RESTART, PLAYER_START_FILENUMBER, PLAYER_REBOOT, PLAYER_UPDATE]
+TYPE = ['startup', 'new_player_found', 'per_sec', 'per_min', 'per_hour', 'spec_time']
+TYPE_CODE = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER, PERIODIC_SEC, PERIODIC_MIN, PERIODIC_HOUR, ACTION_TYPE_SPECIFIC_TIME]
+TYPE_ONETIME = [ACTION_EVENT_STARTUP, ACTION_EVENT_NEW_PLAYER, ACTION_TYPE_SPECIFIC_TIME]
 
 ################################################################################
 # FRAME FOR ACTION EDITING #####################################################
@@ -43,15 +44,16 @@ class ActionEditFrame(wx.Frame):
         self.__InitUI()
         self.SetSizerAndFit(self.mainSizer)
         self.Center()
+        self.__ValidateInput()
 
     def __InitUI(self):
         self.headSizer = wx.BoxSizer(wx.VERTICAL)
         self.contentSizer = wx.BoxSizer(wx.VERTICAL)
-        self.actScroll = scrolled.ScrolledPanel(self, -1, (437,200))
+        self.actScroll = scrolled.ScrolledPanel(self, -1, (515,200))
         self.actScroll.SetAutoLayout(1)
         self.actScroll.SetupScrolling(scroll_x=True, scroll_y=True)
-        self.actScroll.SetMinSize((437,200))
-        self.contentSizer.SetMinSize((415,195))
+        self.actScroll.SetMinSize((515,200))
+        self.contentSizer.SetMinSize((493,195))
         self.actScroll.SetSizer(self.contentSizer)
 
 
@@ -64,9 +66,9 @@ class ActionEditFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.Close, self.okBtn)
 
         # divider line between sections
-        line = wx.StaticLine(self, -1, size = (437,2))
-        secLine = wx.StaticLine(self, -1, size = (437,2))
-        lineBottom = wx.StaticLine(self, -1, size = (437,2))
+        line = wx.StaticLine(self, -1, size = (515,2))
+        secLine = wx.StaticLine(self, -1, size = (515,2))
+        lineBottom = wx.StaticLine(self, -1, size = (515,2))
 
         # add content sizers and section dividers to main sizer
         self.mainSizer.Add(self.headSizer)
@@ -94,6 +96,10 @@ class ActionEditFrame(wx.Frame):
             self.times.append(str(i))
         self.timeCombo = wx.ComboBox(self, -1, choices=self.times, size=(77,26))
 
+        self.timeSpin = wx.SpinButton(self,-1,style=wx.SP_VERTICAL)
+        self.triggerTime = masked.TimeCtrl(self,-1,format='24HHMM')
+        self.triggerTime.BindSpinButton(self.timeSpin)
+
         self.addBtn = wx.Button(self,-1,label="+", size=(25,25))
 
         self.Bind(wx.EVT_COMBOBOX, self.ComboSelection, self.cmdCombo)
@@ -104,6 +110,8 @@ class ActionEditFrame(wx.Frame):
         comboSizer.Add(self.cmdCombo, flag = wx.LEFT, border = 10)
         comboSizer.Add(self.typeCombo)
         comboSizer.Add(self.timeCombo)
+        comboSizer.Add(self.triggerTime)
+        comboSizer.Add(self.timeSpin,flag=wx.RIGHT,border=3)
         comboSizer.Add(self.addBtn, flag = wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 10)
         self.addBtn.Disable()
         self.ResetCombos()
@@ -113,11 +121,13 @@ class ActionEditFrame(wx.Frame):
 
         cmdLabel = wx.StaticText(self,-1,label="Command:",size=(self.cmdCombo.GetSize()[0],17))
         triggerLabel = wx.StaticText(self,-1,label="Trigger:",size=(self.typeCombo.GetSize()[0],17))
-        timeLabel = wx.StaticText(self,-1,label="Delay:")
+        timeLabel = wx.StaticText(self,-1,label="Delay:",size=(self.timeCombo.GetSize()[0],17))
+        specTimeLabel = wx.StaticText(self,-1,label="Time:")
 
         labelSizer.Add(cmdLabel, flag = wx.LEFT| wx.TOP, border = 6)
         labelSizer.Add(triggerLabel, flag = wx.TOP, border = 6)
         labelSizer.Add(timeLabel, flag = wx.TOP, border = 6)
+        labelSizer.Add(specTimeLabel, flag = wx.TOP, border = 6)
 
         self.headSizer.Add(labelSizer)
         self.headSizer.Add(comboSizer)
@@ -138,13 +148,13 @@ class ActionEditFrame(wx.Frame):
         except:
             pass
         actBox = wx.BoxSizer()
-        actBox.SetMinSize((409,10))
+        actBox.SetMinSize((488,10))
         desc = self.__GetDescription(action)
 
         descLabel = wx.StaticText(self.actScroll,-1,label=desc)
-        descLabel.SetMinSize((385,25))
+        descLabel.SetMinSize((453,25))
         delBtn = wx.Button(self.actScroll,-1,label="x",size=(25,25))
-        line = wx.StaticLine(self.actScroll, -1, size = (416,2))
+        line = wx.StaticLine(self.actScroll, -1, size = (494,2))
         self.Bind(wx.EVT_BUTTON, lambda event, action=action: self.DeleteAction(event,action), delBtn)
 
         actBox.Add(descLabel, flag = wx.ALL, border = 3)
@@ -170,14 +180,19 @@ class ActionEditFrame(wx.Frame):
             if int(action['periodic_interval']) > 1:
                 desc += tr("desc_plural")
         elif action['type'] == ACTION_TYPE_ONETIME:
-            desc += " " + tr("after")
-            desc += " " + action['delay'] + " " + tr("sec")
-            if int(action['delay']) > 1:
-                desc += tr("desc_plural")
-            desc += " " + tr("when")
-            ind = TYPE_CODE.index(action['event'])
-            event = tr(TYPE[ind])
-            desc += " " + event
+            if action['event'] == ACTION_TYPE_SPECIFIC_TIME:
+                hourStr = "%02d" % action['hour']
+                minStr = "%02d" % action['minute']
+                desc += " at " + hourStr + ":" + minStr
+            else:
+                desc += " " + tr("after")
+                desc += " " + action['delay'] + " " + tr("sec")
+                if int(action['delay']) > 1:
+                    desc += tr("desc_plural")
+                desc += " " + tr("when")
+                ind = TYPE_CODE.index(action['event'])
+                event = tr(TYPE[ind])
+                desc += " " + event
         return desc
 
     def ComboSelection(self, event=None):
@@ -219,6 +234,9 @@ class ActionEditFrame(wx.Frame):
         cmd = CMD_CODE[self.cmdCombo.GetSelection()]
         type = TYPE_CODE[self.typeCombo.GetSelection()]
         time = self.times[self.timeCombo.GetSelection()]
+        specTime = self.triggerTime.GetValue(as_wxDateTime=True)
+        hour = specTime.GetHour()
+        minute = specTime.GetMinute()
 
         actType = ACTION_TYPE_PERIODIC
         if type in TYPE_ONETIME:
@@ -231,7 +249,11 @@ class ActionEditFrame(wx.Frame):
             action['periodic_interval'] = time
         else:
             action['event'] = type
-            action['delay'] = time
+            if type == ACTION_TYPE_SPECIFIC_TIME:
+                action['hour'] = hour
+                action['minute'] = minute
+            else:
+                action['delay'] = time
         action['command'] = cmd
         return action
 
@@ -265,11 +287,22 @@ class ActionEditFrame(wx.Frame):
         event.Skip()
 
     def __ValidateInput(self, event=None):
-        if not self.cmdCombo.GetSelection() == -1 and not self.typeCombo.GetSelection() == -1 and not self.timeCombo.GetSelection() == -1:
-            action = self.InputToAction()
-            action = self.__toDict(action)
-            if self.__actionIndex(action) == -1:
-                self.addBtn.Enable()
+        if self.typeCombo.GetSelection() == 5:
+            self.timeCombo.Disable()
+            self.triggerTime.Enable()
+            self.timeSpin.Enable()
+        else:
+            self.timeCombo.Enable()
+            self.triggerTime.Disable()
+            self.timeSpin.Disable()
+        if not self.cmdCombo.GetSelection() == -1 and not self.typeCombo.GetSelection() == -1:
+            if (self.typeCombo.GetSelection() != 5 and not self.timeCombo.GetSelection() == -1) or self.typeCombo.GetSelection() == 5:
+                action = self.InputToAction()
+                action = self.__toDict(action)
+                if self.__actionIndex(action) == -1:
+                    self.addBtn.Enable()
+                else:
+                    self.addBtn.Disable()
             else:
                 self.addBtn.Disable()
         else:

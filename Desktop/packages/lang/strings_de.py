@@ -126,6 +126,8 @@ strings = {
 	"per_sec": "Periodisch (sec)",
 	"per_min": "Periodisch (min)",
 	"per_hour": "Periodisch (hour)",
+	"spec_time" : "Uhrzeit",
+	"play_number": "Starte Nummer",
 	"desc_plural": "n",
 	"apply": "Anwenden",
 	"loading_files": "Lade Dateien...",

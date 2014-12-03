@@ -73,11 +73,11 @@ class GroupActionHandler(threading.Thread):
     def __init__(self, actions):
 	self.actions = []
 	for action in actions:
-	    try:
-		ad = ast.literal_eval(action)
-		action = ad
-	    except:
-		pass
+        try:
+            ad = ast.literal_eval(action)
+            action = ad
+        except:
+            pass
 	    self.actions.append(action)
         self.runevent = threading.Event()
         self.updateevent = threading.Event()
@@ -134,6 +134,16 @@ class GroupActionHandler(threading.Thread):
                         if action["event"] == ACTION_EVENT_STARTUP:
                             print "Triggering startup action ", action
                             startupActions.append(action)
+                        elif action["event"] == ACTION_TYPE_SPECIFIC_TIME:
+                            t_stop = threading.Event()
+                            t = threading.Thread(target=self.__ProcessSpecificTimeAction, args=(action, t_stop))
+                            t.daemon = True
+                            # save references to thread and stop event
+                            tList = {}
+                            tList["thread"] = t
+                            tList["stop_event"] = t_stop
+                            self.actionThreads.append(tList)
+                            t.start()
                     elif type == ACTION_TYPE_PERIODIC:
                         t_stop = threading.Event()
                         t = threading.Thread(target=self.__ProcessPeriodicAction, args=(action, t_stop))
@@ -151,8 +161,6 @@ class GroupActionHandler(threading.Thread):
             # periodic actions are started in threads, check if startup actions have to be handled
             global startup
             if startup:
-		print "ACTIONS: ", self.actions
-		print "STARTUP: ", startupActions
                 for sAction in startupActions:
                     index = self.actions.index(sAction)
                     del self.actions[index]
@@ -170,6 +178,14 @@ class GroupActionHandler(threading.Thread):
             t["stop_event"].set()
 
 
+    def __ProcessSpecificTimeAction(self, action, stopevent):
+        startTime = datetime.time(int(action['hour']),int(action['minute']))
+        while not stopevent.is_set():
+            while startTime > datetime.today().time() and not stopevent.is_set(): # you can add here any additional variable to break loop if necessary
+                # wait 1 second then check time again
+                stopevent.wait(1)
+            # wait loop passed --> trigger time for action
+            self.__SendCommandToHosts(action)
 
     def __ProcessPeriodicAction(self, action, stopevent):
         # processes given action, call method in separate Thread!

@@ -1,4 +1,4 @@
-# UDP config
+	# UDP config
 UDP_HOST = ""
 UDP_PORT = 60001
 UDP_BROADCAST_HOST = '<broadcast>'
@@ -49,6 +49,8 @@ PERIODIC_SEC = 0xc3
 PERIODIC_MIN = 0xc4
 PERIODIC_HOUR = 0xc5
 PERIODIC_DAY = 0xc6
+# type for specific time action
+ACTION_TYPE_SPECIFIC_TIME = 0xc7
 
 # Action events
 ACTION_EVENT_STARTUP = 0xd1

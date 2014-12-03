@@ -40,6 +40,9 @@ GROUP_CONFIG_ACTION_DELETE = 0x19
 # new flags for IMAGE TRANSFER APP
 FILE_DATA_REQUEST = 0x20
 
+# flag for message to play file number
+PLAYER_START_FILENUMBER = 0xb0
+
 # Action types
 ACTION_TYPE_ONETIME = 0xc1
 ACTION_TYPE_PERIODIC = 0xc2
@@ -48,6 +51,8 @@ PERIODIC_SEC = 0xc3
 PERIODIC_MIN = 0xc4
 PERIODIC_HOUR = 0xc5
 PERIODIC_DAY = 0xc6
+# type for specific time action
+ACTION_TYPE_SPECIFIC_TIME = 0xc7
 
 # Action events
 ACTION_EVENT_STARTUP = 0xd1

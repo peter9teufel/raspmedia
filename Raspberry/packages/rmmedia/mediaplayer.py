@@ -281,7 +281,7 @@ class MediaPlayer(threading.Thread):
         global playerState
         global filenumber
         global cwd
-        files = getMediaFileList()
+        files = sorted(getMediaFileList())
         if number < len(files):
             # number within range of number of files
             curFile = files[number]
@@ -330,7 +330,6 @@ class MediaPlayer(threading.Thread):
     def processMediaFiles(self):
         global playerState
         global filenumber
-
         # if global filenumber is NONE process files as usual
         if filenumber == None:
             #print "Checking config on files to process:"
@@ -455,12 +454,16 @@ def startFileNumber(number):
     global playerState
     global filenumber
     stop()
+    # wait one second to let the player change to stopped state
+    time.sleep(1)
     filenumber = number
     play()
 
 def stop():
     global mp_thread
     global playerState
+    global filenumber
+    filenumber = None
     playerState = PLAYER_STOPPED
     mp_thread.runevent.clear()
     # check for fbi and omxplayer processes and terminate them

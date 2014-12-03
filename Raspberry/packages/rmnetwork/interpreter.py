@@ -104,6 +104,7 @@ def interpret(msg_data, sender_ip=None):
 	elif flag == FILE_DATA_REQUEST:
 		result = flag
 	elif flag == PLAYER_START_FILENUMBER:
+		print "UDP COMMAND Start Filenumber..."
 		number, data = readInt(data)
 		mediaplayer.startFileNumber(number)
 

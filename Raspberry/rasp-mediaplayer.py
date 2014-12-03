@@ -78,7 +78,9 @@ def main():
 
     # initialize group manager with group configuration
     groupConfig = rmconfig.configtool.readGroupConfig()
+    print "GROUP CONFIG: ", groupConfig
     GroupManager.InitGroupManager(groupConfig)
+    time.sleep(2)
     GroupManager.Schedule()
 
     # check if thumbnails completely present

@@ -186,18 +186,18 @@ class GroupActionHandler(threading.Thread):
     def __ProcessSpecificTimeAction(self, action, stopevent):
         startTime = datetime.time(int(action['hour']),int(action['minute']))
         print "ACTION START TIME: ", startTime
-	print "CURRENT TIME: ", datetime.datetime.today().time()
-	while not stopevent.is_set():
-	    if startTime > datetime.datetime.today().time():
+        print "CURRENT TIME: ", datetime.datetime.today().time()
+        while not stopevent.is_set():
+            if startTime > datetime.datetime.today().time():
                 while startTime > datetime.datetime.today().time() and not stopevent.is_set(): # you can add here any additional variable to break loop if necessary
-		    # wait 1 second then check time again
+                    # wait 1 second then check time again
                     stopevent.wait(1)
                 # wait loop passed --> trigger time for action
-		print "TRIGGER TIME REACHED - SENDING ACTION TO HOSTS: ", action
+                print "TRIGGER TIME REACHED - SENDING ACTION TO HOSTS: ", action
                 self.__SendCommandToHosts(action)
-	    else:
-		# start time has already passed and should have been processed, lets wait for the next day :-)
-		stopevent.wait(1)
+            else:
+                # start time has already passed and should have been processed, lets wait for the next day :-)
+                stopevent.wait(1)
 
     def __ProcessPeriodicAction(self, action, stopevent):
         # processes given action, call method in separate Thread!
@@ -235,9 +235,11 @@ class GroupActionHandler(threading.Thread):
         cmd = action["command"]
         print "Sending Command to hosts: ", cmd
         print "Hosts: ", self.hosts
-        msgData = messages.getMessage(int(cmd))
+        if int(cmd) == PLAYER_START_FILENUMBER:
+            msgData = messages.getMessage(int(cmd),args=["-i", str(action['file_number'])])
+        else:
+            msgData = messages.getMessage(int(cmd))
         udpbroadcaster.sendMessageToHosts(msgData, self.hosts)
-
 
 #### ACCESS METHODS FOR CREATION AND MODIFICATION ####
 def InitGroupManager(groupConfig):

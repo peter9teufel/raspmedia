@@ -92,7 +92,7 @@ class ActionEditFrame(wx.Frame):
         self.typeCombo = wx.ComboBox(self, -1, choices=typeChoices, size=(174,26))
         self.typeCombo.SetName('type')
         self.times = []
-        for i in range(101):
+        for i in range(256):
             self.times.append(str(i))
         self.timeCombo = wx.ComboBox(self, -1, choices=self.times, size=(77,26))
 
@@ -121,12 +121,12 @@ class ActionEditFrame(wx.Frame):
 
         cmdLabel = wx.StaticText(self,-1,label="Command:",size=(self.cmdCombo.GetSize()[0],17))
         triggerLabel = wx.StaticText(self,-1,label="Trigger:",size=(self.typeCombo.GetSize()[0],17))
-        timeLabel = wx.StaticText(self,-1,label="Delay:",size=(self.timeCombo.GetSize()[0],17))
+        self.timeLabel = wx.StaticText(self,-1,label="Delay:",size=(self.timeCombo.GetSize()[0],17))
         specTimeLabel = wx.StaticText(self,-1,label="Time:")
 
         labelSizer.Add(cmdLabel, flag = wx.LEFT| wx.TOP, border = 6)
         labelSizer.Add(triggerLabel, flag = wx.TOP, border = 6)
-        labelSizer.Add(timeLabel, flag = wx.TOP, border = 6)
+        labelSizer.Add(self.timeLabel, flag = wx.TOP, border = 6)
         labelSizer.Add(specTimeLabel, flag = wx.TOP, border = 6)
 
         self.headSizer.Add(labelSizer)
@@ -166,7 +166,10 @@ class ActionEditFrame(wx.Frame):
 
     def __GetDescription(self, action):
         ind = CMD_CODE.index(action['command'])
-        desc = '"' + tr(CMD[ind]) + '"'
+        desc = '"' + tr(CMD[ind])
+        if ind == 3:
+            desc += " " + str(action['file_number'])
+        desc +=  '"'
         if action['type'] == ACTION_TYPE_PERIODIC:
             desc += " " + tr("every") + " " + action['periodic_interval']
             pType = action['periodic_type']
@@ -252,6 +255,7 @@ class ActionEditFrame(wx.Frame):
             if type == ACTION_TYPE_SPECIFIC_TIME:
                 action['hour'] = hour
                 action['minute'] = minute
+                action['file_number'] = time
             else:
                 action['delay'] = time
         action['command'] = cmd
@@ -287,14 +291,26 @@ class ActionEditFrame(wx.Frame):
         event.Skip()
 
     def __ValidateInput(self, event=None):
-        if self.typeCombo.GetSelection() == 5:
-            self.timeCombo.Disable()
+        if self.cmdCombo.GetSelection() == 3:
+            # start specific file number --> use delay combo for file number, trigger has to be specific time
+            self.typeCombo.SetSelection(5)
+            self.typeCombo.Disable()
+            self.timeLabel.SetLabel("File:")
+            self.timeCombo.Enable()
             self.triggerTime.Enable()
             self.timeSpin.Enable()
         else:
-            self.timeCombo.Enable()
-            self.triggerTime.Disable()
-            self.timeSpin.Disable()
+            self.timeLabel.SetLabel("Delay:")
+            self.typeCombo.Enable()
+            if self.typeCombo.GetSelection() == 5:
+                self.triggerTime.Enable()
+                self.timeSpin.Enable()
+                self.timeCombo.Disable()
+            else:
+                self.triggerTime.Disable()
+                self.timeSpin.Disable()
+                self.timeCombo.Enable()
+
         if not self.cmdCombo.GetSelection() == -1 and not self.typeCombo.GetSelection() == -1:
             if (self.typeCombo.GetSelection() != 5 and not self.timeCombo.GetSelection() == -1) or self.typeCombo.GetSelection() == 5:
                 action = self.InputToAction()
@@ -311,7 +327,7 @@ class ActionEditFrame(wx.Frame):
     def __actionIndex(self,action):
         ind = -1
         cnt = 0
-        # convert to dict in case it is still a string
+        # convert to dict in case it is still a string
         action = self.__toDict(action)
         action = self.__sortDict(action)
         for a in self.actions:

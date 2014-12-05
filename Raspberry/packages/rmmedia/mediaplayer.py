@@ -23,7 +23,16 @@ class MediaPlayer(threading.Thread):
         self.runevent = threading.Event()
         self.identify_event = threading.Event()
         playerState = PLAYER_STOPPED
-	threading.Thread.__init__(self, name="MediaPlayer_Thread")
+        self.initImageAliases()
+        threading.Thread.__init__(self, name="MediaPlayer_Thread")
+
+    def initImageAliases(self):
+        if not os.path.isfile(cwd + '/img_al1.jpg'):
+            subprocess.call(["ln", "-s", "-f", cwd + '/raspblack.jpg', cwd + '/img_al1.jpg'])
+        if not os.path.isfile(cwd + '/img_al2.jpg'):
+            subprocess.call(["ln", "-s", "-f", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg'])
+        if not os.path.isfile(cwd + '/img_al3.jpg'):
+            subprocess.call(["ln", "-s", "-f", cwd + '/img_al1.jpg', cwd + '/img_al3.jpg'])
 
     def run(self):
         global playerState, identifyFlag
@@ -83,7 +92,23 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'] - 1)
-        imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
+        #imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
+        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", 0, "-t", 1, '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
+        files = sorted(self.allImages())
+        # set alias to first file
+        firstImg = files.pop(0)
+        subprocess.call(["ln", "-s", "-f", self.mediaPath + firstImg, cwd + '/img_al1.jpg'])
+        for file in files:
+            # wait image interval
+            interval = 0
+            while self.runevent.is_set() and interval < imgInterval:
+                time.sleep(1)
+                interval += 1
+            if self.runevent.is_set():
+                # image interval passed, player did not change into stopped state --> link next image
+                subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
+
+        '''
         numImg = 0
         files = self.allImages()
         files.sort()
@@ -111,6 +136,7 @@ class MediaPlayer(threading.Thread):
                 # check config every 10 seconds
                 self.reloadConfig()
                 wakes = 0
+        '''
 
     def fbiImageLoop(self):
         global playerState

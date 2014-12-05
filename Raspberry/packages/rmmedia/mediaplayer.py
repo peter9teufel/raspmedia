@@ -453,10 +453,12 @@ def play():
 def startFileNumber(number):
     global playerState
     global filenumber
-    stop()
+    if playerState == PLAYER_STARTED:
+        stop()
     # wait one second to let the player change to stopped state
     time.sleep(1)
     filenumber = number
+    time.sleep(1)
     play()
 
 def stop():
@@ -471,6 +473,29 @@ def stop():
     # stop omx player instance if running
     subprocess.call([cwd + '/scripts/quitplay.sh'])
     processtool.killProcesses('omxplayer')
+
+def setState(state):
+    global playerState
+    # 0 = stop, 1 = play
+    if state == 0:
+        if playerState == PLAYER_STARTED:
+            stop()
+    elif state == 1:
+        if playerState == PLAYER_STOPPED:
+            play()
+
+def setMediaFileNumber(num):
+    global playerState
+    global filenumber
+    play = False
+    if playerState == PLAYER_STARTED:
+        play = True
+        stop()
+    filenumber = num
+    if play:
+        time.sleep(1)
+        play()
+    
 
 def main():
     global cwd, mp_thread, playerState

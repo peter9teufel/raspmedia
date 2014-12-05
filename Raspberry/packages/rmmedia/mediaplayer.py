@@ -39,6 +39,9 @@ class MediaPlayer(threading.Thread):
         #print ":::::MEDIAPLAYER THREAD RUN METHOD STARTED:::::"
         self.reloadConfig()
 
+        # call initial fbi command
+        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
+        subprocess.call(imgCmdList)
         # show player startup image for 3 seconds (+ loading time)
         self.showRaspMediaImage()
         time.sleep(5)
@@ -72,8 +75,10 @@ class MediaPlayer(threading.Thread):
 
     def showRaspMediaImage(self):
         global cwd
-        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspmedia.jpg']
-        subprocess.call(cmdList)
+        #cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspmedia.jpg']
+        #subprocess.call(cmdList)
+        # link to raspmedia background image
+        subprocess.call(["ln", "-s", "-f", cwd + '/raspmedia.jpg', cwd + '/img_al1.jpg'])
 
     def showIdentifyImage(self):
         global cwd
@@ -82,8 +87,10 @@ class MediaPlayer(threading.Thread):
             path += '/raspidentified.jpg'
         else:
             path += '/raspidentify.jpg'
-        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', path]
-        subprocess.call(cmdList)
+        #cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', path]
+        #subprocess.call(cmdList)
+        # link to identify image
+        subprocess.call(["ln", "-s", "-f", path, cwd + '/img_al1.jpg'])
 
     def setMediaPath(self, mediaPath):
         self.mediaPath = mediaPath
@@ -92,34 +99,26 @@ class MediaPlayer(threading.Thread):
         global playerState
         #imgInterval = str(self.config['image_interval'])
         imgInterval = self.config["image_interval"]
-	blendInterval = str(self.config['image_blend_interval'] - 1)
+        blendInterval = str(self.config['image_blend_interval'] - 1)
         #imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
-        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
+        #imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
         files = sorted(self.allImages())
-        # set alias to first file
-        firstImg = files.pop(0)
-        subprocess.call(["ln", "-s", "-f", self.mediaPath + firstImg, cwd + '/img_al1.jpg'])
-	# start fbi command
-	subprocess.call(imgCmdList)
+        
+        # loop through image files once
         for file in files:
+            # link new image
+            if self.runevent.is_set():
+                print "Linking to file: ", file
+                # image interval passed, player did not change into stopped state --> link next image
+                subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
+                # give the player 2 seconds of loading time
+                time.sleep(2)
             # wait image interval
             interval = 0
             while self.runevent.is_set() and interval < imgInterval:
                 time.sleep(1)
                 interval += 1
-		print "Waiting for next image... ", interval
-            if self.runevent.is_set():
-		print "Linking to file: ", file
-                # image interval passed, player did not change into stopped state --> link next image
-		subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
-		time.sleep(2)
-
-	# wait image interval
-        interval = 0
-        while self.runevent.is_set() and interval < imgInterval+3:
-            time.sleep(1)
-            interval += 1
-            print "Waiting interval of last image... ", interval
+                print "Waiting for next image... ", interval
 
         '''
         numImg = 0
@@ -155,7 +154,27 @@ class MediaPlayer(threading.Thread):
         global playerState
         imgInterval = str(self.config['image_interval'])
         blendInterval = str(self.config['image_blend_interval'])
-        imgCmdList = ["sudo","fbi","-noverbose", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
+        # imgCmdList = ["sudo","fbi","-noverbose", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
+        #imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
+        files = sorted(self.allImages())
+        
+        # loop over images as long as runevent is set
+        while self.runevent.is_set():
+            for file in files:
+                if self.runevent.is_set():
+                    print "Linking to file: ", file
+                    # image interval passed, player did not change into stopped state --> link next image
+                    subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
+                    # give the player 2 seconds loading time for the new image
+                    time.sleep(2)
+                # wait image interval
+                interval = 0
+                while self.runevent.is_set() and interval < imgInterval:
+                    time.sleep(1)
+                    interval += 1
+                    print "Waiting for next image... ", interval
+
+        '''
         numImg = 0
         files = self.allImages()
         files.sort()
@@ -177,6 +196,7 @@ class MediaPlayer(threading.Thread):
                 # check for config changes every 10 seconds
                 self.reloadConfig()
                 wakes = 0
+        '''
 
 
     def processImagesOnly(self):
@@ -333,9 +353,11 @@ class MediaPlayer(threading.Thread):
             if curFile in self.allImages():
                 # selected file is image --> show with fbi
                 filePath = self.mediaPath + curFile
-                imgCmdList = ["sudo","fbi","-noverbose", "-readahead", '-a', "-T","2", filePath]
+                #imgCmdList = ["sudo","fbi","-noverbose", "-readahead", '-a', "-T","2", filePath]
                 # call fbi command
-                subprocess.call(imgCmdList)
+                #subprocess.call(imgCmdList)
+                # link to new image to show
+                subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
                 # wait in loop for a playerstate change as fbi command does not block
                 while playerState == PLAYER_STARTED:
                     time.sleep(1)
@@ -352,8 +374,11 @@ class MediaPlayer(threading.Thread):
 
     def blackout(self):
         # shows black screen, player stays in state STARTED!
-        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
-        subprocess.call(cmdList)
+        #cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
+        #subprocess.call(cmdList)
+        
+        # link to blackout image
+        subprocess.call(["ln", "-s", "-f", cwd + '/raspblack.jpg', cwd + '/img_al1.jpg'])
         # wait in loop for a playerstate change as fbi command does not block
         while playerState == PLAYER_STARTED:
             time.sleep(1)
@@ -520,7 +545,8 @@ def stop():
     playerState = PLAYER_STOPPED
     mp_thread.runevent.clear()
     # check for fbi and omxplayer processes and terminate them
-    processtool.killProcesses('fbi')
+    # processtool.killProcesses('fbi')
+    
     # stop omx player instance if running
     subprocess.call([cwd + '/scripts/quitplay.sh'])
     processtool.killProcesses('omxplayer')

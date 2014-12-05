@@ -14,6 +14,7 @@ mp_thread = None
 identifyFlag = False
 previousState = None
 filenumber = None
+blackout = False
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
@@ -51,7 +52,10 @@ class MediaPlayer(threading.Thread):
                 #reload config and process media files
                 self.reloadConfig()
                 playerState = PLAYER_STARTED
-                self.processMediaFiles()
+                if blackout:
+                    self.blackout()
+                else:
+                    self.processMediaFiles()
                 time.sleep(0.5)
                 self.showRaspMediaImage()
 
@@ -305,6 +309,13 @@ class MediaPlayer(threading.Thread):
             while playerState == PLAYER_STARTED:
                 time.sleep(1)
 
+    def blackout(self):
+        # shows black screen, player stays in state STARTED!
+        cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
+            subprocess.call(cmdList)
+            # wait in loop for a playerstate change as fbi command does not block
+            while playerState == PLAYER_STARTED:
+                time.sleep(1)
 
     def allImages(self):
         images = []
@@ -476,6 +487,7 @@ def stop():
 
 def setState(state):
     global playerState
+    global blackout
     # 0 = stop, 1 = play
     if state == 0:
         if playerState == PLAYER_STARTED:
@@ -483,6 +495,12 @@ def setState(state):
     elif state == 1:
         if playerState == PLAYER_STOPPED:
             play()
+    elif state == 2:
+        if playerState == PLAYER_STARTED:
+            stop()
+        blackout = True
+        time.sleep(1)
+        play()
 
 def setMediaFileNumber(num):
     global playerState

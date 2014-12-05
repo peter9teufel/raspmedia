@@ -7,7 +7,6 @@ import GroupManager
 
 def interpret(msg_data, sender_ip=None):
 	#print "Interpreting incoming data..."
-
 	# initialize with error state
 	result = INTERPRETER_ERROR
 

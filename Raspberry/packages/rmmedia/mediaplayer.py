@@ -38,7 +38,7 @@ class MediaPlayer(threading.Thread):
         global playerState, identifyFlag
         #print ":::::MEDIAPLAYER THREAD RUN METHOD STARTED:::::"
         self.reloadConfig()
-
+	blendInterval = str(self.config['image_blend_interval'])
         # call initial fbi command
         imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
         subprocess.call(imgCmdList)
@@ -53,7 +53,7 @@ class MediaPlayer(threading.Thread):
             #    time.sleep(0.5)
             self.runevent.wait()
             # remove raspmedia image process
-            processtool.killProcesses('fbi')
+            # processtool.killProcesses('fbi')
 
             if identifyFlag:
                 self.showIdentifyImage()
@@ -98,8 +98,8 @@ class MediaPlayer(threading.Thread):
     def processImagesOnce(self):
         global playerState
         #imgInterval = str(self.config['image_interval'])
-        imgInterval = self.config["image_interval"]
-        blendInterval = str(self.config['image_blend_interval'] - 1)
+        imgInterval = self.config["image_interval"]-1
+        blendInterval = str(self.config['image_blend_interval'])
         #imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         #imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
         files = sorted(self.allImages())
@@ -108,7 +108,6 @@ class MediaPlayer(threading.Thread):
         for file in files:
             # link new image
             if self.runevent.is_set():
-                print "Linking to file: ", file
                 # image interval passed, player did not change into stopped state --> link next image
                 subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
                 # give the player 2 seconds of loading time
@@ -118,7 +117,6 @@ class MediaPlayer(threading.Thread):
             while self.runevent.is_set() and interval < imgInterval:
                 time.sleep(1)
                 interval += 1
-                print "Waiting for next image... ", interval
 
         '''
         numImg = 0
@@ -152,7 +150,7 @@ class MediaPlayer(threading.Thread):
 
     def fbiImageLoop(self):
         global playerState
-        imgInterval = str(self.config['image_interval'])
+        imgInterval = self.config['image_interval']
         blendInterval = str(self.config['image_blend_interval'])
         # imgCmdList = ["sudo","fbi","-noverbose", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
         #imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
@@ -162,7 +160,6 @@ class MediaPlayer(threading.Thread):
         while self.runevent.is_set():
             for file in files:
                 if self.runevent.is_set():
-                    print "Linking to file: ", file
                     # image interval passed, player did not change into stopped state --> link next image
                     subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
                     # give the player 2 seconds loading time for the new image
@@ -172,7 +169,6 @@ class MediaPlayer(threading.Thread):
                 while self.runevent.is_set() and interval < imgInterval:
                     time.sleep(1)
                     interval += 1
-                    print "Waiting for next image... ", interval
 
         '''
         numImg = 0
@@ -565,15 +561,16 @@ def setState(state):
             play()
 	elif playerState == PLAYER_STARTED and blackout:
 	    stop()
-	    blackout = False
 	    time.sleep(1)
+	    blackout = False	    
 	    play()
 	blackout = False
     elif state == 2:
         if playerState == PLAYER_STARTED:
             stop()
+	    blackout = True
+	    time.sleep(1)
         blackout = True
-        time.sleep(1)
         play()
 
 def setMediaFileNumber(num):

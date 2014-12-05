@@ -23,7 +23,7 @@ class MediaPlayer(threading.Thread):
         self.runevent = threading.Event()
         self.identify_event = threading.Event()
         playerState = PLAYER_STOPPED
-        threading.Thread.__init__(self, name="MediaPlayer_Thread")
+	threading.Thread.__init__(self, name="MediaPlayer_Thread")
 
     def run(self):
         global playerState, identifyFlag
@@ -52,7 +52,9 @@ class MediaPlayer(threading.Thread):
                 #reload config and process media files
                 self.reloadConfig()
                 playerState = PLAYER_STARTED
-                if blackout:
+                print "BLACKOUT: ",blackout
+		if blackout:
+		    print "Blackout screen..."
                     self.blackout()
                 else:
                     self.processMediaFiles()
@@ -312,10 +314,10 @@ class MediaPlayer(threading.Thread):
     def blackout(self):
         # shows black screen, player stays in state STARTED!
         cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
-            subprocess.call(cmdList)
-            # wait in loop for a playerstate change as fbi command does not block
-            while playerState == PLAYER_STARTED:
-                time.sleep(1)
+        subprocess.call(cmdList)
+        # wait in loop for a playerstate change as fbi command does not block
+        while playerState == PLAYER_STARTED:
+            time.sleep(1)
 
     def allImages(self):
         images = []
@@ -492,9 +494,16 @@ def setState(state):
     if state == 0:
         if playerState == PLAYER_STARTED:
             stop()
+	blackout = False
     elif state == 1:
         if playerState == PLAYER_STOPPED:
             play()
+	elif playerState == PLAYER_STARTED and blackout:
+	    stop()
+	    blackout = False
+	    time.sleep(1)
+	    play()
+	blackout = False
     elif state == 2:
         if playerState == PLAYER_STARTED:
             stop()
@@ -505,12 +514,18 @@ def setState(state):
 def setMediaFileNumber(num):
     global playerState
     global filenumber
-    play = False
+    restart = False
     if playerState == PLAYER_STARTED:
-        play = True
+        restart = True
         stop()
-    filenumber = num
-    if play:
+	time.sleep(1)
+    if num == -1:
+	print "Resetting file number..."
+	filenumber = None
+    else:
+	print "Setting file number: ", num
+        filenumber = num
+    if restart:
         time.sleep(1)
         play()
     

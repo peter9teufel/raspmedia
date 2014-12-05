@@ -62,11 +62,13 @@ def main():
     # default media path
     mediaPath = os.getcwd() + '/media/'
     #print "Media Path: " + mediaPath
-
+    proc = subprocess.Popen(['tty'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = proc.communicate()
+    print result
     print "Launching player..."
 
     # hide console text of local tty0 on hdmi
-    os.system('sudo setterm -foreground black -clear >/dev/tty1')
+    os.system("sudo sh -c \"TERM=linux setterm -foreground black -clear >/dev/pts/0\"")
 
     startUdpServer()
     openFileSocket()
@@ -111,7 +113,7 @@ def main():
         	print "Unknown command: ", cmd
 
     # bring back console text on tty0 on hdmi
-    os.system('sudo setterm -foreground white -clear >/dev/tty1')
+    os.system("sudo sh -c \"TERM=linux setterm -foreground white -clear >/dev/pts/0\"")
     udpserver.stop()
     rmutil.processtool.killProcesses('fbi')
     # startup image

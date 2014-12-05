@@ -3,7 +3,7 @@
 import os
 
 def killProcesses(filter):
-    os.system("sudo killall " + filter)
+    os.system("sudo killall " + filter + " > /dev/null")
     
 
 

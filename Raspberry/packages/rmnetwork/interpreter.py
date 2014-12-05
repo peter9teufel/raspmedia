@@ -16,10 +16,7 @@ def interpret(msg_data, sender_ip=None):
 		val = values[2]
 		if cmd == "state":
 			# switch state
-			if val == "0":
-				mediaplayer.stop()
-			elif val == "1":
-				mediaplayer.play()
+			mediaplayer.setState(int(val))
 		elif cmd == "number":
 			mediaplayer.setMediaFileNumber(int(val))
 	else:

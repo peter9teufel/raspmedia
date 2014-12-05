@@ -69,6 +69,7 @@ def main():
 
     # hide console text of local tty0 on hdmi
     os.system("sudo sh -c \"TERM=linux setterm -foreground black -clear >/dev/pts/0\"")
+    os.system("sudo sh -c \"TERM=linux setterm -foreground black -clear >/dev/tty0\"")
 
     startUdpServer()
     openFileSocket()
@@ -114,6 +115,7 @@ def main():
 
     # bring back console text on tty0 on hdmi
     os.system("sudo sh -c \"TERM=linux setterm -foreground white -clear >/dev/pts/0\"")
+    os.system("sudo sh -c \"TERM=linux setterm -foreground white -clear >/dev/tty0\"")
     udpserver.stop()
     rmutil.processtool.killProcesses('fbi')
     # startup image

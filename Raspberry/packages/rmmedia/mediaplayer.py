@@ -90,23 +90,36 @@ class MediaPlayer(threading.Thread):
 
     def processImagesOnce(self):
         global playerState
-        imgInterval = str(self.config['image_interval'])
-        blendInterval = str(self.config['image_blend_interval'] - 1)
+        #imgInterval = str(self.config['image_interval'])
+        imgInterval = self.config["image_interval"]
+	blendInterval = str(self.config['image_blend_interval'] - 1)
         #imgCmdList = ["sudo","fbi","-noverbose", "--once", "-readahead", "-t", imgInterval, '-a', "-blend", blendInterval, "-T","2"]
-        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", 0, "-t", 1, '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
+        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
         files = sorted(self.allImages())
         # set alias to first file
         firstImg = files.pop(0)
         subprocess.call(["ln", "-s", "-f", self.mediaPath + firstImg, cwd + '/img_al1.jpg'])
+	# start fbi command
+	subprocess.call(imgCmdList)
         for file in files:
             # wait image interval
             interval = 0
             while self.runevent.is_set() and interval < imgInterval:
                 time.sleep(1)
                 interval += 1
+		print "Waiting for next image... ", interval
             if self.runevent.is_set():
+		print "Linking to file: ", file
                 # image interval passed, player did not change into stopped state --> link next image
-                subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
+		subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
+		time.sleep(2)
+
+	# wait image interval
+        interval = 0
+        while self.runevent.is_set() and interval < imgInterval+3:
+            time.sleep(1)
+            interval += 1
+            print "Waiting interval of last image... ", interval
 
         '''
         numImg = 0

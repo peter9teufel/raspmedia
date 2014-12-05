@@ -478,7 +478,6 @@ def stop():
     global mp_thread
     global playerState
     global filenumber
-    filenumber = None
     playerState = PLAYER_STOPPED
     mp_thread.runevent.clear()
     # check for fbi and omxplayer processes and terminate them
@@ -490,6 +489,7 @@ def stop():
 def setState(state):
     global playerState
     global blackout
+    global filenumber
     # 0 = stop, 1 = play
     if state == 0:
         if playerState == PLAYER_STARTED:
@@ -515,7 +515,7 @@ def setMediaFileNumber(num):
     global playerState
     global filenumber
     restart = False
-    if playerState == PLAYER_STARTED:
+    if playerState == PLAYER_STARTED and not blackout:
         restart = True
         stop()
 	time.sleep(1)

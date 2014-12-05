@@ -137,7 +137,7 @@ def StartupRoutine():
 
     time.sleep(2)
 
-    os.system("sudo python rasp-mediaplayer.py")
+    os.system("sudo python rasp-mediaplayer.py > /dev/null")
 
 
 StartupRoutine()

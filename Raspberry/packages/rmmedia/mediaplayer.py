@@ -40,7 +40,7 @@ class MediaPlayer(threading.Thread):
         self.reloadConfig()
         blendInterval = str(self.config['image_blend_interval'])
         # call initial fbi command
-        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
+        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
         subprocess.call(imgCmdList)
         # show player startup image for 3 seconds (+ loading time)
         self.showRaspMediaImage()
@@ -110,8 +110,6 @@ class MediaPlayer(threading.Thread):
             if self.runevent.is_set():
                 # image interval passed, player did not change into stopped state --> link next image
                 subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
-                # give the player 2 seconds of loading time
-                time.sleep(2)
             # wait image interval
             interval = 0
             while self.runevent.is_set() and interval < imgInterval:
@@ -162,8 +160,6 @@ class MediaPlayer(threading.Thread):
                 if self.runevent.is_set():
                     # image interval passed, player did not change into stopped state --> link next image
                     subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
-                    # give the player 1 second loading time for the new image
-                    time.sleep(1)
                 # wait image interval
                 interval = 0
                 while self.runevent.is_set() and interval < imgInterval:

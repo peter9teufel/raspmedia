@@ -359,7 +359,10 @@ class MediaPlayer(threading.Thread):
                     newFile = files[filenumber]
                     if not newFile == curFile:
                         curFile = newFile
-                        subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
+			if curFile in self.allImages():
+                            subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
+			else:
+			    stop()
                     time.sleep(1)
             elif curFile in self.allVideos():
                 while playerState == PLAYER_STARTED:
@@ -588,10 +591,11 @@ def setMediaFileNumber(num):
         if playerState == PLAYER_STARTED and not blackout:
             restart = True
             stop()
-	print "Resetting file number..."
-	filenumber = None
+	if num == -1:
+	    filenumber = None
+	else:
+	    filenumber = num
     else:
-        print "Setting file number: ", num
         filenumber = num
     if restart:
         time.sleep(1)

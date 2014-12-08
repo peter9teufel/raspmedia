@@ -356,7 +356,7 @@ class MediaPlayer(threading.Thread):
                 subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
                 # wait in loop for a playerstate change as fbi command does not block
                 while playerState == PLAYER_STARTED:
-                    newFile = files[number]
+                    newFile = files[filenumber]
                     if not newFile == curFile:
                         curFile = newFile
                         subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
@@ -582,14 +582,14 @@ def setMediaFileNumber(num):
     global filenumber
     restart = False
     
-	time.sleep(1)
+    time.sleep(1)
     if num == -1:
         # stop player for resetting file number
         if playerState == PLAYER_STARTED and not blackout:
             restart = True
             stop()
-       print "Resetting file number..."
-	   filenumber = None
+	print "Resetting file number..."
+	filenumber = None
     else:
         print "Setting file number: ", num
         filenumber = num

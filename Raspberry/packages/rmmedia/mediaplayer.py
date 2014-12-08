@@ -40,7 +40,7 @@ class MediaPlayer(threading.Thread):
         self.reloadConfig()
         blendInterval = str(self.config['image_blend_interval'])
         # call initial fbi command
-        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '--autoup', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
+        imgCmdList = ["sudo","fbi","-noverbose", "-cachemem", "0", "-t", "1", '-a', "-blend", blendInterval, "-T","2", cwd + '/img_al1.jpg', cwd + '/img_al2.jpg', cwd + '/img_al3.jpg']
         subprocess.call(imgCmdList)
         # show player startup image for 3 seconds (+ loading time)
         self.showRaspMediaImage()

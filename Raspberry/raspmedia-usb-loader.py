@@ -98,7 +98,7 @@ def ResizeAndCopyImage(fileName, basePath, destPath):
         bottom = height
     elif width < height * ratio:
         # crop the image on the top and bottom
-        newheight = int(width * ratio)
+        newheight = int(width / ratio)
         top = height / 2 - newheight / 2
         bottom = top + newheight
         # keep the width of the impage

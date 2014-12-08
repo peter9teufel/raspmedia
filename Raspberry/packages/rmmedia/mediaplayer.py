@@ -583,7 +583,7 @@ def setMediaFileNumber(num):
     restart = False
     
     time.sleep(1)
-    if num == -1:
+    if num == -1 or filenumber == None:
         # stop player for resetting file number
         if playerState == PLAYER_STARTED and not blackout:
             restart = True

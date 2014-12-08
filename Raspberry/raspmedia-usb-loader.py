@@ -54,7 +54,8 @@ def CopyMediaFiles():
         if not file.startswith('.'):
             if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                 imgEnabled = 1
-                OptimizeAndCopyImage(file, USB_MEDIA_PATH, MEDIA_PATH)
+                ResizeAndCopyImage(file, USB_MEDIA_PATH, MEDIA_PATH)
+                # OptimizeAndCopyImage(file, USB_MEDIA_PATH, MEDIA_PATH)
             elif file.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
                 vidEnabled = 1
                 print "Copy video file: ", file
@@ -74,6 +75,45 @@ def CopyMediaFiles():
     configtool.setConfigValue("image_enabled", imgEnabled)
     configtool.setConfigValue("video_enabled", vidEnabled)
     print "Done!"
+
+
+def ResizeAndCopyImage(fileName, basePath, destPath):
+    targetWidth = 1920
+    targetHeight = 1080
+    ratio = 1. * targetWidth/targetHeight
+
+    filePath = basePath + '/' + fileName
+    destFilePath = destPath + '/' + fileName
+
+    im = Image.open(str(filePath)) # open the input file
+    (width, height) = im.size        # get the size of the input image
+
+    if width > height * ratio:
+        # crop the image on the left and right side
+        newwidth = int(height * ratio)
+        left = width / 2 - newwidth / 2
+        right = left + newwidth
+        # keep the height of the image
+        top = 0
+        bottom = height
+    elif width < height * ratio:
+        # crop the image on the top and bottom
+        newheight = int(width * ratio)
+        top = height / 2 - newheight / 2
+        bottom = top + newheight
+        # keep the width of the impage
+        left = 0
+        right = width
+    if width != height * ratio:
+        im = im.crop((left, top, right, bottom))
+
+    im = im.resize((targetWidth, targetHeight), Image.ANTIALIAS)
+    
+    print "Saving optimized image: %d x %d at path %s" % (width,height,destFilePath)
+    if(fileName.endswith('.png') or fileName.endswith('.PNG')):
+        img.save(destFilePath, 'PNG')
+    else:
+        img.save(destFilePath, 'JPEG', quality=100)
 
 
 def OptimizeAndCopyImage(fileName, basePath, destPath, maxW=1920, maxH=1080, minW=400, minH=400):

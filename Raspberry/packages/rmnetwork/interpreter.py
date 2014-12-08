@@ -19,6 +19,15 @@ def interpret(msg_data, sender_ip=None):
 			mediaplayer.setState(int(val))
 		elif cmd == "number":
 			mediaplayer.setMediaFileNumber(int(val))
+		elif cmd == "config":
+			# config must be sent as key/value pair
+			if len(values) == 4:
+				key = values[2]
+				value = values[3]
+				print "New Key/Value Pair:"
+				print "KEY: ", key
+				print "VALUE: ", value
+				configtool.setConfigValue(key, value)
 	else:
 		# initialize with error state
 		result = INTERPRETER_ERROR

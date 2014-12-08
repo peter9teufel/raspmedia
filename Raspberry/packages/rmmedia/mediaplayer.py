@@ -162,8 +162,8 @@ class MediaPlayer(threading.Thread):
                 if self.runevent.is_set():
                     # image interval passed, player did not change into stopped state --> link next image
                     subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
-                    # give the player 2 seconds loading time for the new image
-                    time.sleep(2)
+                    # give the player 1 second loading time for the new image
+                    time.sleep(1)
                 # wait image interval
                 interval = 0
                 while self.runevent.is_set() and interval < imgInterval:

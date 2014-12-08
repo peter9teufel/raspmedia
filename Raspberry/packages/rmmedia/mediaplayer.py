@@ -601,6 +601,27 @@ def setMediaFileNumber(num):
         time.sleep(1)
         play()
     
+def nextFile():
+    global filenumber
+    num = -1
+    if filenumber == None:
+        num = 0
+    else:
+        files = getMediaFileList()
+        num = (filenumber + 1) % len(files)
+    setMediaFileNumber(num)
+
+def prevFile():
+    global filenumber
+    num = -1
+    if filenumber == None:
+        num = 0
+    else:
+        files = getMediaFileList()
+        num = filenumber - 1
+        if num == -1:
+            num = len(files) - 1
+    setMediaFileNumber(num)
 
 def main():
     global cwd, mp_thread, playerState

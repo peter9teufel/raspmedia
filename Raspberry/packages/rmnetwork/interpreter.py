@@ -13,12 +13,17 @@ def interpret(msg_data, sender_ip=None):
 		msg = None
 		values = str(msg_data).split(":")
 		cmd = values[1]
-		val = values[2]
 		if cmd == "state":
+			val = values[2]
 			# switch state
 			mediaplayer.setState(int(val))
 		elif cmd == "number":
+			val = values[2]
 			mediaplayer.setMediaFileNumber(int(val))
+		elif cmd == "next":
+			mediaplayer.nextFile()
+		elif cmd == "prev":
+			mediaplayer.prevFile()
 		elif cmd == "config":
 			# config must be sent as key/value pair
 			if len(values) == 4:

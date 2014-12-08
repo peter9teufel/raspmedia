@@ -109,11 +109,11 @@ def ResizeAndCopyImage(fileName, basePath, destPath):
 
     im = im.resize((targetWidth, targetHeight), Image.ANTIALIAS)
     
-    print "Saving optimized image: %d x %d at path %s" % (width,height,destFilePath)
+    print "Saving optimized image: %d x %d at path %s" % (targetWidth,targetHeight,destFilePath)
     if(fileName.endswith('.png') or fileName.endswith('.PNG')):
-        img.save(destFilePath, 'PNG')
+        im.save(destFilePath, 'PNG')
     else:
-        img.save(destFilePath, 'JPEG', quality=100)
+        im.save(destFilePath, 'JPEG', quality=100)
 
 
 def OptimizeAndCopyImage(fileName, basePath, destPath, maxW=1920, maxH=1080, minW=400, minH=400):

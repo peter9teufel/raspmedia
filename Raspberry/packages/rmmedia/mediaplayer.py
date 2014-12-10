@@ -381,8 +381,8 @@ class MediaPlayer(threading.Thread):
         # link to blackout image
         subprocess.call(["ln", "-s", "-f", cwd + '/raspblack.jpg', cwd + '/img_al1.jpg'])
         # wait in loop for a playerstate change as fbi command does not block
-        while playerState == PLAYER_STARTED:
-            time.sleep(1)
+        #while playerState == PLAYER_STARTED:
+        #    time.sleep(1)
 
     def allImages(self):
         images = []

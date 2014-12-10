@@ -59,7 +59,7 @@ class MediaPlayer(threading.Thread):
                 self.showIdentifyImage()
                 self.identify_event.wait()
                 if playerState == PLAYER_STOPPED:
-                    self.showRaspMediaImage()
+                    self.blackout()
             else:
                 #reload config and process media files
                 self.reloadConfig()
@@ -71,7 +71,7 @@ class MediaPlayer(threading.Thread):
                 else:
                     self.processMediaFiles()
                 time.sleep(0.5)
-                self.showRaspMediaImage()
+                self.blackout()
 
     def showRaspMediaImage(self):
         global cwd
@@ -357,10 +357,10 @@ class MediaPlayer(threading.Thread):
                     newFile = files[filenumber]
                     if not newFile == curFile:
                         curFile = newFile
-			if curFile in self.allImages():
+                        if curFile in self.allImages():
                             subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
-			else:
-			    stop()
+                        else:
+                            stop()
                     time.sleep(1)
             elif curFile in self.allVideos():
                 while playerState == PLAYER_STARTED:

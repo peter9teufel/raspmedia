@@ -45,7 +45,7 @@ class MediaPlayer(threading.Thread):
         # show player startup image for 3 seconds (+ loading time)
         self.showRaspMediaImage()
         time.sleep(5)
-
+        self.blackout()
         # enter media player thread loop
         while True:
             # wait until the player flag is set to STARTED

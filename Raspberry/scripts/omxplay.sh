@@ -4,6 +4,6 @@ sudo rm /tmp/cmd
 # create new command input file
 sudo touch /tmp/cmd
 
-sudo omxplayer -o hdmi $1 < /tmp/cmd
+sudo omxplayer -o both $1 < /tmp/cmd
 # echo child terminated
 exit

@@ -33,6 +33,9 @@ def interpret(msg_data, sender_ip=None):
 				print "KEY: ", key
 				print "VALUE: ", value
 				configtool.setConfigValue(key, value)
+		elif cmd == "hdmi":
+			val = values[2]
+			os.system(os.getcwd()+"/scripts/rpi-hdmi.sh "+val)
 	else:
 		# initialize with error state
 		result = INTERPRETER_ERROR

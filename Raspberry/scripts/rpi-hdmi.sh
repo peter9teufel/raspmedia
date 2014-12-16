@@ -14,7 +14,7 @@ case $1 in
 	on)
 		if is_off
 		then
-			onstat=`./hdmi_on.sh`
+			onstat=`./scripts/hdmi_on.sh`
 			curr_vt=`fgconsole`
 			if [ "$curr_vt" = "1" ]
 			then

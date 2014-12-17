@@ -15,6 +15,7 @@ identifyFlag = False
 previousState = None
 filenumber = None
 blackout = False
+omx_process = None
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
@@ -294,7 +295,8 @@ class MediaPlayer(threading.Thread):
             if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
                 subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
             else:
-                subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
+                global omx_process
+                omx_process = subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file],stdin=subprocess.PIPE)
 
 
     def processAllFilesOnce(self):
@@ -582,7 +584,10 @@ def setState(state):
         # PAUSE
         if config['video_enabled'] and not config['image_enabled']:
             print "TOGGLING PAUSE FOR VIDEO ONLY PLAYBACK!"
-            subprocess.call(["echo", "p", ">", "/dev/tty0"])
+            global omx_process
+            if not omx_process == None:
+                omx_process.stdin.write("p")
+                omx_process.stdin.flush()
 
 
 def setMediaFileNumber(num):

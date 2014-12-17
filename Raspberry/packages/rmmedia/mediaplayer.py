@@ -158,9 +158,8 @@ class MediaPlayer(threading.Thread):
         files = self.allVideos()
         files.sort()
         for file in files:
-            while playerState == PLAYER_PAUSED:
-                #if player is paused while switching files wait to get back to play or stop state
-                pass
+            # wait in case player is paused while switching file
+            self.pauseevent.wait()
             if playerState == PLAYER_STARTED:
                 if isVideo(file):
                     self.playVideo(file)
@@ -502,6 +501,7 @@ def stop():
     global mp_thread
     global playerState
     global filenumber
+    global videoPlaying
     playerState = PLAYER_STOPPED
     mp_thread.runevent.clear()
     # check for fbi and omxplayer processes and terminate them
@@ -509,21 +509,20 @@ def stop():
     
     # stop omx player instance if running
     #subprocess.call([cwd + '/scripts/quitplay.sh'])
-    subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'stop'])
-    processtool.killProcesses('omxplayer')
+    if videoPlaying:
+        subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'stop'])
+        videoPlaying = False
 
 def pause():
     global videoPlaying
     global playerState
     global mp_thread
     print "Toggling paused state..."
-    if playerState == PLAYER_STARTED:
-        # switch to paused state
-        playerState = PLAYER_PAUSED
+    
+    # toggle thread pause event
+    if mp_thread.pauseevent.is_set():
         mp_thread.pauseevent.clear()
-    elif playerState == PLAYER_PAUSED:
-        # currently paused --> toggle back to play state
-        playerState == PLAYER_STARTED
+    else:
         mp_thread.pauseevent.set()
     # toggle video playback --> same command will pause/resume
     if videoPlaying:
@@ -533,10 +532,11 @@ def setState(state):
     global playerState
     global blackout
     global filenumber
+    global mp_thread
     config = configtool.readConfig()
     # 0 = stop, 1 = play
     if state == 0:
-        if playerState == PLAYER_STARTED or playerState == PLAYER_PAUSED:
+        if playerState == PLAYER_STARTED:
             stop()
 	blackout = False
     elif state == 1:

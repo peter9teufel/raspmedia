@@ -556,6 +556,7 @@ def setState(state):
     global playerState
     global blackout
     global filenumber
+    config = configtool.readConfig()
     # 0 = stop, 1 = play
     if state == 0:
         if playerState == PLAYER_STARTED:
@@ -579,7 +580,8 @@ def setState(state):
         play()
     elif state == 3:
         # PAUSE
-        if self.config['video_enabled'] and not self.config['image_enabled']:
+        if config['video_enabled'] and not config['image_enabled']:
+            print "TOGGLING PAUSE FOR VIDEO ONLY PLAYBACK!"
             subprocess.call(["echo", "p", ">", "/dev/tty0"])
 
 

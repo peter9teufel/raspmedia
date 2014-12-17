@@ -295,41 +295,38 @@ class MediaPlayer(threading.Thread):
                 self.processAllFilesOnce()
         stop()
 
-    def processSingleFile(self, number):
+    def processSingleFile(self):
         global playerState
         global filenumber
         global cwd
+        curFile = None
         files = sorted(getMediaFileList())
-        if number < len(files):
-            # number within range of number of files
-            curFile = files[number]
-            if curFile in self.allImages():
-                # selected file is image --> show with fbi
-                filePath = self.mediaPath + curFile
-                #imgCmdList = ["sudo","fbi","-noverbose", "-readahead", '-a', "-T","2", filePath]
-                # call fbi command
-                #subprocess.call(imgCmdList)
-                # link to new image to show
-                subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
-                # wait in loop for a playerstate change as fbi command does not block
-                while playerState == PLAYER_STARTED:
-                    newFile = files[filenumber]
-                    if not newFile == curFile:
-                        curFile = newFile
-                        if curFile in self.allImages():
-                            subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
-                        else:
-                            stop()
+        while playerState == PLAYER_STARTED:
+            if filenumber < len(files):
+                newFile = files[filenumber]
+                if curFile == None or not newFile == curFile:
+                    if curFile in self.allVideos:
+                        # currently processed file is video --> stop video
+                        if videoPlaying:
+                            global videoPlaying
+                            subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'stop'])
+                            videoPlaying = False
+                    curFile = newFile
+                if curFile in self.allImages():
+                    # selected file is image --> show with fbi
+                    filePath = self.mediaPath + curFile
+                    # link to new image to show
+                    subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
+                    # check again for a file change in a second
                     time.sleep(1)
-            elif curFile in self.allVideos():
-                while playerState == PLAYER_STARTED:
+                elif curFile in self.allVideos():
+                    # video command is blocking --> next check/switch when video is completely played
                     self.playVideo(curFile)
-        else:
-            # number beyond range of files --> show black screen
-            cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
-            subprocess.call(cmdList)
-            # wait in loop for a playerstate change as fbi command does not block
-            while playerState == PLAYER_STARTED:
+            else:
+                # number beyond range of files --> show black screen
+                cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
+                subprocess.call(cmdList)
+                # check again in a second
                 time.sleep(1)
 
     def blackout(self):
@@ -388,7 +385,7 @@ class MediaPlayer(threading.Thread):
                     stop()
         else:
             # filenumber for processing a single file is set, only handle this single file if available
-            self.processSingleFile(filenumber)
+            self.processSingleFile()
 
         # set player state to stopped as processing is done at this point
         playerState = PLAYER_STOPPED
@@ -483,6 +480,9 @@ def play():
     if not mp_thread.isAlive():
         mp_thread.start()
     mp_thread.runevent.set()
+    # check pause event and set if cleared
+    if not mp_thread.pauseevent.is_set():
+        mp_thread.pauseevent.set()
     #global mp_thread
     #mp_thread.playerState = PLAYER_STARTED
     print "Mediaplayer running in thread: ", mp_thread.name

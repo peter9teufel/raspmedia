@@ -23,6 +23,7 @@ class MediaPlayer(threading.Thread):
         self.mediaPath = os.getcwd() + '/media/'
         self.runevent = threading.Event()
         self.pauseevent = threading.Event()
+        self.pauseevent.set()
         self.identify_event = threading.Event()
         playerState = PLAYER_STOPPED
         self.initImageAliases()

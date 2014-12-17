@@ -577,6 +577,11 @@ def setState(state):
 	    time.sleep(1)
         blackout = True
         play()
+    elif state == 3:
+        # PAUSE
+        if self.config['video_enabled'] and not self.config['image_enabled']:
+            subprocess.call(["echo", "p", ">", "/dev/tty0"])
+
 
 def setMediaFileNumber(num):
     global playerState

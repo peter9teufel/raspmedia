@@ -22,6 +22,7 @@ class MediaPlayer(threading.Thread):
         global playerState
         self.mediaPath = os.getcwd() + '/media/'
         self.runevent = threading.Event()
+        self.pauseevent = threading.Event()
         self.identify_event = threading.Event()
         playerState = PLAYER_STOPPED
         self.initImageAliases()
@@ -115,12 +116,9 @@ class MediaPlayer(threading.Thread):
             # wait image interval
             interval = 0
             while self.runevent.is_set() and interval < imgInterval:
-                while playerState == PLAYER_PAUSED:
-                    # wait until state switches back to play or stop
-		    # print "Player state: %d Timeout: %d of %d" % (playerState, interval, imgInterval)
-                    time.sleep(1)
                 time.sleep(1)
                 interval += 1
+                self.pauseevent.wait()
 
 
     def fbiImageLoop(self):
@@ -141,11 +139,9 @@ class MediaPlayer(threading.Thread):
                 # wait image interval
                 interval = 0
                 while self.runevent.is_set() and interval < imgInterval:
-                    while playerState == PLAYER_PAUSED:
-                        # wait until state switches back to play or stop
-                        time.sleep(1)
                     time.sleep(1)
                     interval += 1
+                    self.pauseevent.wait()
 
 
     def processImagesOnly(self):
@@ -519,13 +515,16 @@ def stop():
 def pause():
     global videoPlaying
     global playerState
+    global mp_thread
     print "Toggling paused state..."
     if playerState == PLAYER_STARTED:
         # switch to paused state
         playerState = PLAYER_PAUSED
+        mp_thread.pauseevent.clear()
     elif playerState == PLAYER_PAUSED:
         # currently paused --> toggle back to play state
         playerState == PLAYER_STARTED
+        mp_thread.pauseevent.set()
     # toggle video playback --> same command will pause/resume
     if videoPlaying:
         subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'pause'])

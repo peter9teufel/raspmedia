@@ -582,7 +582,7 @@ def setState(state):
         # PAUSE
         if config['video_enabled'] and not config['image_enabled']:
             print "TOGGLING PAUSE FOR VIDEO ONLY PLAYBACK!"
-            subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.h', 'pause'])
+            subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'pause'])
 
 
 def setMediaFileNumber(num):

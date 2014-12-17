@@ -515,6 +515,14 @@ def stop():
 
 def pause():
     global videoPlaying
+    global playerState
+    if playerState == PLAYER_STARTED:
+        # switch to paused state
+        playerState = PLAYER_PAUSED
+    elif playerState == PLAYER_PAUSED:
+        # currently paused --> toggle back to play state
+        playerState == PLAYER_STARTED
+    # toggle video playback --> same command will pause/resume
     if videoPlaying:
         subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'pause'])
 
@@ -525,7 +533,7 @@ def setState(state):
     config = configtool.readConfig()
     # 0 = stop, 1 = play
     if state == 0:
-        if playerState == PLAYER_STARTED:
+        if playerState == PLAYER_STARTED or playerState == PLAYER_PAUSED:
             stop()
 	blackout = False
     elif state == 1:
@@ -545,13 +553,7 @@ def setState(state):
         blackout = True
         play()
     elif state == 3:
-        if playerState == PLAYER_STARTED:
-            # pause playback
-            playerState = PLAYER_PAUSED
-            pause()
-        elif playerState == PLAYER_PAUSED:
-            # currently paused --> switch back to play state
-            playerState = PLAYER_STARTED
+        pause()
 
 
 def setMediaFileNumber(num):

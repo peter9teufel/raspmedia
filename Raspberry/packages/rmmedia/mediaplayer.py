@@ -117,7 +117,8 @@ class MediaPlayer(threading.Thread):
             while self.runevent.is_set() and interval < imgInterval:
                 while playerState == PLAYER_PAUSED:
                     # wait until state switches back to play or stop
-                    pass
+		    # print "Player state: %d Timeout: %d of %d" % (playerState, interval, imgInterval)
+                    time.sleep(1)
                 time.sleep(1)
                 interval += 1
 
@@ -142,7 +143,7 @@ class MediaPlayer(threading.Thread):
                 while self.runevent.is_set() and interval < imgInterval:
                     while playerState == PLAYER_PAUSED:
                         # wait until state switches back to play or stop
-                        pass
+                        time.sleep(1)
                     time.sleep(1)
                     interval += 1
 
@@ -243,6 +244,8 @@ class MediaPlayer(threading.Thread):
         # process video file -> omxplay will block until its done
         #print "Status PLAYER_STARTED: ", playerState == PLAYER_STARTED
         if playerState == PLAYER_STARTED:
+	    # blackout screen to avoid previous image to show through after video or when stopping
+	    self.blackout()
             # file = re.escape(file)
             #print "Starting video file " + file
             # check if raspberry pi or ubuntu testing machine
@@ -516,6 +519,7 @@ def stop():
 def pause():
     global videoPlaying
     global playerState
+    print "Toggling paused state..."
     if playerState == PLAYER_STARTED:
         # switch to paused state
         playerState = PLAYER_PAUSED

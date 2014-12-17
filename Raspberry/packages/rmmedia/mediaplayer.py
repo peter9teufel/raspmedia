@@ -15,6 +15,7 @@ identifyFlag = False
 previousState = None
 filenumber = None
 blackout = False
+videoPlaying = False
 
 class MediaPlayer(threading.Thread):
     def __init__(self):
@@ -114,38 +115,12 @@ class MediaPlayer(threading.Thread):
             # wait image interval
             interval = 0
             while self.runevent.is_set() and interval < imgInterval:
+                while playerState == PLAYER_PAUSED:
+                    # wait until state switches back to play or stop
+                    pass
                 time.sleep(1)
                 interval += 1
 
-        '''
-        numImg = 0
-        files = self.allImages()
-        files.sort()
-        for file in files:
-            # check file extension
-            if isImage(file):
-                # process image file
-                imgCmdList.append(self.mediaPath + file)
-                numImg += 1
-        print "Image command to call:"
-        print imgCmdList
-        subprocess.call(imgCmdList)
-
-        i = 0
-        wakes = 0
-        duration = numImg * (self.config['image_interval'] + 1)
-        while i < duration and  playerState == PLAYER_STARTED:
-            time.sleep(1)
-            i += 1
-            wakes += 1
-            if wakes > 10:
-                #print "Waking up and checking config...."
-                # print "Seconds running: ",i
-                # print "Calculated duration: ",duration
-                # check config every 10 seconds
-                self.reloadConfig()
-                wakes = 0
-        '''
 
     def fbiImageLoop(self):
         global playerState
@@ -165,32 +140,11 @@ class MediaPlayer(threading.Thread):
                 # wait image interval
                 interval = 0
                 while self.runevent.is_set() and interval < imgInterval:
+                    while playerState == PLAYER_PAUSED:
+                        # wait until state switches back to play or stop
+                        pass
                     time.sleep(1)
                     interval += 1
-
-        '''
-        numImg = 0
-        files = self.allImages()
-        files.sort()
-        for file in files:
-            # check file extension
-            if isImage(file):
-                # process image file
-                imgCmdList.append(self.mediaPath + file)
-                numImg += 1
-        #print "Image command to call:"
-        #print imgCmdList
-        subprocess.call(imgCmdList)
-        wakes = 0
-        # wait in loop as fbi command does not block and check for config changes
-        while self.config['repeat'] and playerState == PLAYER_STARTED:
-            time.sleep(1)
-            wakes += 1
-            if wakes > 10:
-                # check for config changes every 10 seconds
-                self.reloadConfig()
-                wakes = 0
-        '''
 
 
     def processImagesOnly(self):
@@ -207,6 +161,9 @@ class MediaPlayer(threading.Thread):
         files = self.allVideos()
         files.sort()
         for file in files:
+            while playerState == PLAYER_PAUSED:
+                #if player is paused while switching files wait to get back to play or stop state
+                pass
             if playerState == PLAYER_STARTED:
                 if isVideo(file):
                     self.playVideo(file)
@@ -282,6 +239,7 @@ class MediaPlayer(threading.Thread):
 
     def playVideo(self,file):
         global playerState
+        global videoPlaying
         # process video file -> omxplay will block until its done
         #print "Status PLAYER_STARTED: ", playerState == PLAYER_STARTED
         if playerState == PLAYER_STARTED:
@@ -291,10 +249,12 @@ class MediaPlayer(threading.Thread):
             fullPath = self.mediaPath + file
             #print "Full Path:"
             #print fullPath
+            videoPlaying = True
             if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
                 subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
             else:
                 subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
+            videoPlaying = False
 
 
     def processAllFilesOnce(self):
@@ -549,8 +509,14 @@ def stop():
     # processtool.killProcesses('fbi')
     
     # stop omx player instance if running
-    subprocess.call([cwd + '/scripts/quitplay.sh'])
+    #subprocess.call([cwd + '/scripts/quitplay.sh'])
+    subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'stop'])
     processtool.killProcesses('omxplayer')
+
+def pause():
+    global videoPlaying
+    if videoPlaying:
+        subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'pause'])
 
 def setState(state):
     global playerState
@@ -579,10 +545,13 @@ def setState(state):
         blackout = True
         play()
     elif state == 3:
-        # PAUSE
-        if config['video_enabled'] and not config['image_enabled']:
-            print "TOGGLING PAUSE FOR VIDEO ONLY PLAYBACK!"
-            subprocess.call(['/home/pi/raspmedia/Raspberry/scripts/dbuscontrol.sh', 'pause'])
+        if playerState == PLAYER_STARTED:
+            # pause playback
+            playerState = PLAYER_PAUSED
+            pause()
+        elif playerState == PLAYER_PAUSED:
+            # currently paused --> switch back to play state
+            playerState = PLAYER_STARTED
 
 
 def setMediaFileNumber(num):

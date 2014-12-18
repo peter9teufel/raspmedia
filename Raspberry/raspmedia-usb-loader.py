@@ -84,21 +84,41 @@ def ResizeFitAndCopyImage(fileName, basePath, destPath):
     filePath = basePath + '/' + fileName
     destFilePath = destPath + '/' + fileName
 
-    #creates a new empty image, RGB mode, and size 400 by 400.
-    new_im = Image.new('RGB', (targetWidth,targetHeight))
+    #print "Opening image " + filePath
+    img = Image.open(str(filePath))
+    try:
+        img.load()
+    except IOError:
+        print "IOError in loading PIL image while optimizing, filling up with grey pixels..."
+    # check exif data if image was originally rotated
+    #img = _checkOrientation(img)
+    w,h = img.size
+    if w == targetWidth and h == targetHeight:
+        # no processing needed, just copy image
+        print "Image already in 1920x1080, no optimization needed. Copying image to %s" % destFilePath
+        shutil.copyfile(filePath, destFilePath)
+    else:
+        print "Image size does not match 1920x1080, optimizing image for player use..."
+        if w/h > ratio:
+            width = targetWidth
+            height = targetWidth * h / w
+        else:
+            height = targetHeight
+            width = targetHeight * w / h
+        if width < w and height < h:
+            img.thumbnail((width,height))
+        else:
+            img = img.resize((width, height))
+        (imW, imH) = img.size
 
-    im = Image.open(str(filePath))
-    im.thumbnail((targetWidth, targetHeight))
+        offsetX = (targetWidth - imW) / 2
+        offsetY = (targetHeight - imH) / 2
 
-    (imW, imH) = im.size
-
-    offsetX = (targetWidth - imW) / 2
-    offsetY = (targetHeight - imH) / 2
-
-    new_im.paste(im, (offsetX, offsetY))
-
-    # save new image in destination path
-    new_im.save(destFilePath, 'JPEG', quality=100)
+        new_im = Image.new('RGB', (targetWidth,targetHeight))
+        new_im.paste(img, (offsetX, offsetY))
+        print "Saving optimized image to %s" % destFilePath
+        # save new image in destination path
+        new_im.save(destFilePath, 'JPEG', quality=100)
 
 def ResizeAndCopyImage(fileName, basePath, destPath):
     targetWidth = 1920

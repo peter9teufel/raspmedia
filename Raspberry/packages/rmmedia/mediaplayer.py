@@ -300,7 +300,7 @@ class MediaPlayer(threading.Thread):
             if filenumber < len(files):
                 newFile = files[filenumber]
                 if curFile == None or not newFile == curFile:
-                    if not curFile == None and curFile in self.allVideos:
+                    if not curFile == None and curFile in self.allVideos():
                         # currently processed file is video --> stop video
                         if videoPlaying:
                             global videoPlaying

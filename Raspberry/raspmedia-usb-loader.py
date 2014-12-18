@@ -84,7 +84,7 @@ def ResizeFitAndCopyImage(fileName, basePath, destPath):
     filePath = basePath + '/' + fileName
     destFilePath = destPath + '/' + fileName
 
-    #print "Opening image " + filePath
+    print "*********************************************************************************"
     img = Image.open(str(filePath))
     try:
         img.load()

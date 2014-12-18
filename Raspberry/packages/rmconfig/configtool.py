@@ -23,20 +23,20 @@ def initConfig():
         config = readConfig()
     else:
         # no config file available --> init
-    	config = {}
+        config = {}
         config["player_name"] = "RaspMedia Player"
-    	config["userMediaPath"] = ""
-    	config["image_interval"] = 4
-    	config["image_blend_interval"] = 550
-    	config["video_enabled"] = 0
-    	config["image_enabled"] = 1
-    	config["autoplay"] = 1
-    	config["group_filetypes"] = 1
-    	config["shuffle"] = 0
-    	config["repeat"] = 1
-    	config["userPlaylist"] = ""
+        config["userMediaPath"] = ""
+        config["image_interval"] = 4
+        config["image_blend_interval"] = 550
+        config["video_enabled"] = 0
+        config["image_enabled"] = 1
+        config["autoplay"] = 1
+        config["group_filetypes"] = 1
+        config["shuffle"] = 0
+        config["repeat"] = 1
+        config["userPlaylist"] = ""
         writeConfigFile()
-	return config
+    return config
 
 def initGroupConfig():
     global groupConfig
@@ -50,11 +50,11 @@ def resetGroupConfig():
     writeGroupConfigFile()
 
 def setConfigValue(key, value):
-	global config
-	if is_number(value):
-		value = int(value)
-	config[key] = value
-	writeConfigFile()
+    global config
+    if is_number(value):
+        value = int(value)
+    config[key] = value
+    writeConfigFile()
 
 def setGroupConfigValue(key, value):
     global groupConfig
@@ -108,10 +108,10 @@ def __sortDict(dict):
     return sDict
 
 def writeConfigFile():
-	global config
-	f = open(mainConfigFile, 'w')
-	json.dump(config, f)
-	f.close()
+    global config
+    f = open(mainConfigFile, 'w')
+    json.dump(config, f)
+    f.close()
 
 def writeGroupConfigFile():
     global groupConfig
@@ -120,15 +120,15 @@ def writeGroupConfigFile():
     f.close()
 
 def readConfig():
-	global config
-	#check if config file exists
-	if os.path.isfile(mainConfigFile):
-		with open(mainConfigFile) as conf:
-			config = json.load(conf)
-			conf.close()
-	else:
-		print "No config file found!"
-	return config
+    global config
+    #check if config file exists
+    if os.path.isfile(mainConfigFile):
+        with open(mainConfigFile) as conf:
+            config = json.load(conf)
+            conf.close()
+    else:
+        print "No config file found!"
+    return config
 
 def readGroupConfig():
     global groupConfig
@@ -142,7 +142,7 @@ def readGroupConfig():
 
 
 def configFileAvailable():
-	if os.path.isfile(mainConfigFile):
-		return True
-	else:
-		return False
+    if os.path.isfile(mainConfigFile):
+        return True
+    else:
+        return False

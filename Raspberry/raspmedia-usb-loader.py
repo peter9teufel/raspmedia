@@ -54,7 +54,7 @@ def CopyMediaFiles():
         if not file.startswith('.'):
             if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                 imgEnabled = 1
-                ResizeAndCopyImage(file, USB_MEDIA_PATH, MEDIA_PATH)
+                ResizeFitAndCopyImage(file, USB_MEDIA_PATH, MEDIA_PATH)
                 # OptimizeAndCopyImage(file, USB_MEDIA_PATH, MEDIA_PATH)
             elif file.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
                 vidEnabled = 1
@@ -76,6 +76,29 @@ def CopyMediaFiles():
     configtool.setConfigValue("video_enabled", vidEnabled)
     print "Done!"
 
+def ResizeFitAndCopyImage(fileName, basePath, destPath):
+    targetWidth = 1920
+    targetHeight = 1080
+    ratio = 1. * targetWidth/targetHeight
+
+    filePath = basePath + '/' + fileName
+    destFilePath = destPath + '/' + fileName
+
+    #creates a new empty image, RGB mode, and size 400 by 400.
+    new_im = Image.new('RGB', (targetWidth,targetHeight))
+
+    im = Image.open(str(filePath))
+    im.thumbnail((targetWidth, targetHeight))
+
+    (imW, imH) = im.size
+
+    offsetX = (targetWidth - imW) / 2
+    offsetY = (targetHeight - imH) / 2
+
+    new_im.paste(im, (offsetX, offsetY))
+
+    # save new image in destination path
+    new_im.save(destFilePath, 'JPEG', quality=100)
 
 def ResizeAndCopyImage(fileName, basePath, destPath):
     targetWidth = 1920

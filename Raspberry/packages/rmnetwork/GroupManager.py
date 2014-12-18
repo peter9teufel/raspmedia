@@ -17,7 +17,7 @@ class GroupManager():
         self.masterHost = ""
 
         if self.groupMaster:
-	    print "INITIALIZING GroupActionHandler WITH ACTIONS: ", self.actions
+            print "INITIALIZING GroupActionHandler WITH ACTIONS: ", self.actions
             # init action handler thread
             self.actionHandler = GroupActionHandler(self.actions)
             self.actionHandler.daemon = True
@@ -55,7 +55,7 @@ class GroupManager():
             self.actionHandler.AddHost(memberIP, byRequest)
 
     def ScheduleActions(self):
-	print "Scheduling as Master: ", self.groupMaster
+        print "Scheduling as Master: ", self.groupMaster
         if self.groupMaster:
             # start thread if not already alive
             if not self.actionHandler.isAlive():
@@ -73,14 +73,13 @@ class GroupManager():
 
 class GroupActionHandler(threading.Thread):
     def __init__(self, actions):
-	self.actions = []
-	for action in actions:
+        self.actions = []
+        for action in actions:
             try:
                 ad = ast.literal_eval(action)
                 action = ad
-            except:
-    	    	pass    
-	    self.actions.append(action)
+            except:    
+                self.actions.append(action)
         self.runevent = threading.Event()
         self.updateevent = threading.Event()
         self.actionThreads = []
@@ -113,8 +112,8 @@ class GroupActionHandler(threading.Thread):
     def run(self):
         # wait to get started
         self.runevent.wait()
-	print "RUN EVENT SET - processing Actions in handler now..."
-	print "ACTIONS: ", self.actions
+        print "RUN EVENT SET - processing Actions in handler now..."
+        print "ACTIONS: ", self.actions
         startupActions = []
         update = False
         while self.runevent.is_set():
@@ -122,6 +121,7 @@ class GroupActionHandler(threading.Thread):
                 # TODO: update run of loop
                 # --> check for new actions and schedule them
                 # --> check for removed actions and stop them
+                # --> evaluate if needed as most deletion/add actions re-init handler
                 pass
 
             for action in self.actions:
@@ -131,7 +131,7 @@ class GroupActionHandler(threading.Thread):
                     action = actionDict
                 except:
                     pass
-		print "Processing Action: ", action
+                print "Processing Action: ", action
                 if "type" in action:
                     # only process actions with defined type
                     type = int(action["type"])
@@ -189,7 +189,7 @@ class GroupActionHandler(threading.Thread):
         print "CURRENT TIME: ", datetime.datetime.today().time()
         while not stopevent.is_set():
             if startTime > datetime.datetime.today().time():
-                while startTime > datetime.datetime.today().time() and not stopevent.is_set(): # you can add here any additional variable to break loop if necessary
+                while startTime > datetime.datetime.today().time() and not stopevent.is_set():
                     # wait 1 second then check time again
                     stopevent.wait(1)
                 # wait loop passed --> trigger time for action

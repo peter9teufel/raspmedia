@@ -85,7 +85,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         # cSocket.sendto(data.upper(), self.client_address)
 
     def SendImagesOverTCP(self, host):
-	time.sleep(0.5)
+        time.sleep(0.5)
         tcpfileclient.sendAllImageFiles(host)
 
 def start():

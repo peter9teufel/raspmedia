@@ -15,7 +15,7 @@ def shellquote(s):
     return "'" +  s.replace("'", "'\\''") + "'"
 
 def startMediaPlayer():
-	# set config and path for player and start it
+    # set config and path for player and start it
     # rmmedia.mediaplayer.main()
     global config
     config = rmconfig.configtool.readConfig()
@@ -25,7 +25,7 @@ def startMediaPlayer():
         rmmedia.mediaplayer.play()
 
 def startUdpServer():
-	udpserver.start()
+    udpserver.start()
 
 
 def openFileSocket():
@@ -109,9 +109,9 @@ def main():
         elif(cmd == "stop"):
             udpserver.stop()
         elif(cmd == "quit"):
-        	running = False
+            running = False
         else:
-        	print "Unknown command: ", cmd
+            print "Unknown command: ", cmd
 
     # bring back console text on tty0 on hdmi
     os.system("sudo sh -c \"TERM=linux setterm -foreground white -clear >/dev/pts/0\"")

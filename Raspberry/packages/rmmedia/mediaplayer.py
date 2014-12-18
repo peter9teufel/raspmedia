@@ -68,8 +68,8 @@ class MediaPlayer(threading.Thread):
                 self.reloadConfig()
                 playerState = PLAYER_STARTED
                 print "BLACKOUT: ",blackout
-		if blackout:
-		    print "Blackout screen..."
+                if blackout:
+                    print "Blackout screen..."
                     self.blackout()
                 else:
                     self.processMediaFiles()
@@ -240,14 +240,9 @@ class MediaPlayer(threading.Thread):
         # process video file -> omxplay will block until its done
         #print "Status PLAYER_STARTED: ", playerState == PLAYER_STARTED
         if playerState == PLAYER_STARTED:
-	    # blackout screen to avoid previous image to show through after video or when stopping
-	    self.blackout()
-            # file = re.escape(file)
-            #print "Starting video file " + file
-            # check if raspberry pi or ubuntu testing machine
+            # blackout screen to avoid previous image to show through after video or when stopping
+            self.blackout()
             fullPath = self.mediaPath + file
-            #print "Full Path:"
-            #print fullPath
             videoPlaying = True
             if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
                 subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
@@ -305,7 +300,7 @@ class MediaPlayer(threading.Thread):
             if filenumber < len(files):
                 newFile = files[filenumber]
                 if curFile == None or not newFile == curFile:
-                    if curFile in self.allVideos:
+                    if not curFile == None curFile in self.allVideos:
                         # currently processed file is video --> stop video
                         if videoPlaying:
                             global videoPlaying
@@ -331,14 +326,8 @@ class MediaPlayer(threading.Thread):
 
     def blackout(self):
         # shows black screen, player stays in state STARTED!
-        #cmdList = ['sudo','fbi','-noverbose','-T','2', '-a', cwd + '/raspblack.jpg']
-        #subprocess.call(cmdList)
-        
         # link to blackout image
         subprocess.call(["ln", "-s", "-f", cwd + '/raspblack.jpg', cwd + '/img_al1.jpg'])
-        # wait in loop for a playerstate change as fbi command does not block
-        #while playerState == PLAYER_STARTED:
-        #    time.sleep(1)
 
     def allImages(self):
         images = []
@@ -483,8 +472,6 @@ def play():
     # check pause event and set if cleared
     if not mp_thread.pauseevent.is_set():
         mp_thread.pauseevent.set()
-    #global mp_thread
-    #mp_thread.playerState = PLAYER_STARTED
     print "Mediaplayer running in thread: ", mp_thread.name
 
 def startFileNumber(number):
@@ -539,26 +526,25 @@ def setState(state):
     if state == 0:
         if playerState == PLAYER_STARTED:
             stop()
-	blackout = False
+        blackout = False
     elif state == 1:
         if playerState == PLAYER_STOPPED:
             play()
-	elif playerState == PLAYER_STARTED and blackout:
-	    stop()
-	    time.sleep(1)
-	    blackout = False	    
-	    play()
-	blackout = False
+        elif playerState == PLAYER_STARTED and blackout:
+            stop()
+            time.sleep(1)
+            blackout = False	    
+            play()
+        blackout = False
     elif state == 2:
         if playerState == PLAYER_STARTED:
             stop()
-	    blackout = True
-	    time.sleep(1)
+        blackout = True
+        time.sleep(1)
         blackout = True
         play()
     elif state == 3:
         pause()
-
 
 def setMediaFileNumber(num):
     global playerState
@@ -567,14 +553,14 @@ def setMediaFileNumber(num):
     
     time.sleep(1)
     if num == -1 or filenumber == None:
-        # stop player for resetting file number
+        # stop player for resetting or initially setting file number
         if playerState == PLAYER_STARTED and not blackout:
             restart = True
             stop()
-	if num == -1:
-	    filenumber = None
-	else:
-	    filenumber = num
+        if num == -1:
+            filenumber = None
+        else:
+            filenumber = num
     else:
         filenumber = num
     if restart:

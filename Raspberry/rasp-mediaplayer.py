@@ -68,7 +68,7 @@ def main():
     print "Launching player..."
 
     # hide console text of local tty0 on hdmi
-    os.system("sudo sh -c \"TERM=linux setterm -foreground black -clear >/dev/pts/0\"")
+#    os.system("sudo sh -c \"TERM=linux setterm -foreground black -clear >/dev/pts/0\"")
     os.system("sudo sh -c \"TERM=linux setterm -foreground black -clear >/dev/tty0\"")
 
     startUdpServer()

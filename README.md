@@ -10,6 +10,8 @@ Furthermore it is possible to load a new set of mediafiles to a RaspMedia Player
 
 The RaspMedia Player is intended as a complete standalone digital signage player. All configuration and media copying can be done over the network without the need to directly access the player, which makes it suitable for screens with less accessibility (e.g. outdoor cabinets etc.).
 
+The RaspMedia Player allows remote control using simple UDP Commands. This allows to include the player in your automated environment. More details below in the section *Remote Control*.
+
 The RaspMedia Control Desktop Application needs no further configuration, it automatically detects all players in the local network within seconds.
 The RaspMedia Player can be configured over Ethernet or WiFi using a suitable WiFi USB Dongle (e.g. Asus N10). To setup WiFi the player has to be connected over Ethernet first to send suitable WiFi configurations using the desktop applications.
 
@@ -118,6 +120,34 @@ All media files (currently only images) on the root directory of the USB Stick w
 The application allows you to send the images to all players or to a specific player. Additionally you have the possibility to start the players synchronously.
 
 In addition to the copy feature the RaspMedia Copy Tool provides the same *Player Settings* functionality as RaspMedia Control does via the *File* menu.
+
+##Remote Control##
+The RaspMedia Player can be easyle remoted from any device (Smartphone, Desktop, etc.) using simple string commands sent over UDP. To successfully remote your player over UDP you will need to use the following setup:
+  * The IP Address of your player, e.g. 192.168.0.15 (you can find out the IP using RaspMedia Control or any network tool that lists connected devices)
+  * UDP Port 60001
+
+That's all, sending the specific commands as simple strings to the IP of your player on UDP Port 60001 is all you need to do to remote control the RaspMedia Player.
+
+###Remote Control - UDP Commands###
+The following commands can be used to control playback on your RaspMedia Player:
+  * *rm:state:0* --> STOP Playback (Screen blacks out)
+  * *rm:state:1* --> START Playback
+  * *rm:state:2* --> BLACKOUT Screen - this command has no effect by now!
+  * *rm:state:3* --> PAUSE Playback
+  * *rm:number:X* --> Only process file X in the list of media files (alphabetically sorted), will switch to file number X if player is already running, if player is currently stopped the command sets the filenumber and will only process that file as soon as you send a PLAY command
+  * *rm:next* --> Switch to next file (only working if processing single media file set with the rm:number command)
+  * *rm:prev* --> Swtich to previous file (only working if processing single media file set with the rm:number command)
+  * *rm:number:-1* --> Clear a previously set media file number and process all media files.
+  * *rm:hdmi:on* --> Turn on HDMI Port of RaspMedia Player
+  * *rm:hdmi:off* --> Turn off HDMI Port of RaspMedia Player
+
+In addition to the playback commands explained above, you can set some configuration values of the RaspMedia Player using the *rm:config* command with available configuration fields:
+  * *rm:config:image_enabled:X* --> X=0: Disable processing of images. X=1: Enable image processing.
+  * *rm:config:video_enabled:X* --> X=0: Disable processing of videos. X=1: Enable video processing.
+  * *rm:config:image_interval:X* --> X = the interval in which images are changing in seconds.
+  * *rm:config:player_name:name* --> name = new name for your player, avoid special characters.
+  * *rm:config:autoplay:X* --> X=0/1 disable/enable autoplay, with autoplay the RaspMedia Player will start playback automatically after boot.
+  * *rm:config:repeat:X* --> X=0/1 disable/enable repeating media file processing in endless loop.
 
 ###Language support###
 The desktop applications *RaspMedia Control* and *RaspMedia Copy Tool* are currently available in english and german using the string files in the *lang* package (strings_de.py, strings_en.py). The language is selected according to the default locale of the system the application is started. If the language code of the default locale is unknown, english is selected as the default language.

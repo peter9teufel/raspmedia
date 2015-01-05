@@ -22,7 +22,7 @@ def sendMessage(data,host='<broadcast>',response_timeout=None):
 	if host == '<broadcast>':
 		ips = netutil.ip4_addresses()
 		for ip in ips:
-			# print "Broadcasting over IP ",ip
+			print "Broadcasting over IP ",ip
 			_sendMessage(data,host,ip,response_timeout)
 	else:
 		_sendMessage(data,host,None,response_timeout)

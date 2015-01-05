@@ -41,7 +41,7 @@ def _ip_addresses(v6):
                 if v6:
                     append = check_ip6_address(curIP)
                 else:
-                    if not curIP.startswith('127.'):
+                    if not curIP.startswith('127.') and not curIP.startswith('169.254'):
                         append = True
                     # append = not curIP.startswith('127.') and not curIP.startswith('169.254.')
                 if append:

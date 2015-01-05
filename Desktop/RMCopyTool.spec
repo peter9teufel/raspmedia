@@ -1,6 +1,6 @@
 # -*- mode: python -*-
 a = Analysis(['RaspMediaCopyTool.py'],
-             pathex=['/Volumes/Macintosh HD/Users/9teufel/Documents/workspace/GitRepos/raspmedia/Desktop'],
+             pathex=[],
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None)

@@ -176,6 +176,24 @@ class ImageTransferNotebook(wx.Notebook):
 
         # Publisher.unsubscribe(self.UdpListenerStopped, 'listener_stop')
 
+    def LoadControlWindowForCurrentHostList(self):
+        ind = 0
+        # sort hosts by hostname
+        self.SortHostList()
+        for host in self.hosts:
+            curPage = imagePanel.RaspMediaImageTransferPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
+            self.pages.append(curPage)
+            self.AddPage(curPage, host['name'])
+            ind += 1
+
+        allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
+        self.pages.append(allPlayers)
+        self.AddPage(allPlayers, "All Players")
+
+        self.prgDialog.Update(100)
+        self.LoadPageData(0)
+        self.parent.Center()
+
     def OnPageChanged(self, event):
         global HOST_SYS
         # print "ON PAGE CHANGED TRIGGER"

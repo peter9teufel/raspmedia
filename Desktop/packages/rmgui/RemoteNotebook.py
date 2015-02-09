@@ -143,33 +143,44 @@ class RemoteNotebook(wx.Notebook):
                         dlgWin = wx.MessageDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), style=wx.OK)
                         result = dlgWin.ShowModal()
                         self.parent.Close()
-                dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
+                dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), ["Enter IP Address", tr("rescan"), tr("exit")])
                 result = dlg.ShowModal()
                 selection = dlg.GetSelection()
                 if result == wx.ID_OK:
-                    if selection == 0: # RESCAN
+                    if selection == 0: # ENTER IP
+                        ipDlg = wx.TextEntryDialog(self, "Enter the IP of your RaspMedia Player or Exit application with cancel.", "Enter IP Address");
+                        if ipDlg.ShowModal() == wx.ID_OK:
+                            ipAddress = ipDlg.GetValue()
+                            self.HostFound([ipAddress, "RaspMedia"], "RaspMedia")
+                            self.LoadControlWindowForCurrentHostList()
+                        else:
+                            self.parent.Close()
+                    elif selection == 1: # RESCAN
                         self.SearchHosts()
-                    elif selection == 1: # EXIT
+                    elif selection == 2: # EXIT
                         self.parent.Close()
                 elif result == wx.ID_CANCEL:
                     self.parent.Close()
             else:
-                ind = 0
-                # sort hosts by hostname
-                self.SortHostList()
-                for host in self.hosts:
-                    curPage = rmc.RaspMediaCtrlPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
-                    self.pages.append(curPage)
-                    self.AddPage(curPage, host['name'])
-                    ind += 1
+                self.LoadControlWindowForCurrentHostList()
+
+    def LoadControlWindowForCurrentHostList(self):
+        ind = 0
+        # sort hosts by hostname
+        self.SortHostList()
+        for host in self.hosts:
+            curPage = rmc.RaspMediaCtrlPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
+            self.pages.append(curPage)
+            self.AddPage(curPage, host['name'])
+            ind += 1
 
 
-                allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
-                self.pages.append(allPlayers)
-                self.AddPage(allPlayers, "All Players")
+        allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
+        self.pages.append(allPlayers)
+        self.AddPage(allPlayers, "All Players")
 
-                self.LoadPageData(0)
-                self.parent.Center()
+        self.LoadPageData(0)
+        self.parent.Center()
 
     def OnPageChanged(self, event):
         global HOST_SYS

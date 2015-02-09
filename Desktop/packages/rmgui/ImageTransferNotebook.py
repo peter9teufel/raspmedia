@@ -138,13 +138,21 @@ class ImageTransferNotebook(wx.Notebook):
                         dlgWin = wx.MessageDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), style=wx.OK)
                         result = dlgWin.ShowModal()
                         self.parent.Close()
-                dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), [tr("rescan"), tr("exit")])
+                dlg = wx.SingleChoiceDialog(self,wordwrap(tr("no_players_found"), 300, wx.ClientDC(self)), tr("no_player"), ["Enter IP Address", tr("rescan"), tr("exit")])
                 result = dlg.ShowModal()
                 selection = dlg.GetSelection()
                 if result == wx.ID_OK:
-                    if selection == 0: # RESCAN
+                    if selection == 0: # ENTER IP
+                        ipDlg = wx.TextEntryDialog(self, "Enter the IP of your RaspMedia Player or Exit application with cancel.", "Enter IP Address");
+                        if ipDlg.ShowModal() == wx.ID_OK:
+                            ipAddress = ipDlg.GetValue()
+                            self.HostFound([ipAddress, "RaspMedia"], "RaspMedia")
+                            self.LoadControlWindowForCurrentHostList()
+                        else:
+                            self.parent.Close()
+                    elif selection == 1: # RESCAN
                         self.SearchHosts()
-                    elif selection == 1: # EXIT
+                    elif selection == 2: # EXIT
                         self.parent.Close()
                 elif result == wx.ID_CANCEL:
                     self.parent.Close()

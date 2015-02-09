@@ -157,22 +157,7 @@ class ImageTransferNotebook(wx.Notebook):
                 elif result == wx.ID_CANCEL:
                     self.parent.Close()
             else:
-                ind = 0
-                # sort hosts by hostname
-                self.SortHostList()
-                for host in self.hosts:
-                    curPage = imagePanel.RaspMediaImageTransferPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
-                    self.pages.append(curPage)
-                    self.AddPage(curPage, host['name'])
-                    ind += 1
-
-                allPlayers = rmap.RaspMediaAllPlayersPanel(self,-1,"All Players",ind,self.hosts,HOST_SYS)
-                self.pages.append(allPlayers)
-                self.AddPage(allPlayers, "All Players")
-
-                self.prgDialog.Update(100)
-                self.LoadPageData(0)
-                self.parent.Center()
+                self.LoadControlWindowForCurrentHostList()
 
         # Publisher.unsubscribe(self.UdpListenerStopped, 'listener_stop')
 
@@ -190,7 +175,7 @@ class ImageTransferNotebook(wx.Notebook):
         self.pages.append(allPlayers)
         self.AddPage(allPlayers, "All Players")
 
-        self.prgDialog.Update(100)
+        #self.prgDialog.Update(100)
         self.LoadPageData(0)
         self.parent.Center()
 

@@ -112,7 +112,7 @@ class MediaPlayer(threading.Thread):
             # link new image
             if self.runevent.is_set():
                 # image interval passed, player did not change into stopped state --> link next image
-                subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
+                subprocess.call(["ln", "-s", "-f", ''.join(self.mediaPath).join(file), cwd + '/img_al1.jpg'])
                 time.sleep(0.7)
             # wait image interval
             interval = 0
@@ -135,7 +135,7 @@ class MediaPlayer(threading.Thread):
             for file in files:
                 if self.runevent.is_set():
                     # image interval passed, player did not change into stopped state --> link next image
-                    subprocess.call(["ln", "-s", "-f", self.mediaPath + file, cwd + '/img_al1.jpg'])
+                    subprocess.call(["ln", "-s", "-f", ''.join(self.mediaPath).join(file), cwd + '/img_al1.jpg'])
                     time.sleep(0.7)
                 # wait image interval
                 interval = 0
@@ -242,12 +242,12 @@ class MediaPlayer(threading.Thread):
         if playerState == PLAYER_STARTED:
             # blackout screen to avoid previous image to show through after video or when stopping
             self.blackout()
-            fullPath = self.mediaPath + file
+            fullPath = ''.join(self.mediaPath).join(file)
             videoPlaying = True
             if platform.system() == 'Linux' and platform.linux_distribution()[0] == 'Ubuntu':
                 subprocess.call([cwd + '/scripts/mplayerstart.sh', fullPath])
             else:
-                subprocess.call([cwd + '/scripts/omxplay.sh', self.mediaPath + file])
+                subprocess.call([cwd + '/scripts/omxplay.sh', ''.join(self.mediaPath).join(file)])
             videoPlaying = False
 
 
@@ -311,7 +311,7 @@ class MediaPlayer(threading.Thread):
                     # selected file is image --> show with fbi
                     filePath = self.mediaPath + curFile
                     # link to new image to show
-                    subprocess.call(["ln", "-s", "-f", self.mediaPath + curFile, cwd + '/img_al1.jpg'])
+                    subprocess.call(["ln", "-s", "-f", ''.join(self.mediaPath).join(curFile), cwd + '/img_al1.jpg'])
                     # check again for a file change in a second
                     time.sleep(1)
                 elif curFile in self.allVideos():
@@ -389,8 +389,7 @@ def getMediaFileList():
     files = []
     for file in os.listdir(mediaPath):
         if isImage(file) or isVideo(file):
-            fileEnc = file.encode('utf-8')
-            files.append(fileEnc)
+            files.append(file)
     return files
 
 def getImageFilelist():
@@ -398,8 +397,7 @@ def getImageFilelist():
     files = []
     for file in os.listdir(mediaPath):
         if isImage(file):
-            fileEnc = file.encode('utf-8')
-            files.append(fileEnc)
+            files.append(file)
     return files
 
 def setMediaPath(curMediaPath):
@@ -422,11 +420,11 @@ def deleteFiles(files):
         path += "/"
     for file in files:
         # delete image
-        fullPath = path + file
+        fullPath = ''.join(path).join(file)
         if os.path.isfile(fullPath):
             os.remove(fullPath)
         # delete thumbnail
-        fullPath = thumbPath + file
+        fullPath = ''.join(thumbPath).join(file)
         if os.path.isfile(fullPath):
             os.remove(fullPath)
 

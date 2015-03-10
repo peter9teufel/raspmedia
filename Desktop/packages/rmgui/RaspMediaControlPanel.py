@@ -280,7 +280,8 @@ class RaspMediaCtrlPanel(wx.Panel):
         files = []
         while not index == -1:
             item = self.localList.GetItem(index,0)
-            files.append(item.GetText())
+            name = item.GetText()
+            files.append(name)
             filePath = self.path + '/' + item.GetText()
             curType = None
             if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)) or filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):

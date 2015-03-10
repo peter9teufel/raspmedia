@@ -1,4 +1,5 @@
-import sys, os
+# -*- coding: utf-8 -*-
+import sys, os, re
 from constants import *
 
 def appendBytes(data, append, LE=False):
@@ -109,14 +110,16 @@ def getTcpFileMessage(files, basePath):
 	data = appendInt(data, numFiles, False)
 	thumbData = bytearray()
 	for filename in files:
-		filePath = basePath + '/' + filename
+		filePath = os.path.join(basePath, filename)
+		#filePath = basePath + '/' + filename
 		if filename.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
 			data = appendInt(data, FILE_TYPE_IMAGE)
 		else:
 			data = appendInt(data, FILE_TYPE_VIDEO)
 		f=open (unicode(filePath), "rb")
 		#print "Appending filename %s with size %d" % (filename, len(bytearray(filename)))
-		data = appendString(data, str(filename), sizeLE=False)
+		filename = makeStringPlayerSafe(filename)
+		data = appendString(data, filename, sizeLE=False)
 
 		fileData = f.read()
 		filesize = len(fileData)
@@ -129,3 +132,13 @@ def getTcpFileMessage(files, basePath):
 	msgData = appendInt(msgData, msgSize, False)
 	msgData = appendBytes(msgData, data)
 	return msgData
+
+def makeStringPlayerSafe(string):
+	# replace whitespaces due to compatibility with omxplayer
+	string = re.sub('[ ]', '_', string)
+	# replace special characters
+	string = re.sub(u'[ö]', 'oe', string)
+	string = re.sub(u'[ä]', 'ae', string);
+	string = re.sub(u'[ü]', 'ue', string);
+	string = re.sub(u'[!@#$%&§+*]', '', string);
+	return string

@@ -86,7 +86,6 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 			bytesSent = msgSize
 		prgDialog.Update(bytesSent)
 		index += _BLOCK_SIZE
-		print str(index)
 
 	s.close()
 	prgDialog.Update(msgSize)

@@ -37,7 +37,6 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                     print "Sending response failed!"
             elif result == FILELIST_REQUEST:
                 files = mediaplayer.getMediaFileList()
-                print files
                 args = ['-i', str(len(files))]
                 for file in files:
                     args.append('-s')

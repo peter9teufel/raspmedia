@@ -11,7 +11,8 @@ except ImportError:
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
-base_path = dname
+base_path = unicode(dname)
+
 app = wx.App()
 
 frame = rm_app.AppFrame(None, -1, 'RaspMedia Control', base_path)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os, platform
 import wx
 from PIL import Image, ImageDraw, ImageFont
@@ -9,11 +10,13 @@ OPT_CROP = 1
 OPT_FIT = 2
 
 def _optimizeCrop(fileName, basePath, destPath, maxW, maxH):
-    filePath = basePath + '/' + fileName
-    destFilePath = destPath + '/' + fileName
+    filePath = os.path.join(basePath, fileName)
+    destFilePath = os.path.join(destPath, fileName)
+    #filePath = basePath + '/' + fileName
+    #destFilePath = destPath + '/' + fileName
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
         #print "Opening image " + filePath
-        img = Image.open(str(filePath))
+        img = Image.open(filePath)
         try:
             img.load()
         except IOError:

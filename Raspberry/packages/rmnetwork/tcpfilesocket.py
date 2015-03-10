@@ -22,7 +22,7 @@ def readString(data, size):
 
 def interpret(tmpFilePath):
     with open(tmpFilePath) as f:
-        data = f.read(4)
+        data = bytearray(f.read(4))
         numFiles, data = readInt(data)
 
         # check thumbnails path
@@ -33,12 +33,12 @@ def interpret(tmpFilePath):
         print "READING %d FILES" % numFiles
         for i in range(numFiles):
             # read file name
-            data = f.read(4)
+            data = bytearray(f.read(4))
             size, data = readInt(data)
-            data = f.read(size)
+            data = bytearray(f.read(size))
             name, data = readString(data, size)
             openPath = os.getcwd() + '/media/' + name
-            data = f.read(4)
+            data = bytearray(f.read(4))
             fileSize, data = readInt(data)
             if not os.path.isdir(openPath):
                 f = open(openPath, 'w+') #open in binary

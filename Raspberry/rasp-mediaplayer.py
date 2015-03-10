@@ -41,8 +41,8 @@ def checkThumbnails():
     cnt = 0
     files = rmmedia.mediaplayer.getImageFilelist()
     for name in files:
-        oPath = mediaPath + name
-        tPath = thumbPath + name
+        oPath = os.path.join(mediaPath, name)
+        tPath = os.path.join(thumbPath, name)
         if not os.path.isfile(tPath):
             # no thumbnail for image present -> create and save thumbnail
             img = Image.open(oPath)
@@ -51,7 +51,7 @@ def checkThumbnails():
             newW = 200
             newH = newW * h / w
             img.thumbnail((newW,newH))
-            img.save(thumbPath + name)
+            img.save(os.path.join(thumbPath, name))
             cnt += 1
     print "%d missing thumbnails created and saved." % cnt
 

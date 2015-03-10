@@ -110,7 +110,10 @@ def getTcpFileMessage(files, basePath):
 	thumbData = bytearray()
 	for filename in files:
 		filePath = basePath + '/' + filename
-
+		if filename.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+			data = appendInt(data, FILE_TYPE_IMAGE)
+		else:
+			data = appendInt(data, FILE_TYPE_VIDEO)
 		f=open (unicode(filePath), "rb")
 		#print "Appending filename %s with size %d" % (filename, len(bytearray(filename)))
 		data = appendString(data, str(filename), sizeLE=False)

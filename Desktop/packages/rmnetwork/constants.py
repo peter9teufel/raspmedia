@@ -9,6 +9,10 @@ UDP_REBOOT_TIMEOUT = 65
 
 TYPE_RASPMEDIA_PLAYER = 0x03
 
+# file types in TCP message
+FILE_TYPE_IMAGE = 0xd0
+FILE_TYPE_VIDEO = 0xd1
+
 # predefined message flags
 PLAYER_BOOT_COMPLETE = 0xeeee
 SERVER_REQUEST = 0xffff

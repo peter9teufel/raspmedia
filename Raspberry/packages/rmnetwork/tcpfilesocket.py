@@ -38,8 +38,16 @@ def interpret(tmpFilePath):
         if not os.path.isdir(thumbsPath):
             os.mkdir(thumbsPath)
 
+        isImage = False
         print "READING %d FILES" % numFiles
         for i in range(numFiles):
+            # read file type
+            data = bytearray(f.read(4))
+            fileType, data = readInt(data)
+            if fileType == FILE_TYPE_IMAGE:
+                isImage = True
+            else:
+                isImage = False
             # read file name
             data = bytearray(f.read(4))
             size, data = readInt(data)
@@ -51,23 +59,27 @@ def interpret(tmpFilePath):
             if not os.path.isdir(openPath):
                 #f = open(openPath, 'w+') #open in binary
                 l = bytearray(f.read(fileSize))
-                stream = io.BytesIO(l)
-                img = Image.open(stream)
-                draw = ImageDraw.Draw(img)
-                img.save(openPath)
-                #l = data[:fileSize]
-                #data = data[fileSize:]
-                #f.write(l)
-                #f.close()
+                if isImage:
+                    stream = io.BytesIO(l)
+                    img = Image.open(stream)
+                    draw = ImageDraw.Draw(img)
+                    img.save(openPath)
+                    #l = data[:fileSize]
+                    #data = data[fileSize:]
+                    #f.write(l)
+                    #f.close()
 
-                # save thumbnail
-                img = Image.open(openPath)
-                w = img.size[0]
-                h = img.size[1]
-                newW = 200
-                newH = newW * h / w
-                img.thumbnail((newW,newH))
-                img.save(thumbsPath + name)
+                    # save thumbnail
+                    img = Image.open(openPath)
+                    w = img.size[0]
+                    h = img.size[1]
+                    newW = 200
+                    newH = newW * h / w
+                    img.thumbnail((newW,newH))
+                    img.save(thumbsPath + name)
+                else:
+                    with open(openPath, 'w+') as newFile:
+                        newFile.write(l)
     # remove temp file
     os.remove(tmpFilePath)
 

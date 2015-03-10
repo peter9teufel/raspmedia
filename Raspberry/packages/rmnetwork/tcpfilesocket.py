@@ -21,7 +21,8 @@ def readString(data, size):
 
 
 def interpret(tmpFilePath):
-    with open(tmpFilePath) as f:
+    # open temp file in binary mode
+    with open(tmpFilePath, 'w+') as f:
         data = bytearray(f.read(4))
         numFiles, data = readInt(data)
 

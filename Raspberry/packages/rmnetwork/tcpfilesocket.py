@@ -68,6 +68,8 @@ def interpret(tmpFilePath):
                 newH = newW * h / w
                 img.thumbnail((newW,newH))
                 img.save(thumbsPath + name)
+    # remove temp file
+    os.remove(tmpFilePath)
 
 def _openSocket():
     # create temp directory for received data
@@ -104,42 +106,11 @@ def _openSocket():
         interpret(TCP_TEMP + "/" + tmpFile)
 
         data = bytearray(buff)
-        # read number of files
-        #numFilesBytes = sc.recv(4)
-        numFiles, data = readInt(data)
-        '''
-        # check thumbnails path
-        thumbsPath = os.getcwd() + '/media/thumbs/'
-        if not os.path.isdir(thumbsPath):
-            os.mkdir(thumbsPath)
-
-        print "READING %d FILES" % numFiles
-        for i in range(numFiles):
-            # read file name
-            name, data = readString(data)
-            openPath = os.getcwd() + '/media/' + name
-            fileSize, data = readInt(data)
-            if not os.path.isdir(openPath):
-                f = open(openPath, 'w+') #open in binary
-                l = data[:fileSize]
-                data = data[fileSize:]
-                f.write(l)
-                f.close()
-
-                # save thumbnail
-                img = Image.open(openPath)
-                w = img.size[0]
-                h = img.size[1]
-                newW = 200
-                newH = newW * h / w
-                img.thumbnail((newW,newH))
-                img.save(thumbsPath + name)
-        '''
         print "FILES SAVED!"
 
         if mediaplayer.playerState == PLAYER_STARTED:
             mediaplayer.stop()
-            time.sleep(3)
+            time.sleep(5)
             mediaplayer.play()
 
 def openFileSocket():

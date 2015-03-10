@@ -1,13 +1,17 @@
 import socket
 import os, sys, time, threading, shutil, time
-import Image
+import Image, ImageDraw
+import io
 from packages.rmmedia import mediaplayer
 from constants import *
 
 
 def readInt(data):
     intBytes = data[:4]
-    remainingData = data[4:]
+    if len(data > 4):
+        remainingData = data[4:]
+    else:
+        remainingData = []
     num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
     return num, remainingData
 
@@ -15,14 +19,17 @@ def readInt(data):
 def readString(data, size):
     #size, data = readInt(data)
     strBytes = data[:size]
-    remainingData = data[size:]
+    if len(data) > size:
+        remainingData = data[size:]
+    else:
+        remainingData = []
     inStr = str(strBytes)
     return inStr, remainingData
 
 
 def interpret(tmpFilePath):
     # open temp file in binary mode
-    with open(tmpFilePath, 'w+') as f:
+    with open(tmpFilePath, 'rb') as f:
         data = bytearray(f.read(4))
         numFiles, data = readInt(data)
 
@@ -42,12 +49,16 @@ def interpret(tmpFilePath):
             data = bytearray(f.read(4))
             fileSize, data = readInt(data)
             if not os.path.isdir(openPath):
-                f = open(openPath, 'w+') #open in binary
-                l = f.read(fileSize)
+                #f = open(openPath, 'w+') #open in binary
+                l = bytearray(f.read(fileSize))
+                stream = io.BytesIO(l)
+                img = Image.open(stream)
+                draw = ImageDraw.Draw(img)
+                img.save(openPath)
                 #l = data[:fileSize]
                 #data = data[fileSize:]
-                f.write(l)
-                f.close()
+                #f.write(l)
+                #f.close()
 
                 # save thumbnail
                 img = Image.open(openPath)

@@ -3,6 +3,9 @@ UDP_HOST = ""
 UDP_PORT = 60001
 UDP_BROADCAST_HOST = '<broadcast>'
 
+# tcp tmp directory path
+TCP_TEMP = "/home/pi/.tmp"
+
 STARTUP_IF_TIMEOUT = 30
 TYPE_RASPMEDIA_PLAYER = 0x03
 

@@ -229,8 +229,11 @@ class RaspMediaCtrlPanel(wx.Panel):
         folders = []
         files = []
         for file in os.listdir(self.path):
+            size = (os.stat(self.path + '/' + file).st_size)
             if not file.startswith(('$','.')):
                 if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                    files.append({"filename": file, "size": os.stat(self.path + '/' + file).st_size})
+                elif file.endswith((SUPPORTED_VIDEO_EXTENSIONS)) and size < MAX_FILESIZE_TCP:
                     files.append({"filename": file, "size": os.stat(self.path + '/' + file).st_size})
                 elif os.path.isdir(self.path + '/' + file):
                     folders.append(file)
@@ -407,7 +410,17 @@ class RaspMediaCtrlPanel(wx.Panel):
             os.makedirs(tmpPath)
         except OSError as exception:
             print "Exception in creating DIR: ",exception
-        rmutil.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
+        images = []
+        videos = []
+        for f in files:
+            if f.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                images.append(f)
+            elif f.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
+                videos.append(f)
+        if len(images) > 0:
+            rmutil.ImageUtil.OptimizeImages(images, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
+        for video in videos:
+            shutil.copyfile(self.path + "/" + video, tmpPath + "/" + video)
         network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
         # print "Deleting temporary files..."
         shutil.rmtree(tmpPath)

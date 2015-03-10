@@ -59,9 +59,8 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 	s.connect((host,60020))
 
 	dlgMessageBuild = None
-	if len(files) > 5:
-		dlgMessageBuild = wx.ProgressDialog(tr("preparing"), tr("preparing_data"), style = wx.PD_AUTO_HIDE)
-		dlgMessageBuild.Pulse()
+	dlgMessageBuild = wx.ProgressDialog(tr("preparing"), tr("preparing_data"), style = wx.PD_AUTO_HIDE)
+	dlgMessageBuild.Pulse()
 	msgData = messages.getTcpFileMessage(files, basePath)
 	if dlgMessageBuild:
 		dlgMessageBuild.Update(100)
@@ -72,6 +71,7 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 	prgDialog = wx.ProgressDialog(tr("sending"), tr("sending_files"), maximum = msgSize, style = wx.PD_AUTO_HIDE)
 	bytesSent = 0;
 	index = 0
+	print "Sending " + str(msgSize) + " bytes:"
 	while bytesSent < msgSize:
 		packEnd = index + _BLOCK_SIZE
 		# print "INDEX: %d PACKEND: %d MESSAGE SIZE: %d" % (index,packEnd,msgSize)
@@ -86,6 +86,7 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 			bytesSent = msgSize
 		prgDialog.Update(bytesSent)
 		index += _BLOCK_SIZE
+		print str(index)
 
 	s.close()
 	prgDialog.Update(msgSize)

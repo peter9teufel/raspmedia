@@ -85,6 +85,9 @@ OBS_UPDATE = 0xe3
 OBS_BOOT_COMPLETE = 0xe4
 OBS_STOP = 0xee
 
+# maximum filesize for TCP transfer = 500MB
+MAX_FILESIZE_TCP = 524288000
+
 # filetypes
 SUPPORTED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
 SUPPORTED_VIDEO_EXTENSIONS = ('.mp4', '.m4v', '.mpeg', '.mpg', '.mpeg1', '.mpeg4', '.avi')

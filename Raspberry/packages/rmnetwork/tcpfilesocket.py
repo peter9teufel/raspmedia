@@ -1,5 +1,5 @@
 import socket
-import os, sys, time, threading
+import os, sys, time, threading, shutil, time
 import Image
 from packages.rmmedia import mediaplayer
 from constants import *
@@ -11,15 +11,58 @@ def readInt(data):
     num = (intBytes[0] << 24) + (intBytes[1] << 16) + (intBytes[2] << 8) + intBytes[3]
     return num, remainingData
 
-def readString(data):
-    size, data = readInt(data)
+# added size!
+def readString(data, size):
+    #size, data = readInt(data)
     strBytes = data[:size]
     remainingData = data[size:]
     inStr = str(strBytes)
     return inStr, remainingData
 
 
+def interpret(tmpFilePath):
+    with open(tmpFilePath) as f:
+        data = f.read(4)
+        numFiles, data = readInt(data)
+
+        # check thumbnails path
+        thumbsPath = os.getcwd() + '/media/thumbs/'
+        if not os.path.isdir(thumbsPath):
+            os.mkdir(thumbsPath)
+
+        print "READING %d FILES" % numFiles
+        for i in range(numFiles):
+            # read file name
+            data = f.read(4)
+            size, data = readInt(data)
+            data = f.read(size)
+            name, data = readString(data, size)
+            openPath = os.getcwd() + '/media/' + name
+            data = f.read(4)
+            fileSize, data = readInt(data)
+            if not os.path.isdir(openPath):
+                f = open(openPath, 'w+') #open in binary
+                l = f.read(fileSize)
+                #l = data[:fileSize]
+                #data = data[fileSize:]
+                f.write(l)
+                f.close()
+
+                # save thumbnail
+                img = Image.open(openPath)
+                w = img.size[0]
+                h = img.size[1]
+                newW = 200
+                newH = newW * h / w
+                img.thumbnail((newW,newH))
+                img.save(thumbsPath + name)
+
 def _openSocket():
+    # create temp directory for received data
+    if os.path.isdir(TCP_TEMP):
+        shutil.rmtree(TCP_TEMP)
+    os.mkdir(TCP_TEMP)
+
     global s
     s = socket.socket()
     s.bind(('',60020))
@@ -33,19 +76,26 @@ def _openSocket():
         dataSize, remaining = readInt(bytearray(dataSizeBytes))
         print "Receiving %d Bytes" % (dataSize)
         buff = ''
-        while len(buff) < dataSize:
-            buff += sc.recv(1024)
+        bytesRead = 0
+        tmpFile = "tmp_" + str(int(round(time.time())))
+        with open(TCP_TEMP + "/" + tmpFile, 'w') as tmp:
+            while bytesRead < dataSize:
+                data = sc.recv(1024)
+                bytesRead += len(data)
+                tmp.write(data)
+                #buff += sc.recv(1024)
 
         print "Closing TCP Client connection..."
         sc.close()
 
-        print "Data read to buffer, processing bytearray..."
+        print "Data read to buffer, processing..."
+        interpret(TCP_TEMP + "/" + tmpFile)
 
         data = bytearray(buff)
         # read number of files
         #numFilesBytes = sc.recv(4)
         numFiles, data = readInt(data)
-
+        '''
         # check thumbnails path
         thumbsPath = os.getcwd() + '/media/thumbs/'
         if not os.path.isdir(thumbsPath):
@@ -72,6 +122,7 @@ def _openSocket():
                 newH = newW * h / w
                 img.thumbnail((newW,newH))
                 img.save(thumbsPath + name)
+        '''
         print "FILES SAVED!"
 
         if mediaplayer.playerState == PLAYER_STARTED:

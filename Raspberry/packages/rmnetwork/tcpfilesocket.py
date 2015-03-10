@@ -8,7 +8,7 @@ from constants import *
 
 def readInt(data):
     intBytes = data[:4]
-    if len(data > 4):
+    if len(data) > 4:
         remainingData = data[4:]
     else:
         remainingData = []

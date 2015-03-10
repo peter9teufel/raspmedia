@@ -34,7 +34,7 @@ def interpret(tmpFilePath):
         numFiles, data = readInt(data)
 
         # check thumbnails path
-        thumbsPath = os.getcwd() + '/media/thumbs/'
+        thumbsPath = os.path.join(os.getcwd(), '/media/thumbs/')
         if not os.path.isdir(thumbsPath):
             os.mkdir(thumbsPath)
 
@@ -53,7 +53,8 @@ def interpret(tmpFilePath):
             size, data = readInt(data)
             data = bytearray(f.read(size))
             name, data = readString(data, size)
-            openPath = os.getcwd() + '/media/' + name
+            openPathDir = os.getcwd() + '/media/'
+            openPath = os.path.join(openPathDir, name)
             data = bytearray(f.read(4))
             fileSize, data = readInt(data)
             if not os.path.isdir(openPath):
@@ -76,7 +77,7 @@ def interpret(tmpFilePath):
                     newW = 200
                     newH = newW * h / w
                     img.thumbnail((newW,newH))
-                    img.save(thumbsPath + name)
+                    img.save(os.path.join(thumbsPath, name))
                 else:
                     with open(openPath, 'w+') as newFile:
                         newFile.write(l)

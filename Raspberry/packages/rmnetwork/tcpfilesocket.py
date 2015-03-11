@@ -80,7 +80,7 @@ def checkThumbnails():
     if not os.path.isdir(thumbPath):
         os.mkdir(thumbPath)
     cnt = 0
-    files = rmmedia.mediaplayer.getImageFilelist()
+    files = mediaplayer.getImageFilelist()
     for name in files:
         oPath = os.path.join(mediaPath, name)
         tPath = os.path.join(thumbPath, name)

@@ -40,12 +40,14 @@ def interpret(tmpFilePath):
 
         isImage = False
         print "READING %d FILES" % numFiles
+        imgsIncluded = False
         for i in range(numFiles):
             # read file type
             data = bytearray(f.read(4))
             fileType, data = readInt(data)
             if fileType == FILE_TYPE_IMAGE:
                 isImage = True
+                imgsIncluded = True
             else:
                 isImage = False
             # read file name
@@ -69,20 +71,48 @@ def interpret(tmpFilePath):
                     #data = data[fileSize:]
                     #f.write(l)
                     #f.close()
-
+                    '''
                     # save thumbnail
-                    img = Image.open(openPath)
+                    #img = Image.open(openPath)
+                    thumb = Image.open()
                     w = img.size[0]
                     h = img.size[1]
                     newW = 200
                     newH = newW * h / w
                     img.thumbnail((newW,newH))
                     img.save(os.path.join(thumbsPath, name))
+                    '''
                 else:
                     with open(openPath, 'w+') as newFile:
                         newFile.write(l)
     # remove temp file
     os.remove(tmpFilePath)
+    if imgsIncluded:
+        checkThumbnails()
+
+def checkThumbnails():
+    print "Checking thumbnails..."
+    mediaPath = os.getcwd() + '/media/'
+    thumbPath = mediaPath + 'thumbs/'
+
+    if not os.path.isdir(thumbPath):
+        os.mkdir(thumbPath)
+    cnt = 0
+    files = rmmedia.mediaplayer.getImageFilelist()
+    for name in files:
+        oPath = os.path.join(mediaPath, name)
+        tPath = os.path.join(thumbPath, name)
+        if not os.path.isfile(tPath):
+            # no thumbnail for image present -> create and save thumbnail
+            img = Image.open(oPath)
+            w = img.size[0]
+            h = img.size[1]
+            newW = 200
+            newH = newW * h / w
+            img.thumbnail((newW,newH))
+            img.save(os.path.join(thumbPath, name))
+            cnt += 1
+    print "%d missing thumbnails created and saved." % cnt
 
 def _openSocket():
     # create temp directory for received data

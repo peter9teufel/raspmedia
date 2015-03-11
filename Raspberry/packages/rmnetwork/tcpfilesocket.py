@@ -40,14 +40,12 @@ def interpret(tmpFilePath):
 
         isImage = False
         print "READING %d FILES" % numFiles
-        imgsIncluded = False
         for i in range(numFiles):
             # read file type
             data = bytearray(f.read(4))
             fileType, data = readInt(data)
             if fileType == FILE_TYPE_IMAGE:
                 isImage = True
-                imgsIncluded = True
             else:
                 isImage = False
             # read file name
@@ -67,28 +65,12 @@ def interpret(tmpFilePath):
                     img = Image.open(stream)
                     draw = ImageDraw.Draw(img)
                     img.save(openPath)
-                    #l = data[:fileSize]
-                    #data = data[fileSize:]
-                    #f.write(l)
-                    #f.close()
-                    '''
-                    # save thumbnail
-                    #img = Image.open(openPath)
-                    thumb = Image.open()
-                    w = img.size[0]
-                    h = img.size[1]
-                    newW = 200
-                    newH = newW * h / w
-                    img.thumbnail((newW,newH))
-                    img.save(os.path.join(thumbsPath, name))
-                    '''
                 else:
                     with open(openPath, 'w+') as newFile:
                         newFile.write(l)
     # remove temp file
     os.remove(tmpFilePath)
-    if imgsIncluded:
-        checkThumbnails()
+    checkThumbnails()
 
 def checkThumbnails():
     print "Checking thumbnails..."
@@ -132,7 +114,6 @@ def _openSocket():
         dataSizeBytes = sc.recv(4)
         dataSize, remaining = readInt(bytearray(dataSizeBytes))
         print "Receiving %d Bytes" % (dataSize)
-        buff = ''
         bytesRead = 0
         tmpFile = "tmp_" + str(int(round(time.time())))
         with open(TCP_TEMP + "/" + tmpFile, 'w') as tmp:
@@ -140,7 +121,6 @@ def _openSocket():
                 data = sc.recv(1024)
                 bytesRead += len(data)
                 tmp.write(data)
-                #buff += sc.recv(1024)
 
         print "Closing TCP Client connection..."
         sc.close()
@@ -148,7 +128,6 @@ def _openSocket():
         print "Data read to buffer, processing..."
         interpret(TCP_TEMP + "/" + tmpFile)
 
-        data = bytearray(buff)
         print "FILES SAVED!"
 
         if mediaplayer.playerState == PLAYER_STARTED:

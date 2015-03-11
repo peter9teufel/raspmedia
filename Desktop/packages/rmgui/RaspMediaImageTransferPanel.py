@@ -182,6 +182,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
 
         # reload data
         self.invalidate = True
+        time.sleep(2)
         self.LoadData()
 
     def SetHost(self, hostAddress):

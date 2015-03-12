@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #! /usr/bin/env python
 
 import os, sys, subprocess, time, shutil, Image, threading, random, re

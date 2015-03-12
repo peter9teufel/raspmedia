@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 #! /usr/bin/env python
 
-import os, sys, subprocess, time, shutil, Image, threading, random, re
+import os, sys, subprocess, time, shutil, Image, threading, random
 import urllib2
 from constants import *
 from packages.rmconfig import configtool
@@ -60,15 +59,14 @@ def CopyMediaFiles():
             elif file.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
                 vidEnabled = 1
                 print "Copy video file: ", file
-                size = (os.stat(os.path.join(USB_MEDIA_PATH, file)).st_size)
+                size = (os.stat(USB_MEDIA_PATH + '/' + file).st_size)
                 size /= 1024
                 size /= 1024
                 fileSize = str(size) + 'MB'
                 print "Size: ", fileSize
                 print "Please wait..."
-                srcFile = os.path.join(USB_MEDIA_PATH, file)
-                newFileName = makeStringPlayerSafe(file)
-                dstFile = os.path.join(MEDIA_PATH, newFileName)
+                srcFile = USB_MEDIA_PATH + '/' + file
+                dstFile = MEDIA_PATH + '/' + file
                 shutil.copyfile(srcFile, dstFile)
 
     print "Media files copied to player successfully!"
@@ -83,10 +81,8 @@ def ResizeFitAndCopyImage(fileName, basePath, destPath):
     targetHeight = 1080
     ratio = 1. * targetWidth/targetHeight
 
-    newFileName = makeStringPlayerSafe(fileName)
-
-    filePath = os.path.join(basePath, fileName)
-    destFilePath = os.path.join(destPath, newFileName)
+    filePath = basePath + '/' + fileName
+    destFilePath = destPath + '/' + fileName
 
     print "*********************************************************************************"
     img = Image.open(str(filePath))
@@ -207,15 +203,6 @@ def OptimizeAndCopyImage(fileName, basePath, destPath, maxW=1920, maxH=1080, min
     else:
         img.save(destFilePath, 'JPEG', quality=90)
 
-def makeStringPlayerSafe(string):
-    # replace whitespaces due to compatibility with omxplayer
-    string = re.sub('[ ]', '_', string)
-    # replace special characters
-    string = re.sub(u'[ö]', 'oe', string)
-    string = re.sub(u'[ä]', 'ae', string);
-    string = re.sub(u'[ü]', 'ue', string);
-    string = re.sub(u'[!@#$%&§+*]', '', string);
-    return string
 
 # Main Method
 def StartupRoutine():

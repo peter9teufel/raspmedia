@@ -134,6 +134,8 @@ def interpret(msg_data, sender_ip=None):
             print "UDP COMMAND Start Filenumber..."
             number, data = readInt(data)
             mediaplayer.startFileNumber(number)
+        elif flag == DISK_INFO_REQUEST:
+            result = flag
         else:
             result = INTERPRETER_ERROR
             msg = "Unknown command flag"

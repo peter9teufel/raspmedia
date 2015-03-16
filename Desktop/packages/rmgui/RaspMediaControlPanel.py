@@ -256,7 +256,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.RemoteFileDoubleClicked, self.remoteList)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.RemoteFileRightClicked, self.remoteList)
 
-    def UpdateDiskInfo(self):
+    def UpdateDiskInfo(self, event=None):
         msgData = network.messages.getMessage(DISK_INFO_REQUEST)
         network.udpconnector.sendMessage(msgData, self.host)
 

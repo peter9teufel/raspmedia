@@ -1,4 +1,4 @@
-import threading, time
+import threading, time, subprocess
 import SocketServer
 import interpreter, messages, netutil, GroupManager, tcpfileclient
 
@@ -27,7 +27,8 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
 
 
             if result == SERVER_REQUEST:
-                responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name'])])
+                freeSpace = self.FreeDiskSpace()
+                responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name']), "-i", str(freeSpace)])
                 addr = (self.client_address[0], UDP_PORT)
                 print "Sending response to client:"
                 print (addr)
@@ -86,6 +87,12 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
     def SendImagesOverTCP(self, host):
         time.sleep(0.5)
         tcpfileclient.sendAllImageFiles(host)
+
+    def FreeDiskSpace(self):
+        df = subprocess.Popen(["df", "/home/pi/raspmedia/Raspberry/rasp-mediaplayer.py"], stdout=subprocess.PIPE)
+        output = df.communicate()[0]
+        device, size, used, available, percent, mountpoint = output.split("\n")[1].split()
+        return available
 
 def start():
     global server, server_thread

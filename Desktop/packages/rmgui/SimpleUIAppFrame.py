@@ -75,7 +75,7 @@ class SimpleUIAppFrame(wx.Frame):
         wifiDlg = wifi.WifiDialog(self, -1, tr("wifi_settings"), host["addr"])
         wifiDlg.ShowModal()
 
-    def HostFound(self, host, playerName):
+    def HostFound(self, host, playerName, freeSpace):
         global playerCount
         # print "Adding host to list..."
         if not self.HostInList(host[0], playerName):

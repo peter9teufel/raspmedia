@@ -100,10 +100,10 @@ class RemoteNotebook(wx.Notebook):
             if found:
                 self.SetPageText(i, newName)
 
-    def HostFound(self, host, playerName):
+    def HostFound(self, host, playerName, freeSpace):
         global playerCount
         if not self.HostInList(host[0], playerName):
-            self.hosts.append({"addr": host[0], "name": playerName})
+            self.hosts.append({"addr": host[0], "name": playerName, "free": freeSpace})
             playerCount += 1
 
     def SortHostList(self):

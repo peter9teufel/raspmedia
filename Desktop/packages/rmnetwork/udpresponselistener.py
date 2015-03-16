@@ -42,7 +42,7 @@ class UDPResponseListener(threading.Thread):
 					if result == INTERPRETER_SERVER_REQUEST:
 						print "RaspMedia player found: ", str(address)
 						if response[1] == TYPE_RASPMEDIA_PLAYER:
-							wx.CallAfter(Publisher.sendMessage, 'host_found', host=address, playerName=str(response[0]))
+							wx.CallAfter(Publisher.sendMessage, 'host_found', host=address, playerName=str(response[0]), freeSpace=response[3])
 					elif result == INTERPRETER_FILELIST_REQUEST:
 						wx.CallAfter(Publisher.sendMessage, 'remote_files', serverAddr=address, files=response)
 					elif result == CONFIG_REQUEST:

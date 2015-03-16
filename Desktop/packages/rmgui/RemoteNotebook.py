@@ -169,7 +169,7 @@ class RemoteNotebook(wx.Notebook):
         # sort hosts by hostname
         self.SortHostList()
         for host in self.hosts:
-            curPage = rmc.RaspMediaCtrlPanel(self,-1,host['name'],ind,host['addr'],HOST_SYS)
+            curPage = rmc.RaspMediaCtrlPanel(self,-1,host['name'],ind,host['addr'],host['free'],HOST_SYS)
             self.pages.append(curPage)
             self.AddPage(curPage, host['name'])
             ind += 1

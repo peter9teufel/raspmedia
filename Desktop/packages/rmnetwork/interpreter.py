@@ -22,9 +22,10 @@ def interpret(msg_data):
 		devFlag, data = readInt(data)
 		devName, data = readString(data)
 		devSpace, data = readInt(data)
+		devFree, data = readInt(data)
 		# print "DEVICE FOUND: ", devName
 		# print "Type: %d - Flag: %d" % (devType, devFlag)
-		returnData = (devName, devType, devFlag, devSpace)
+		returnData = (devName, devType, devFlag, (devSpace, devFree))
 	elif flag == FILELIST_REQUEST:
 		result = INTERPRETER_FILELIST_REQUEST
 	elif flag == FILELIST_RESPONSE:

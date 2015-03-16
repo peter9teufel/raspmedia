@@ -45,8 +45,8 @@ def _optimizeCrop(fileName, basePath, destPath, maxW, maxH):
         img.save(destFilePath, quality=100)
 
 def _optimizeFit(fileName, basePath, destPath, maxW, maxH):
-    filePath = basePath + '/' + fileName
-    destFilePath = destPath + '/' + fileName
+    filePath = os.path.join(basePath, fileName)
+    destFilePath = os.path.join(destPath, fileName)
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
         #print "Opening image " + filePath
         img = Image.open(str(filePath))
@@ -87,7 +87,7 @@ def _checkOrientation(img):
         # print "Exif data not present or can not be processed, returning unmodified image..."
     return img
 
-def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_CROP):
+def OptimizeImages(files, basePath, destPath, maxW=1920, maxH=1080, isWindows=True, style=OPT_FIT):
     prgDialog = wx.ProgressDialog(tr("optimizing"), tr("optimizing_images"), maximum=len(files), style=wx.PD_AUTO_HIDE)
     cnt = 0
     for filename in files:

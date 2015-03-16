@@ -28,7 +28,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
 
             if result == SERVER_REQUEST:
                 freeSpace = self.FreeDiskSpace()
-                responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name']), "-i", str(freeSpace)])
+                responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(TYPE_RASPMEDIA_PLAYER), "-i", "0","-s", str(configtool.readConfig()['player_name']), "-i", str(freeSpace[0]), "-i", str(freeSpace[1])])
                 addr = (self.client_address[0], UDP_PORT)
                 print "Sending response to client:"
                 print (addr)
@@ -92,7 +92,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
         df = subprocess.Popen(["df", "/home/pi/raspmedia/Raspberry/rasp-mediaplayer.py"], stdout=subprocess.PIPE)
         output = df.communicate()[0]
         device, size, used, available, percent, mountpoint = output.split("\n")[1].split()
-        return available
+        return (size, available)
 
 def start():
     global server, server_thread

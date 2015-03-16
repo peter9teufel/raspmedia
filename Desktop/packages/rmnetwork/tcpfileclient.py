@@ -61,42 +61,7 @@ def sendFiles(files, basePath, host, parent, isWindows=False):
 	s.connect((host,60020))
 
 	sendTcpFileMessage(files, basePath, s, isWindows)
-	'''
-	dlgMessageBuild = None
-	dlgMessageBuild = wx.ProgressDialog(tr("preparing"), tr("preparing_data"), style = wx.PD_AUTO_HIDE)
-	dlgMessageBuild.Pulse()
-	msgData = messages.getTcpFileMessage(files, basePath)
-	if dlgMessageBuild:
-		dlgMessageBuild.Update(100)
-		if isWindows:
-			dlgMessageBuild.Destroy()
-	msgSize = len(msgData)
-	# print "File message size: ", msgSize
-	prgDialog = wx.ProgressDialog(tr("sending"), tr("sending_files"), maximum = msgSize, style = wx.PD_AUTO_HIDE)
-	bytesSent = 0;
-	index = 0
-	print "Sending " + str(msgSize) + " bytes:"
-	while bytesSent < msgSize:
-		packEnd = index + _BLOCK_SIZE
-		# print "INDEX: %d PACKEND: %d MESSAGE SIZE: %d" % (index,packEnd,msgSize)
-		if packEnd > msgSize:
-			curPacket = msgData[index:]
-		else:
-			curPacket = msgData[index:packEnd]
 
-		s.send(curPacket)
-		bytesSent += _BLOCK_SIZE
-		if bytesSent > msgSize:
-			bytesSent = msgSize
-		prgDialog.Update(bytesSent)
-		index += _BLOCK_SIZE
-
-	s.close()
-	prgDialog.Update(msgSize)
-	if isWindows:
-		prgDialog.Destroy()
-
-	'''
 	s.close()
 
 def registerObserver(observer):

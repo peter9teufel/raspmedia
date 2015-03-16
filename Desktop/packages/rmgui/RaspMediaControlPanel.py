@@ -23,7 +23,7 @@ BASE_PATH = None
 # RASP MEDIA CONTROL PANEL #####################################################
 ################################################################################
 class RaspMediaCtrlPanel(wx.Panel):
-    def __init__(self,parent,id,title,index,host,host_sys):
+    def __init__(self,parent,id,title,index,host,freeSpace,host_sys):
         #wx.Panel.__init__(self,parent,id,title)
         wx.Panel.__init__(self,parent,-1)
         global HOST_SYS, BASE_PATH
@@ -32,6 +32,8 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.parent = parent
         self.index = index
         self.host = host
+        self.totalSpace = freeSpace[0]
+        self.freeSpace = freeSpace[1]
         self.path = self.DefaultPath()
         self.mainSizer = wx.GridBagSizer()
         self.playerSizer = wx.BoxSizer()
@@ -164,9 +166,24 @@ class RaspMediaCtrlPanel(wx.Panel):
         btnSizer.Add(reboot,(1,1),flag=wx.LEFT|wx.RIGHT|wx.BOTTOM,border=5)
         ctrlSizer.Add(btnSizer)
 
+        # disk space info
+        diskBox = wx.StaticBox(self,-1,label="Player Info")
+        diskBoxSizer = wx.StaticBoxSizer(diskBox, wx.VERTICAL)
+
+        spaceLabel = wx.StaticText(self,-1,label="Disk: ")
+        self.spaceInfo = wx.StaticText(self,-1,label=self.totalSpace)
+        freeLabel = wx.StaticText(diskBox,-1,label="Free: ")
+        self.freeInfo = wx.StaticText(diskBox,-1,label=str(self.freeSpace/1024) + " MB")
+        
+        freeSizer = wx.BoxSizer()
+        freeSizer.Add(freeLabel, flag=wx.ALL, border=5)
+        freeSizer.Add(self.freeInfo, flag=wx.ALL, border=5)
+        diskBoxSizer.Add(freeSizer)
+
         # add to player sizer
         self.playerSizer.Add(playerBoxSizer)
         self.playerSizer.Add(ctrlSizer,flag=wx.LEFT,border=15)
+        self.playerSizer.Add(diskBoxSizer, flag=wx.LEFT, border=15)
 
     def SetupFileLists(self):
         self.filesSizer.SetEmptyCellSize((0,0))

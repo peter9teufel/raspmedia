@@ -87,7 +87,6 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.LoadRemoteConfig()
 
     def DiskInfoReceived(self, diskInfo):
-        print "DISK INFO: " + diskInfo
         self.totalSpace = diskInfo[0]
         self.freeSpace = diskInfo[1]
         self.UpdateDiskInfoLabels()
@@ -206,14 +205,18 @@ class RaspMediaCtrlPanel(wx.Panel):
 
     def SetupFileLists(self):
         self.filesSizer.SetEmptyCellSize((0,0))
-        # setup file lists and image preview
-        self.AddLocalList()
-        self.AddImagePreview()
-        self.AddRemoteList()
 
         selectFolder = wx.Button(self,-1,label=tr("select_dir"))
         self.filesSizer.Add(selectFolder, (0,0), flag = wx.TOP | wx.BOTTOM, border = 5)
         self.Bind(wx.EVT_BUTTON, self.ChangeDir, selectFolder)
+
+        self.cropChk = wx.CheckBox(self,-1,"Crop image to fill screen")
+        self.filesSizer.Add(self.cropChk, (0,1), flag = wx.TOP | wx.BOTTOM, border = 5)
+
+        # setup file lists and image preview
+        self.AddLocalList()
+        self.AddImagePreview()
+        self.AddRemoteList()
 
         button = wx.Button(self,-1,label=tr("refresh_remote_filelist"))
         self.filesSizer.Add(button,(4,0))
@@ -227,7 +230,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.localList.Show(True)
         self.localList.InsertColumn(0,tr("filename"), width = 300)
         self.localList.InsertColumn(1,tr("filesize"), width = 80, format = wx.LIST_FORMAT_RIGHT)
-        self.filesSizer.Add(self.localList, (1,0), span=(2,1))
+        self.filesSizer.Add(self.localList, (1,0), span=(2,2))
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.LocalFileDoubleClicked, self.localList)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.LocalFileSelected, self.localList)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.LocalFileRightClicked, self.localList)
@@ -241,18 +244,18 @@ class RaspMediaCtrlPanel(wx.Panel):
         # create bitmap with preview png
         self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, wx.BitmapFromImage(img))
         self.SetPreviewImage('img/preview.png')
-        self.filesSizer.Add(self.imageCtrl, (1,1), flag = wx.LEFT, border=5)
+        self.filesSizer.Add(self.imageCtrl, (1,2), flag = wx.LEFT, border=5)
 
         # add static label to show selected filename or number of selected files
         self.selectionLabel = wx.StaticText(self,-1,label="")
-        self.filesSizer.Add(self.selectionLabel, (2,1), flag = wx.LEFT, border = 15)
+        self.filesSizer.Add(self.selectionLabel, (2,2), flag = wx.LEFT, border = 15)
 
     def AddRemoteList(self):
         # print "Initializing empty remote lists..."
         self.remoteList=wx.ListCtrl(self,-1,size=(600,200),style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         self.remoteList.Show(True)
         self.remoteList.InsertColumn(0,tr("remote_files")+": ", width = 598)
-        self.filesSizer.Add(self.remoteList, (3,0), span=(1,2), flag = wx.EXPAND | wx.TOP, border = 10)
+        self.filesSizer.Add(self.remoteList, (3,0), span=(1,3), flag = wx.EXPAND | wx.TOP, border = 10)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.RemoteFileDoubleClicked, self.remoteList)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.RemoteFileRightClicked, self.remoteList)
 
@@ -476,7 +479,10 @@ class RaspMediaCtrlPanel(wx.Panel):
                 elif f.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
                     videos.append(f)
             if len(images) > 0:
-                rmutil.ImageUtil.OptimizeImages(images, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
+                style = OPT_FIT
+                if self.cropChk.IsChecked():
+                    style = OPT_CROP
+                rmutil.ImageUtil.OptimizeImages(images, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN,style)
             for video in videos:
                 prgDlg = wx.ProgressDialog(tr("preparing_data"), video, style = wx.PD_AUTO_HIDE)
                 prgDlg.Pulse()
@@ -496,6 +502,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         if HOST_SYS == HOST_WIN:
             dlg.Destroy()
         self.LoadRemoteFileList()
+        self.UpdateDiskInfo()
 
     def SetPreviewImage(self, imagePath):
         self._SetPreview('img/clear.png')
@@ -568,6 +575,7 @@ class RaspMediaCtrlPanel(wx.Panel):
             wx.CallAfter(prgDialog.Destroy)
             # print "Delete timeout passed, initiating data load..."
             self.LoadData()
+            self.UpdateDiskInfo()
             #self.LoadRemoteFileList()
 
     def CheckboxToggled(self, event):

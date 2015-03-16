@@ -2,12 +2,10 @@
 import os, platform
 import wx
 from PIL import Image, ImageDraw, ImageFont
-
+from packages.rmnetwork.constants import *
 from packages.lang.Localizer import *
 
 SUPPORTED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG')
-OPT_CROP = 1
-OPT_FIT = 2
 
 def _optimizeCrop(fileName, basePath, destPath, maxW, maxH):
     filePath = os.path.join(basePath, fileName)
@@ -49,7 +47,7 @@ def _optimizeFit(fileName, basePath, destPath, maxW, maxH):
     destFilePath = os.path.join(destPath, fileName)
     if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
         #print "Opening image " + filePath
-        img = Image.open(str(filePath))
+        img = Image.open(filePath)
         try:
             img.load()
         except IOError:

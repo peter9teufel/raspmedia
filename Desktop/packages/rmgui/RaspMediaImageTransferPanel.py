@@ -89,6 +89,8 @@ class RaspMediaImageTransferPanel(wx.Panel):
         selAllRemote = wx.BitmapButton(self,-1,aBitMap,pos=(0,0))
         clearRemoteSel = wx.BitmapButton(self,-1,nBitMap,pos=(0,0))
 
+        self.cropChk = wx.CheckBox(self,-1,"Crop images")
+
         # detect USB and backup button
         usbBtn = wx.Button(self,-1,label="Detect USB")
         backupBtn = wx.Button(self,-1,label="Backup Images")
@@ -123,6 +125,7 @@ class RaspMediaImageTransferPanel(wx.Panel):
         leftBtnSizer.Add(selAllLocal)
         leftBtnSizer.Add(clearLocalSel)
         leftBtnSizer.Add(usbBtn, flag=wx.ALIGN_CENTER_VERTICAL)
+        leftBtnSizer.Add(self.cropChk, flag=wx.ALIGN_CENTER_VERTICAL)
         imgLeftSizer.Add(leftBtnSizer)
         # right image selection section
         imgRightSizer = wx.BoxSizer(wx.VERTICAL)
@@ -283,7 +286,10 @@ class RaspMediaImageTransferPanel(wx.Panel):
         if not os.path.isdir(tmpPath):
             os.mkdir(tmpPath)
 
-        util.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
+        style = OPT_FIT
+        if self.cropChk.IsChecked():
+            style = OPT_CROP
+        util.ImageUtil.OptimizeImages(files, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN, style)
         network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
         shutil.rmtree(tmpPath)
         dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)

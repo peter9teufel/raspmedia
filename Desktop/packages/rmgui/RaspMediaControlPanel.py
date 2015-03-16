@@ -278,6 +278,8 @@ class RaspMediaCtrlPanel(wx.Panel):
         index = self.localList.GetFirstSelected()
         cnt = 0
         files = []
+        imgOnly = True
+        vidOnly = True
         while not index == -1:
             item = self.localList.GetItem(index,0)
             name = item.GetText()
@@ -286,6 +288,10 @@ class RaspMediaCtrlPanel(wx.Panel):
             curType = None
             if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)) or filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                 curType = 'media'
+            if filePath.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                vidOnly = False
+            if filePath.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
+                imgOnly = False
             elif os.path.isdir(filePath):
                 curType = 'dir'
             if prevType and curType and not curType == prevType:
@@ -295,7 +301,12 @@ class RaspMediaCtrlPanel(wx.Panel):
         if mixed:
             resType = "mixed"
         else:
-            resType = curType
+            if imgOnly:
+                resType = 'image'
+            elif vidOnly:
+                resType = 'video'
+            else:
+                resType = curType
         return {"count": cnt, "type": resType, "files": files}
 
     def MutlipleLocalFilesSelected(self):
@@ -407,22 +418,33 @@ class RaspMediaCtrlPanel(wx.Panel):
         # optimize the files before sending them
         # create temp directory
         tmpPath = BASE_PATH + '/' + 'tmp'
+        srcPath = tmpPath
         try:
             os.makedirs(tmpPath)
         except OSError as exception:
             print "Exception in creating DIR: ",exception
         images = []
         videos = []
-        for f in files:
-            if f.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
-                images.append(f)
-            elif f.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
-                videos.append(f)
-        if len(images) > 0:
-            rmutil.ImageUtil.OptimizeImages(images, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
-        for video in videos:
-            shutil.copyfile(self.path + "/" + video, tmpPath + "/" + video)
-        network.tcpfileclient.sendFiles(files, tmpPath, self.host, self, HOST_SYS == HOST_WIN)
+        if localSelection['type'] == 'video':
+            # videos only --> process directly
+            srcPath = self.path
+        else:
+            # images only or mixed --> process via temp directory
+            for f in files:
+                if f.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
+                    images.append(f)
+                elif f.endswith((SUPPORTED_VIDEO_EXTENSIONS)):
+                    videos.append(f)
+            if len(images) > 0:
+                rmutil.ImageUtil.OptimizeImages(images, self.path, tmpPath,1920,1080,HOST_SYS == HOST_WIN)
+            for video in videos:
+                prgDlg = wx.ProgressDialog(tr("preparing_data"), video, style = wx.PD_AUTO_HIDE)
+                prgDlg.Pulse()
+                shutil.copyfile(self.path + "/" + video, tmpPath + "/" + video)
+                prgDlg.Update(100)
+                if HOST_SYS == HOST_WIN:
+                    prgDlg.Destroy()
+        network.tcpfileclient.sendFiles(files, srcPath, self.host, self, HOST_SYS == HOST_WIN)
         # print "Deleting temporary files..."
         shutil.rmtree(tmpPath)
         dlg = wx.ProgressDialog(tr("saving"), tr("saving_files_player"), style = wx.PD_AUTO_HIDE)

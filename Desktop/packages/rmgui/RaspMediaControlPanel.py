@@ -194,9 +194,9 @@ class RaspMediaCtrlPanel(wx.Panel):
         freeSizer = wx.BoxSizer()
         freeSizer.Add(freeLabel)
         freeSizer.Add(self.freeInfo)
-        diskBoxSizer.Add(totalSizer,flag=wx.ALL,border=5)
-        diskBoxSizer.Add(freeSizer,flag=wx.ALL,border=5)
-        diskBoxSizer.Add(refresh,flag=wx.ALL|wx.ALIGN_RIGHT|wx.EXPAND,border=5)
+        diskBoxSizer.Add(totalSizer, flag=wx.RIGHT, border=15)
+        diskBoxSizer.Add(freeSizer,flag=wx.RIGHT, border=15)
+        diskBoxSizer.Add(refresh,flag=wx.RIGHT|wx.EXPAND,border=15)
 
         # add to player sizer
         self.playerSizer.Add(playerBoxSizer)

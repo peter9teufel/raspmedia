@@ -5,6 +5,7 @@ import io
 from packages.rmmedia import mediaplayer
 from constants import *
 
+_BLOCK_SIZE = 1024
 
 def readInt(data):
     intBytes = data[:4]
@@ -59,15 +60,28 @@ def interpret(tmpFilePath):
             fileSize, data = readInt(data)
             if not os.path.isdir(openPath):
                 #f = open(openPath, 'w+') #open in binary
-                l = bytearray(f.read(fileSize))
                 if isImage:
+                    l = bytearray(f.read(fileSize))
                     stream = io.BytesIO(l)
                     img = Image.open(stream)
                     draw = ImageDraw.Draw(img)
                     img.save(openPath)
                 else:
                     with open(openPath, 'w+') as newFile:
-                        newFile.write(l)
+                        done = False
+                        fileRead = 0
+                        while not done:
+                            remaining = fileSize - fileRead
+                            if _BLOCK_SIZE > remaining:
+                                l = bytearray(f.read(_BLOCK_SIZE))
+                                fileRead += _BLOCK_SIZE
+                            else:
+                                l = bytearray(f.read(remaining))
+                                fileRead += remaining 
+                            newFile.write(l)
+                            done = (fileRead >= fileSize)
+
+
     # remove temp file
     os.remove(tmpFilePath)
     checkThumbnails()

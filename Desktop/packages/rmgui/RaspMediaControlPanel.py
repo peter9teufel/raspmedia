@@ -233,7 +233,7 @@ class RaspMediaCtrlPanel(wx.Panel):
             if not file.startswith(('$','.')):
                 if file.endswith((SUPPORTED_IMAGE_EXTENSIONS)):
                     files.append({"filename": file, "size": os.stat(self.path + '/' + file).st_size})
-                elif file.endswith((SUPPORTED_VIDEO_EXTENSIONS)) and size < MAX_FILESIZE_TCP:
+                elif file.endswith((SUPPORTED_VIDEO_EXTENSIONS)): #and size < MAX_FILESIZE_TCP:
                     files.append({"filename": file, "size": os.stat(self.path + '/' + file).st_size})
                 elif os.path.isdir(self.path + '/' + file):
                     folders.append(file)
@@ -392,7 +392,7 @@ class RaspMediaCtrlPanel(wx.Panel):
         while not index == -1:
             item = self.remoteList.GetItem(index,0)
             fileName = item.GetText()
-            files.append(str(fileName))
+            files.append(fileName)
             index = self.remoteList.GetNextSelected(index)
         # print "Files to delete: ", files
         self.DeleteRemoteFiles(files)

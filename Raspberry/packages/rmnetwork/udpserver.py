@@ -77,7 +77,7 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                 t.start()
             elif result == DISK_INFO_REQUEST:
                 freeSpace = self.FreeDiskSpace()
-                responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(freeSpace[0]), "-i", str(freeSpace[1])])
+                responseData = messages.getMessage(DISK_INFO_REQUEST, ["-i", str(freeSpace[0]), "-i", str(freeSpace[1])])
                 addr = (self.client_address[0], UDP_PORT)
                 if cSocket.sendto(responseData, addr):
                     print "Disk Info sent!"

@@ -58,6 +58,8 @@ class UDPResponseListener(threading.Thread):
 						wx.CallAfter(Publisher.sendMessage, 'action_saved')
 					elif result == GROUP_CONFIG_ACTION_DELETE:
 						wx.CallAfter(Publisher.sendMessage, 'action_deleted')
+					elif result == DISK_INFO_REQUEST:
+						wx.CallAfter(Publisher.sendMessage, 'disk_info', diskInfo=response)
 
 
 def stopListening():

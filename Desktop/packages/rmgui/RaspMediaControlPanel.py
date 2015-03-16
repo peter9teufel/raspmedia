@@ -80,10 +80,21 @@ class RaspMediaCtrlPanel(wx.Panel):
         Publisher.subscribe(self.UpdateConfigUI, 'config')
         Publisher.subscribe(self.InsertReceivedFileList, 'remote_files')
         Publisher.subscribe(self.UdpListenerStopped, 'listener_stop')
+        Publisher.subscribe(self.DiskInfoReceived, 'disk_info')
         # start loading data
         self.prgDialog = wx.ProgressDialog(tr("loading"), tr("msg_loading_config_filelist"))
         self.prgDialog.Pulse()
         self.LoadRemoteConfig()
+
+    def DiskInfoReceived(self, diskInfo):
+        print "DISK INFO: " + diskInfo
+        self.totalSpace = diskInfo[0]
+        self.freeSpace = diskInfo[1]
+        self.UpdateDiskInfoLabels()
+
+    def UpdateDiskInfoLabels(self):
+        self.spaceInfo.SetLabel(str(self.totalSpace/1024) + " MB")
+        self.freeInfo.SetLabel(str(self.freeSpace/1024) + " MB")
 
     def PageChanged(self, event):
         old = event.GetOldSelection()
@@ -170,15 +181,23 @@ class RaspMediaCtrlPanel(wx.Panel):
         diskBox = wx.StaticBox(self,-1,label="Player Info")
         diskBoxSizer = wx.StaticBoxSizer(diskBox, wx.VERTICAL)
 
-        spaceLabel = wx.StaticText(self,-1,label="Disk: ")
-        self.spaceInfo = wx.StaticText(self,-1,label=self.totalSpace)
+        spaceLabel = wx.StaticText(diskBox,-1,label="Disk: ")
+        self.spaceInfo = wx.StaticText(diskBox,-1,label=str(self.totalSpace/1024) + " MB")
         freeLabel = wx.StaticText(diskBox,-1,label="Free: ")
         self.freeInfo = wx.StaticText(diskBox,-1,label=str(self.freeSpace/1024) + " MB")
+        refresh = wx.Button(diskBox,-1,label="Refresh")
+
+        self.Bind(wx.EVT_BUTTON, self.UpdateDiskInfo, refresh)
         
+        totalSizer = wx.BoxSizer()
+        totalSizer.Add(spaceLabel)
+        totalSizer.Add(self.spaceInfo)
         freeSizer = wx.BoxSizer()
-        freeSizer.Add(freeLabel, flag=wx.ALL, border=5)
-        freeSizer.Add(self.freeInfo, flag=wx.ALL, border=5)
-        diskBoxSizer.Add(freeSizer)
+        freeSizer.Add(freeLabel)
+        freeSizer.Add(self.freeInfo)
+        diskBoxSizer.Add(totalSizer,flag=wx.ALL,border=5)
+        diskBoxSizer.Add(freeSizer,flag=wx.ALL,border=5)
+        diskBoxSizer.Add(refresh,flag=wx.ALL|wx.ALIGN_RIGHT|wx.EXPAND,border=5)
 
         # add to player sizer
         self.playerSizer.Add(playerBoxSizer)
@@ -236,6 +255,10 @@ class RaspMediaCtrlPanel(wx.Panel):
         self.filesSizer.Add(self.remoteList, (3,0), span=(1,2), flag = wx.EXPAND | wx.TOP, border = 10)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.RemoteFileDoubleClicked, self.remoteList)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.RemoteFileRightClicked, self.remoteList)
+
+    def UpdateDiskInfo(self):
+        msgData = network.messages.getMessage(DISK_INFO_REQUEST)
+        network.udpconnector.sendMessage(msgData, self.host)
 
     def UpdateLocalFiles(self):
         self.localList.DeleteAllItems()

@@ -75,6 +75,14 @@ class MyUDPHandler(SocketServer.BaseRequestHandler):
                 t = threading.Thread(target=self.SendImagesOverTCP, args=[self.client_address[0]])
                 t.daemon = True
                 t.start()
+            elif result == DISK_INFO_REQUEST:
+                freeSpace = self.FreeDiskSpace()
+                responseData = messages.getMessage(SERVER_REQUEST_ACKNOWLEDGE, ["-i", str(freeSpace[0]), "-i", str(freeSpace[1])])
+                addr = (self.client_address[0], UDP_PORT)
+                if cSocket.sendto(responseData, addr):
+                    print "Disk Info sent!"
+                else:
+                    print "Sending disk info failed!"
         else:
             print "Received own broadcast... ignored."
 

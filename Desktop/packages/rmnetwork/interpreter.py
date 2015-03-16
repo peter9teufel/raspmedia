@@ -37,6 +37,10 @@ def interpret(msg_data):
 	elif flag == PLAYER_UPDATE_ERROR:
 		result = flag
 		returnData, data = readString(data)
+	elif flag == DISK_INFO_REQUEST:
+		devSpace, data = readInt(data)
+		devFree, data = readInt(data)
+		returnData = (devSpace, devFree)
 
 	#print "Remaining data: " + data.decode("utf-8")
 

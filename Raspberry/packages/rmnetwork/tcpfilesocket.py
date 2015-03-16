@@ -72,7 +72,7 @@ def interpret(tmpFilePath):
                         fileRead = 0
                         while not done:
                             remaining = fileSize - fileRead
-                            if _BLOCK_SIZE > remaining:
+                            if _BLOCK_SIZE < remaining:
                                 l = bytearray(f.read(_BLOCK_SIZE))
                                 fileRead += _BLOCK_SIZE
                             else:

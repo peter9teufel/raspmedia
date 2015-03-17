@@ -78,19 +78,28 @@ The main window provides a local view on the left side and a remote view on the 
 By clicking single images in the two views you select which images you'd like to send to player and which images you'd like to delete from the player. The *Select All* and *Select None* Buttons below the previews speak for themselves.
 By clicking *Apply* all selected remote images are deleted and all selected local images are sent to the player. It's also possible to only delete or only send images.
 
+With the checkbox *Crop images* you can set image optimization to crop your images to Full HD aspect ratio. All images are optimized to 1920x180px before sending them to the player, this saves disk space on the player and reduces transfer and loading times. By default images are resized to fit in a 1920x1080 size without cropping or distorting the image, this comes in handy if you have portrait images. Selecting *Crop images* tells the software to create a 1920x1080 version of your image and cropping everything that is beyond that aspect ratio.
+
 #####RaspMedia Control Main Window#####
 RaspMedia Control allows you to fully configure and setup your RaspMedia Players. On startup the application searches for players in your local network and creates a tab for each player.
 ![RaspMedia Image Transfer Main Window](/Screenshots/rmc_main.png)
 
 The main window offers information on the player (name, IP) and basic controls (Play, Stop, Reboot) at the top, by clicking identify the corresponding player will show a test image with the player name so you can identify each player and give it a appropriate name when setting up multiple players at one time.
-Right underneath you can find a simple file explorer to search for images on your hard drive which you'd like to send to the player. You can send a single image by double clicking it and approving the dialog or by selecting multiple images, right click and select "Send to player".
+The box in the upper right shows the size of the SD Card of your Player as well as the currently free space in MB.
+Right underneath you can find a simple file explorer to search for images and videos on your hard drive which you'd like to send to the player. You can send a single image/video by double clicking it and approving the dialog or by selecting multiple images and/or videos, right click and select "Send to player".
 The bottom list is the list of files you currently have on your RaspMedia Player. You can delete single files by double clicking them or again select multiple files, right click them and select "Delete from player".
 If at any time you think the remote list is not up to date (which can occur due to network performance etc.) you can click "Refresh remote filelist" to update the list of files from your player.
+
+Again we have a *Crop images* checkbox.
+With the checkbox *Crop images* you can set image optimization to crop your images to Full HD aspect ratio. All images are optimized to 1920x180px before sending them to the player, this saves disk space on the player and reduces transfer and loading times. By default images are resized to fit in a 1920x1080 size without cropping or distorting the image, this comes in handy if you have portrait images. Selecting *Crop images* tells the software to create a 1920x1080 version of your image and cropping everything that is beyond that aspect ratio.
+
+When transferring large files (e.g. videos) the player needs some time to process the received data and save it, give it some time! I tested it with a video with 800MB which took about 1 minute and 40 seconds to process the received data and save the video. Images are usually saved instantly.
 
 Compared to *RaspMedia Image Transfer* this applications is a bit more generic by working with file lists and less previews. This can be very helpful when dealing with more files at once. Additionally *RaspMedia Control* allows sending and deleting video files.
 
 #####All players tab#####
 In addition to the tabs for each player, RaspMedia Image Transfer and RaspMedia Control provide the *All players* tab. This page allows you to easily get an overview on the players in your network, their IP addresses and their names. You can easily configure the names of your players or identify them as well as opening the settings window for each single player to define e.g. Image Interval etc.
+Besides handling single player settings from the all players tab you can also identify all players at once as well as updating all players in one rush to the latest version. Just make sure all players have an active internet connection to be able to fetch the latest version while updating.
 ![RaspMedia All Players Tab](/Screenshots/rmi_allplayers.png)
 
 The *Master Control* section allows you to trigger certain actions for all players, including *Play*, *Stop*, *Start synced*, etc.

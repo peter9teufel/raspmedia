@@ -25,7 +25,7 @@ def tr(key):
 		if platform.system() == "Darwin":
 			# initialize with specific language as default locale
 			# blocks app from being started
-			__initialize("de")
+			__initialize("en")
 		else:
 			__initialize()
 	try:

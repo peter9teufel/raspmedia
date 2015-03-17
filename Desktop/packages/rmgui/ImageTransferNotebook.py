@@ -95,7 +95,7 @@ class ImageTransferNotebook(wx.Notebook):
             # all players tab or group tab is opened, no host to return
             return -1
 
-    def HostFound(self, host, playerName, freeSpace):
+    def HostFound(self, host, playerName, freeSpace=None):
         global playerCount
         if not self.HostInList(host[0], playerName):
             self.hosts.append({"addr": host[0], "name": playerName})

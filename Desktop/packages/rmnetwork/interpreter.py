@@ -21,8 +21,12 @@ def interpret(msg_data):
 		devType, data = readInt(data)
 		devFlag, data = readInt(data)
 		devName, data = readString(data)
-		devSpace, data = readInt(data)
-		devFree, data = readInt(data)
+		try:
+			devSpace, data = readInt(data)
+			devFree, data = readInt(data)
+		except:
+			devSpace = 0
+			devFree = 0
 		# print "DEVICE FOUND: ", devName
 		# print "Type: %d - Flag: %d" % (devType, devFlag)
 		returnData = (devName, devType, devFlag, (devSpace, devFree))

@@ -44,7 +44,8 @@ class AppFrame(wx.Frame):
 
     def Close(self, event=None):
         Publisher.unsubAll()
-        self.notebook.Close()
+        if not platform.system() == 'Windows':
+            self.notebook.Close()
         network.udpresponselistener.destroy()
         self.Destroy()
         sys.exit(0)

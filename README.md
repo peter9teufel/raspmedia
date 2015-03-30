@@ -3,6 +3,9 @@
 ##Introduction##
 RaspMedia is a standalone mediaplayer for the Raspberry Pi and the Banana Pi, intended to be used e.g. for digital signage. It provides image and video playback as a complete standalone solution and is fully configurable over the network using the enclosed Desktop applications.
 
+##Open Source##
+The open source version provided here on GitHub is discontinued by March 23rd 2015. All information in the ReadMe here is applicable for this last open source version. I will leave the last executables that I compiled for this version (Win, Mac OSX) on bit.do/raspmedia
+
 ###Features###
 RaspMedia Player provides digital signage using image slideshows, videos or a combination of both. All media files can be easily copied to the player using the Desktop applications *RaspMedia Control*, *RaspMedia Copy Tool* or *RaspMedia Image Transfer*.
 
@@ -61,7 +64,7 @@ To use the desktop applications you have several ways:
   * Execute the main python script (needs all required packages to be installed locally)
   * Compile the application using pyinstaller and the provided *.spec* files (needs all required packages to be installed locally)
   * Executable versions of all applications can be compiled by navigating to the *Desktop* directory and executing *build_mac.sh* (Mac OS X), *build_win.bat* (Windows) or *build_linux.sh* (Ubuntu, Fedora) from there. This will compile the desktop applications, put the executable files (*.app* on Mac OS X, *.exe* on Windows, executable file on Ubuntu/Fedora) in a *Release* directory and clean up the *build* and *dist* directories. The *build_mac.sh* (Mac OS X), *build_linux.sh* (Ubuntu, Fedora) and *build_win.bat* (Windows) scripts need pyinstaller and all required packages to be installed locally as for building a single application directly with pyinstaller. If you have questions on the needed dependencies feel free to contact me.
-  * Get a compiled version for your system (if available) at http://bit.do/raspmedia I will upload working executables there.
+  * Get a compiled version for your system (if available) at http://bit.do/raspmedia
 
 As the desktop applications are one-file-executables that have all necessary python sources packed they need no further installation. Simply copy/paste them on your PC/Mac and execute them.
 
@@ -162,6 +165,11 @@ In addition to the playback commands explained above, you can set some configura
 The desktop applications *RaspMedia Control* and *RaspMedia Copy Tool* are currently available in english and german using the string files in the *lang* package (strings_de.py, strings_en.py). The language is selected according to the default locale of the system the application is started. If the language code of the default locale is unknown, english is selected as the default language.
 The reading of the default locale is currently not working properly in the compiled desktop versions for Mac OS X and prevents the app from starting except when starting from the terminal. Therefor the desktop applications for Mac OS X are not compiled automatically in the correct language. Have a look in the *Localizer.py* in the *lang* package, the language code to be used (currently *DE* or *EN*) is hardcoded for Mac OS X in there.
 Additional languages can be added by translating the strings file for the new language and add the appropriate language code in the part where the *Localizer* (see package *lang*) checks the code of the default locale.
+
+##License Information##
+This current state here on GitHub applies to the Apache License, Version 2.0
+
+Development for this version of RaspMedia is discontinued. There is a more advanced version with improved image processing and other additional features that is under active development. To obtain a license for the commercial version of RaspMedia contact software@multimedia-installationen.at for more information.
 
 ##License##
 Copyright 2014 Peter Neunteufel

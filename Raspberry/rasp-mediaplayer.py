@@ -92,6 +92,7 @@ def main():
     t.start()
 
     # simple CLI to modify and quit program when debugging
+    '''
     print ""
     print ""
     print "Type commands any time -->"
@@ -112,7 +113,9 @@ def main():
             running = False
         else:
             print "Unknown command: ", cmd
-
+    '''
+    while True:
+        pass
     # bring back console text on tty0 on hdmi
     os.system("sudo sh -c \"TERM=linux setterm -foreground white -clear >/dev/pts/0\"")
     os.system("sudo sh -c \"TERM=linux setterm -foreground white -clear >/dev/tty0\"")

@@ -594,6 +594,6 @@ def main():
         mp_thread = MediaPlayer()
         mp_thread.daemon = True
     playerState = PLAYER_STOPPED
-    #mp_thread.start()
+    mp_thread.start()
 
 main()

@@ -3,6 +3,9 @@
 ##Introduction##
 RaspMedia is a standalone mediaplayer for the Raspberry Pi and the Banana Pi, intended to be used e.g. for digital signage. It provides image and video playback as a complete standalone solution and is fully configurable over the network using the enclosed Desktop applications.
 
+##Compatibility with latest Raspbian Jessie##
+RaspMedia is working with the latest full Raspbian Jessie image, please note that you need to disable Auto-Login and disable boot to desktop. Booting to CLI Login is need for RaspMedia to start properly.
+
 ##Open Source##
 The open source version provided here on GitHub is discontinued by March 23rd 2015. All information in the ReadMe here is applicable for this last open source version. I will leave the last executables that I compiled for this version (Win, Mac OSX) on bit.do/raspmedia
 
